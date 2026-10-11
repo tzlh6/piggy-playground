@@ -201,6 +201,32 @@ function createSound(opts){
   rlSkip(){this.tone(196,{dur:.18,gain:.08,to:147,type:'triangle'});this.rlSquelch()},
   rlTurn(){this.tone(988,{dur:.07,gain:.04,type:'triangle'})},
   rlDenied(){this.tone(233,{dur:.09,gain:.06,type:'triangle'});this.tone(196,{dur:.12,gain:.05,type:'triangle',delay:.08})},
+  // ---- 4.3 发射猪仔、三阶段与猪王嘚瑟舞 ----
+  rlLift(){this.noise({freq:700,to:1500,q:.9,dur:.14,gain:.06});this.tone(330,{dur:.1,gain:.04,to:440,type:'triangle'})},
+  rlPat(){this.noise({freq:420,q:1.2,dur:.06,gain:.12,filter:'lowpass'});this.tone(150,{dur:.06,gain:.07,to:110})},
+  rlPfft(real,boosted){const g=boosted?1.4:1;this.noise({freq:boosted?520:700,to:180,q:.7,dur:boosted?.42:.3,gain:.13*g,filter:'lowpass'});this.tone(boosted?82:110,{dur:boosted?.32:.22,gain:.12*g,to:55,type:'sawtooth'});this.noise({freq:1600,to:700,q:1.2,dur:.12,gain:.05*g,delay:.02})},
+  rlGobble(){this.tone(260,{dur:.14,gain:.08,to:140});this.noise({freq:900,q:1.4,dur:.12,gain:.06,delay:.02});this.tone(200,{dur:.12,gain:.06,to:120,delay:.12})},
+  rlBurp(){this.pigSynth({pts:[[0,120],[.1,96],[.3,84]],dur:.34,gain:.5,am:[48,.7],noise:.5,noiseFreq:500,nasal:2.4,formant:.7})},
+  rlAnnounce(){[0,4,7].forEach((st,k)=>this.tone(note(523,st),{dur:.16,gain:.06,type:'triangle',delay:k*.07}));this.noise({freq:5200,q:2,dur:.08,gain:.03,delay:.18})},
+  rlCard(n){const base=[0,392,440,494,330][n||1]||392;[0,7,12].forEach((st,k)=>this.tone(base*Math.pow(2,st/12),{dur:.3,gain:.06,type:'triangle',delay:k*.09}));this.tone(base/2,{dur:.5,gain:.07,type:'sine'})},
+  rlPrivate(){this.tone(1318,{dur:.18,gain:.045,type:'sine'});this.tone(1760,{dur:.24,gain:.035,type:'sine',delay:.09})},
+  rlChant(){this.tone(196,{dur:.9,gain:.05,type:'sine',to:220});this.tone(294,{dur:.9,gain:.035,type:'sine',to:330,delay:.05});this.noise({freq:2400,q:6,dur:.8,gain:.02})},
+  rlRune(k){this.tone(note(880,(k||0)*2),{dur:.14,gain:.05,type:'sine'});this.noise({freq:6000,dur:.1,gain:.025,filter:'highpass'})},
+  rlPour(){this.noise({freq:3200,to:1800,q:1.6,dur:.55,gain:.05});for(let k=0;k<5;k++)this.tone(1200+k*90,{dur:.03,gain:.03,type:'triangle',delay:.08+k*.1})},
+  rlStink(){this.noise({freq:300,to:200,q:2,dur:.5,gain:.05,filter:'lowpass'});this.tone(180,{dur:.5,gain:.04,to:150,type:'triangle'})},
+  rlRetch(){this.pigSynth({pts:[[0,240],[.12,180],[.3,130]],dur:.34,gain:.5,am:[22,.6],noise:.4,noiseFreq:700,nasal:1.6,formant:.8});this.tone(110,{dur:.25,gain:.08,to:70,delay:.2})},
+  rlSneak(k){const f=k?659:587;this.tone(f,{dur:.06,gain:.05,type:'triangle'});this.tone(f*1.19,{dur:.06,gain:.04,type:'triangle',delay:.18})},
+  rlSteal(){this.noise({freq:900,to:3800,q:1,dur:.16,gain:.08});this.tone(880,{dur:.08,gain:.06,to:1320,type:'triangle',delay:.06})},
+  rlFlop(){this.noise({freq:300,to:90,q:.8,dur:.32,gain:.14,filter:'lowpass'});this.tone(90,{dur:.26,gain:.12,to:50})},
+  rlNearDeath(){[0,1,2].forEach(k=>{this.tone(58,{dur:.12,gain:.16,to:42,delay:k*.42});this.tone(55,{dur:.12,gain:.12,to:40,delay:k*.42+.18})});this.tone(740,{dur:.6,gain:.03,type:'sine',to:700,delay:.1})},
+  // 嘚瑟舞：每拍一组鼓点 + 贝斯（120 BPM）。quick 只影响拍型密度。
+  rlDanceBeat(i,quick){const bass=[98,98,123,110,98,147,131,123];const b=i%8;
+   this.tone(58,{dur:.16,gain:.2,to:40,type:'sine'});this.noise({freq:120,q:.8,dur:.08,gain:.08,filter:'lowpass'});
+   if(i%2===1){this.noise({freq:1800,q:.7,dur:.12,gain:.09});this.tone(220,{dur:.06,gain:.04,type:'triangle'})}
+   this.noise({freq:8000,dur:.03,gain:.025,filter:'highpass',delay:.25});
+   this.tone(bass[b],{dur:.22,gain:.11,type:'sawtooth',to:bass[b]*.98});if(!quick&&b===3)this.tone(bass[b]*2,{dur:.12,gain:.04,type:'triangle',delay:.25})},
+  rlDanceEnd(){[0,4,7,12].forEach((st,k)=>this.tone(note(392,st),{dur:.4,gain:.07,type:'triangle',delay:k*.05}));this.tone(49,{dur:.5,gain:.18,to:40,type:'sine'});this.noise({freq:2600,q:.7,dur:.4,gain:.06,delay:.02})},
+  pigLaugh(o){o=o||{};const d=o.delay||0;for(let k=0;k<6;k++)this.pigSynth({pts:[[0,340+(k%2)*60],[.05,430+(k%2)*60],[.1,320]],dur:.11,gain:.4,am:[44,.4],noise:.18,rate:o.rate,delay:d+k*.12});this.pigSqueal({rate:(o.rate||1)*1.1,delay:d+.78})},
   win(){[523,659,784,1047].forEach((f,k)=>this.tone(f,{dur:.35,gain:.09,type:'triangle',delay:k*.09}));[0,1,2,3].forEach((i,k)=>this.voice(i,{gain:.8,delay:.32+k*.17,pan:[-.6,.6,-.25,.25][k]}));this.later(1150,()=>[0,1,2,3].forEach((i,k)=>this.voice(i,{gain:.55,rate:1.08,delay:k*.04,pan:[-.7,.7,-.3,.3][k]})))},
   lose(){[392,330,262,196].forEach((f,k)=>this.tone(f,{dur:.28,gain:.08,type:'triangle',delay:k*.14}));this.voice(3,{rate:.82,gain:.8,delay:.5});this.pigWhimper({delay:1.25})},
   preview(i){this.stop();this.voice(i,{gain:1})}

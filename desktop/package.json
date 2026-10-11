@@ -1,9 +1,9 @@
 {
-  "version": "4.2.0",
+  "version": "4.3.0",
   "build": {
     "appId": "local.piggy.playground",
     "portable": {
-      "artifactName": "猪猪游乐场-4.2-Win7兼容.exe"
+      "artifactName": "猪猪游乐场-4.3-Win7兼容.exe"
     },
     "directories": {
       "output": "dist"
@@ -22,7 +22,9 @@
     },
     "files": [
       "app/**/*",
-      "main.cjs"
+      "main.cjs",
+      "preload.cjs",
+      "updater.cjs"
     ],
     "productName": "猪猪游乐场",
     "electronLanguages": [
@@ -36,14 +38,15 @@
   "scripts": {
     "start": "electron .",
     "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs",
-    "build:web": "python build-single.py ../build/猪猪游乐场v4.2.html",
+    "build:web": "python build-single.py ../build/猪猪游乐场v4.3.html",
     "build:pigs": "node make-pigs.cjs",
     "build:win": "electron-builder --win portable --ia32 --publish never",
-    "playtest": "node tools/playtest-click.cjs"
+    "playtest": "node tools/playtest-click.cjs",
+    "manifest": "node tools/make-update-manifest.cjs"
   },
   "name": "piggy-playground",
   "author": "Piggy Playground",
-  "description": "Offline piggy arcade (Windows 7+ compatible)",
+  "description": "Offline piggy arcade (Windows 7+ compatible) with online content updates",
   "devDependencies": {
     "electron": "22.3.27",
     "electron-builder": "24.13.3",

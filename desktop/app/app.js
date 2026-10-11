@@ -23,7 +23,7 @@ const extraContext={$,Sound,Store,icon,message,stats,record,result,confetti,rr,d
 const Arcade=PigArcadeUI.create(extraContext),Challenge=PigChallengeUI.create(extraContext),Roulette=PigRouletteUI.create(extraContext);
 // 扩展游戏控制器：统一接入初始化、帧循环、键盘、换装与窗口变化
 const controllers=[Arcade,Challenge,Roulette],owner=id=>controllers.find(c=>c.has(id));
-const Extra={has:id=>!!owner(id),init:id=>owner(id).init(id),tick:dt=>controllers.forEach(c=>c.tick(dt)),resize:()=>controllers.forEach(c=>c.resize()),keyDown:e=>{const c=owner(game);return c?c.keyDown(e):false},keyUp:e=>controllers.forEach(c=>c.keyUp(e)),clearKeys:()=>controllers.forEach(c=>c.clearKeys()),changeLook:()=>controllers.forEach(c=>c.changeLook())};
+const Extra={captureKeys:e=>{const c=owner(game);return !!(c&&c.captureKeys&&c.captureKeys(e))},has:id=>!!owner(id),init:id=>owner(id).init(id),tick:dt=>controllers.forEach(c=>c.tick(dt)),resize:()=>controllers.forEach(c=>c.resize()),keyDown:e=>{const c=owner(game);return c?c.keyDown(e):false},keyUp:e=>controllers.forEach(c=>c.keyUp(e)),clearKeys:()=>controllers.forEach(c=>c.clearKeys()),changeLook:()=>controllers.forEach(c=>c.changeLook())};
 
 // ---------- shared UI ----------
 function fmt(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
@@ -34,16 +34,17 @@ function stats(a,b){setStat('stat1',a);setStat('stat2',b);setStat('stat3',best()
 // kind：''（普通）/ 'ok'（成功）/ 'warn'（无效操作，附原因）
 function message(text,kind){const m=$('message');m.textContent=text;m.className='game-message'+(kind?' '+kind:'');if(kind==='warn'){m.style.animation='none';void m.offsetWidth;m.style.animation=''}}
 let speechTimer=0;function say(text){const s=$('speech');s.textContent=text;s.classList.remove('talk');void s.offsetWidth;s.classList.add('talk');$('hero-pig').classList.remove('hop');void $('hero-pig').offsetWidth;$('hero-pig').classList.add('hop');clearTimeout(speechTimer);speechTimer=setTimeout(()=>{s.textContent='哼唧，来玩呀！'},2600)}
-function showResult(o){const r=$('result');r.className='layer result '+(o.win?'win':'lose');r.innerHTML=`<div class="result-card">${PigArt.inline({skin:PigLook.active,expr:o.win?'happy':'cry',cls:'result-pig',viewBox:'0 14 160 136'})}<h3>${o.title}</h3><p>${o.body}</p><div class="result-actions"><button class="primary" id="again">${icon('i-restart','sm')}再来一局</button><button class="secondary" id="dismiss">${game==='mine'?'看看棋盘':'收起'}</button></div></div>`;r.hidden=false;$('again').onclick=()=>{newGame();Sound.greet()};$('dismiss').onclick=()=>{r.hidden=true};setTimeout(()=>{const b=$('again');if(b)b.focus({preventScroll:true})},50)}
-function result(title,body,win,delay){running=false;const go=()=>showResult({title,body,win});if(delay)Sound.later(delay,go);else go()}
+// extra.actions：额外按钮（如轮盘的“赛后回顾”“重播嘚瑟舞”）
+function showResult(o){const r=$('result'),extra=(o.extra&&o.extra.actions)||[];r.className='layer result '+(o.win?'win':'lose');r.innerHTML=`<div class="result-card">${PigArt.inline({skin:PigLook.active,expr:o.win?'happy':'cry',cls:'result-pig',viewBox:'0 14 160 136'})}<h3>${o.title}</h3><p>${o.body}</p><div class="result-actions"><button class="primary" id="again">${icon('i-restart','sm')}再来一局</button>${extra.map(a=>`<button class="secondary" id="${a.id}">${a.label}</button>`).join('')}<button class="secondary" id="dismiss">${game==='mine'?'看看棋盘':'收起'}</button></div></div>`;r.hidden=false;$('again').onclick=()=>{newGame();Sound.greet()};$('dismiss').onclick=()=>{r.hidden=true};extra.forEach(a=>{$(a.id).onclick=()=>{Sound.click();a.onclick()}});setTimeout(()=>{const b=$('again');if(b)b.focus({preventScroll:true})},50)}
+function result(title,body,win,delay,extra){running=false;const go=()=>showResult({title,body,win,extra});if(delay)Sound.later(delay,go);else go()}
 function confetti(n){if(reduceMotion)return;const fx=$('fx'),colors=['#f3a6b8','#f7d58b','#a9c98c','#8ab6d6','#c6a7e0'];for(let k=0;k<(n||36);k++){const p=document.createElement('i');p.className='confetti';p.style.left=(Math.random()*100)+'%';p.style.background=colors[k%colors.length];p.style.animationDelay=(Math.random()*.5)+'s';p.style.animationDuration=(1.6+Math.random()*1.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;fx.appendChild(p);setTimeout(()=>p.remove(),3800)}}
 function floatText(text,x,y,cls){const fx=$('fx'),a=$('arena').getBoundingClientRect(),t=document.createElement('span');t.className='float '+(cls||'');t.textContent=text;t.style.left=(x-a.left)+'px';t.style.top=(y-a.top)+'px';fx.appendChild(t);setTimeout(()=>t.remove(),900)}
 function pausePig(){$('pause-art').innerHTML=PigArt.inline({skin:PigLook.active,expr:'sleep',cls:'pause-pig',viewBox:'0 14 160 136'})+'<span class="zzz" style="left:58%;top:4px">z</span><span class="zzz" style="left:63%;top:-6px;animation-delay:1.1s">Z</span>'}
 function setPause(value){if(!running&&!paused)return;if(value&&!paused)pausePig();paused=value;Extra.clearKeys();$('arena').classList.toggle('paused',value);$('pause-layer').hidden=!value;$('pause').innerHTML=value?icon('i-play','sm')+'<span>继续</span>':icon('i-pause','sm')+'<span>暂停</span>';if(value)Sound.stop()}
 function renderLevels(cfg){const box=$('level');box.hidden=!cfg.levels.length;if(cfg.levels.length>4){box.removeAttribute('role');box.innerHTML='<select aria-label="选择关卡">'+cfg.levels.map(([v,n])=>`<option value="${v}" ${v===level?'selected':''}>${n}</option>`).join('')+'</select>';box.querySelector('select').onchange=e=>{level=e.target.value;Store.set('level-'+game,level);Sound.click();newGame()};return}box.setAttribute('role','radiogroup');box.innerHTML=cfg.levels.map(([v,n])=>`<button role="radio" data-level="${v}" aria-checked="${v===level}">${n}</button>`).join('');box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(level===b.dataset.level)return;level=b.dataset.level;Store.set('level-'+game,level);box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b));Sound.click();newGame()})}
 function selectGame(id,audible){if(audible===undefined)audible=true;Sound.stop();Store.set('level-'+game,level);game=id;const cfg=configs[id];level=Store.get('level-'+id,cfg.defaultLevel||(id==='mine'?'hard':id==='memory'?'normal':id==='whack'?'normal':id==='snake'?'normal':'default'));if(cfg.levels.length&&!cfg.levels.some(x=>x[0]===level))level=cfg.levels[0][0];
- document.querySelectorAll('.nav').forEach(b=>{b.classList.toggle('active',b.dataset.game===id);b.setAttribute('aria-current',b.dataset.game===id?'page':'false')});['title','subtitle','eyebrow'].forEach(k=>$(k).textContent=cfg[k]);$('crumb').textContent=$('game-name').textContent=cfg.name;$('game-symbol').setAttribute('href','#'+cfg.icon);$('game-tag').textContent=cfg.tag;$('score-note').textContent=cfg.note;cfg.labels.forEach((s,i)=>$('stat'+(i+1)+'-label').textContent=s);renderLevels(cfg);
- $('tips').innerHTML=cfg.tips.map(([t,d],i)=>`<div class="tip"><span>0${i+1}</span><div><b>${t}</b><p>${d}</p></div></div>`).join('');document.body.dataset.game=id;newGame();if(audible){Sound.greet();say('哼唧！');
+ if(audible){notePlay(id);const meta=PigCatalog.byId[id];if(meta&&meta.badge)Store.set('badge-seen-'+id+'-'+meta.badgeVer,true)}renderLobby();['title','subtitle','eyebrow'].forEach(k=>$(k).textContent=cfg[k]);$('crumb').textContent=$('game-name').textContent=cfg.name;$('game-symbol').setAttribute('href','#'+cfg.icon);$('game-tag').textContent=cfg.tag;$('score-note').textContent=cfg.note;cfg.labels.forEach((s,i)=>$('stat'+(i+1)+'-label').textContent=s);renderLevels(cfg);
+ renderHelp(id);$('help-btn').classList.toggle('nudge',!Store.get('help-seen-'+id,false));document.body.dataset.game=id;newGame();if(audible){Sound.greet();say('哼唧！');
   // 小窗口 / 手机：选好游戏后把游戏卡片滚到眼前，屏幕按钮更容易点到
   const card=document.querySelector('.game-card');if(card&&(window.innerHeight<760||window.innerWidth<=760)&&card.getBoundingClientRect().top>8)card.scrollIntoView({block:'start',behavior:reduceMotion?'auto':'smooth'})}}
 function newGame(){if(state&&state.pending&&state.pending.timer!==undefined)clearTimeout(state.pending.timer);Sound.stop();Extra.clearKeys();paused=false;running=false;elapsed=0;wonToast=false;lastFrame=performance.now();$('pause-layer').hidden=true;$('arena').classList.remove('paused','shake');$('pause').innerHTML=icon('i-pause','sm')+'<span>暂停</span>';$('result').hidden=true;$('fx').innerHTML='';$('play-toolbar').innerHTML='';$('board').innerHTML='';if(game==='mine')initMine();if(game==='memory')initMemory();if(game==='merge')initMerge();if(game==='whack')initWhack();if(game==='snake')initSnake();if(game==='runner')initRunner();if(Extra.has(game))Extra.init(game);PigLook.apply()}
@@ -228,9 +229,9 @@ function drawRunner(){const {ctx,run:R,scale}=state;if(!ctx)return;const t=perfo
 function runnerPig(ctx,R,t){const p=R.pig,duck=p.duck&&!p.air,bob=p.air?0:Math.abs(Math.sin(R.dist/18))*1.8;ctx.save();ctx.translate(p.x+25,p.y-bob);if(R.over)ctx.rotate(.25);if(PIG_IMAGE.complete&&PIG_IMAGE.naturalWidth){ctx.scale(-1,1);ctx.drawImage(PIG_IMAGE,-39,duck?-32:-58,78,duck?36:64)}ctx.restore();ctx.fillStyle='rgba(90,100,60,.12)';ctx.beginPath();ctx.ellipse(p.x+25,R.ground+3,Math.max(5,24-(R.ground-p.y)*.08),4,0,0,7);ctx.fill()}
 
 // ---------- wiring ----------
-document.querySelectorAll('[data-game]').forEach(b=>b.onclick=e=>{if(b.dataset.game!==game)selectGame(b.dataset.game);if(e.detail)b.blur();if(game==='merge')document.querySelector('.merge-board').focus({preventScroll:true})});
+$('game-nav').onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;if(b.dataset.game!==game)selectGame(b.dataset.game);if(e.detail)b.blur();if(game==='merge')document.querySelector('.merge-board').focus({preventScroll:true})};
 $('restart').onclick=()=>{newGame();Sound.greet()};$('pause').onclick=()=>{setPause(!paused);Sound.click()};$('resume').onclick=()=>setPause(false);
-document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;const k=e.key.toLowerCase();
+document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;if(Extra.captureKeys(e))return;const k=e.key.toLowerCase();
  if(k==='r'){e.preventDefault();newGame();Sound.greet();return}if(k==='p'){e.preventDefault();setPause(!paused);return}if(k==='m'){e.preventDefault();toggleMute();return}
  if(Extra.has(game)&&Extra.keyDown(e))return;
  if(game==='mine'&&k==='f'){e.preventDefault();setMode(!mode)}
@@ -240,7 +241,7 @@ document.addEventListener('keyup',e=>{Extra.keyUp(e);if(game!=='runner'||!state|
 document.addEventListener('visibilitychange',()=>{if(document.hidden)setPause(true)});window.addEventListener('blur',()=>setPause(true));
 let resizeTimer=0;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(game==='mine')fitMine();if(game==='snake'&&state.cv)fitSnake();if(game==='runner'&&state.cv)fitRunner();if(Extra.has(game))Extra.resize()},80)});
 function openDialog(id){setPause(true);Sound.stop();$(id).showModal()}
-$('audio-settings').onclick=()=>openDialog('sound-dialog');$('about').onclick=()=>openDialog('about-dialog');document.querySelectorAll('dialog .close').forEach(b=>b.onclick=()=>b.closest('dialog').close());document.querySelectorAll('dialog').forEach(d=>{d.addEventListener('close',()=>Sound.stop());d.addEventListener('click',e=>{if(e.target===d)d.close()})});
+$('audio-settings').onclick=()=>openDialog('sound-dialog');$('about').onclick=()=>{renderUpdatePanel();openDialog('about-dialog')};$('help-btn').onclick=()=>{Sound.click();openHelp()};$('open-notes').onclick=()=>openNotes(false);$('notes-ok').onclick=()=>$('notes-dialog').close();document.querySelectorAll('dialog .close').forEach(b=>b.onclick=()=>b.closest('dialog').close());document.querySelectorAll('dialog').forEach(d=>{d.addEventListener('close',()=>Sound.stop());d.addEventListener('click',e=>{if(e.target===d)d.close()})});
 function syncSound(){$('sound-toggle').innerHTML=icon(Sound.enabled?'i-sound':'i-mute');$('sound-toggle').classList.toggle('off',!Sound.enabled);$('sound-toggle').setAttribute('aria-pressed',Sound.enabled);$('sound-toggle').setAttribute('aria-label',Sound.enabled?'关闭声音':'打开声音');
  [['volume','volume-label','volume'],['pig-volume','pig-label','pigVolume'],['fx-volume','fx-label','fxVolume']].forEach(([inp,lab,key])=>{$(inp).value=Math.round(Sound[key]*100);$(lab).textContent=Math.round(Sound[key]*100)+'%'});Sound.save()}
 function toggleMute(){Sound.enabled=!Sound.enabled;if(!Sound.enabled)Sound.stop();syncSound();if(Sound.enabled){Sound.unlock();Sound.click()}}
@@ -262,5 +263,64 @@ const heroLines=['哼唧！','再摸一下嘛～','肚子圆滚滚','今天也�
 document.querySelectorAll('[data-sound-profile]').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.soundProfile===Sound.profile);b.onclick=()=>{Sound.stop();Sound.profile=b.dataset.soundProfile;Sound.save();document.querySelectorAll('[data-sound-profile]').forEach(x=>x.setAttribute('aria-pressed',x===b));wake();Sound.hintSpark()}});
 const demos={bounce:()=>{Sound.paddleBounce();Sound.brickPop()},blocks:()=>Sound.blockClear(4),flap:()=>{Sound.flapWing();Sound.gatePass(1)},stack:()=>Sound.stackLand(true),chess:()=>Sound.chessDrop(1),box:()=>Sound.boxPush(true),light:()=>Sound.lightFlip(true),combo:()=>Sound.matchPower('rainbow'),slice:()=>Sound.sliceCut(3,3),shield:()=>Sound.starShield(),rhythm:()=>[0,1,2,3].forEach((n)=>Sound.later(n*240,()=>Sound.rhythmBeat(n,124))),roulette:()=>[()=>Sound.rlPage(),()=>Sound.rlScan(.6),()=>Sound.rlChew(1),()=>Sound.rlFart(),()=>Sound.rlSplat(false),()=>Sound.rlPop(),()=>Sound.rlHit(true,3)].forEach((f,k)=>Sound.later(k*720,f))};document.querySelectorAll('[data-audio-demo]').forEach(b=>b.onclick=()=>{wake();Sound.stop();demos[b.dataset.audioDemo]();$('voice-status').textContent='正在试听：'+b.textContent});
 document.querySelectorAll('[data-pig-sound]').forEach(b=>b.onclick=()=>{wake();Sound.stop();const k=b.dataset.pigSound;if(k==='pigWail')Sound.pigWail(true);else Sound[k]();$('voice-status').textContent='正在试听：'+b.textContent});
-$('game-search').oninput=e=>{const word=e.target.value.trim().toLowerCase();let count=0;document.querySelectorAll('.nav').forEach(b=>{b.hidden=!b.textContent.toLowerCase().includes(word);if(!b.hidden)count++});$('search-empty').hidden=!!count;$('game-count').textContent=count+' / '+Object.keys(configs).length+' 款'};
-syncSound();selectGame('mine',false);requestAnimationFrame(frame);
+// ---------- 游戏目录：分类、排序、搜索 ----------
+const Cat=PigCatalog;let lobbyCat=Store.get('lobby-cat','all'),lobbySort=Store.get('lobby-sort','default');if(!Cat.CATS.some(c=>c[0]===lobbyCat))lobbyCat='all';if(!Cat.SORTS.some(c=>c[0]===lobbySort))lobbySort='default';
+function playStats(){const v=Store.get('play-stats',{});return v&&typeof v==='object'?v:{}}
+function notePlay(id){const st=playStats(),o=st[id]||{n:0,last:0};o.n=(o.n|0)+1;o.last=Date.now();st[id]=o;Store.set('play-stats',st)}
+function ago(ms){if(!ms)return '还没玩过';const d=Math.floor((Date.now()-ms)/86400000);if(d<=0)return '今天玩过';if(d===1)return '昨天玩过';if(d<30)return d+' 天前玩过';return '很久以前玩过'}
+function badgeOn(g){return g.badge&&!Store.get('badge-seen-'+g.id+'-'+g.badgeVer,false)}
+function navButton(g,st){const o=st[g.id]||{},sub=lobbySort==='recent'?ago(o.last):lobbySort==='most'?(o.n?'玩过 '+o.n+' 次':'还没玩过'):g.desc;
+ return `<button data-game="${g.id}" class="nav${g.id===game?' active':''}" aria-current="${g.id===game?'page':'false'}"><svg class="ico"><use href="#${g.icon}"/></svg><div>${g.name}<small>${sub}</small></div>${badgeOn(g)?`<i class="nav-badge">${g.badge}</i>`:''}<b>${String(g.no).padStart(2,'0')}</b></button>`}
+function renderLobby(){
+ const word=$('game-search').value.trim().toLowerCase(),st=playStats(),order=c=>Cat.CATS.findIndex(x=>x[0]===c);
+ const match=g=>!word||(g.name+g.desc+g.keys+Cat.catName[g.cat]).toLowerCase().includes(word);
+ let list=Cat.GAMES.filter(g=>(lobbyCat==='all'||g.cat===lobbyCat)&&match(g));
+ const by={default:(a,b)=>order(a.cat)-order(b.cat)||a.no-b.no,recent:(a,b)=>((st[b.id]||{}).last||0)-((st[a.id]||{}).last||0)||a.no-b.no,most:(a,b)=>((st[b.id]||{}).n||0)-((st[a.id]||{}).n||0)||a.no-b.no,name:(a,b)=>a.name.localeCompare(b.name,'zh-CN')};
+ list=list.slice().sort(by[lobbySort]);
+ let html='';
+ if(lobbySort==='default'&&lobbyCat==='all')Cat.CATS.slice(1).forEach(([c,n])=>{const g=list.filter(x=>x.cat===c);if(g.length)html+=`<div class="nav-divider"><span>${n}</span><em>${g.length}</em></div>`+g.map(x=>navButton(x,st)).join('')});
+ else html=list.map(x=>navButton(x,st)).join('');
+ $('game-nav').innerHTML=html;$('search-empty').hidden=!!list.length;
+ $('game-count').textContent=(list.length===Cat.GAMES.length?'':list.length+' / ')+Cat.GAMES.length+' 款';
+ $('cat-chips').innerHTML=Cat.CATS.map(([c,n])=>{const k=c==='all'?Cat.GAMES.length:Cat.GAMES.filter(g=>g.cat===c).length;return `<button role="tab" data-cat="${c}" aria-selected="${c===lobbyCat}">${n}<em>${k}</em></button>`}).join('');
+}
+$('cat-chips').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;lobbyCat=b.dataset.cat;Store.set('lobby-cat',lobbyCat);Sound.click();renderLobby()};
+$('game-sort').innerHTML=Cat.SORTS.map(([v,n])=>`<option value="${v}" ${v===lobbySort?'selected':''}>${n}</option>`).join('');
+$('game-sort').onchange=e=>{lobbySort=e.target.value;Store.set('lobby-sort',lobbySort);Sound.click();renderLobby()};
+$('game-search').oninput=()=>renderLobby();
+// ---------- 游戏说明 / 操作说明 ----------
+function helpHTML(id){const h=PigHelp.HELP[id];if(!h)return '';const keys=(h.keys||[]).concat(PigHelp.COMMON);
+ return `<div class="help-col"><h3>${icon('i-target','sm')}游戏说明</h3><p class="help-goal">${h.goal}</p><ul>${h.rules.map(r=>`<li>${r}</li>`).join('')}</ul>${h.tip?`<p class="help-tip"><b>小技巧</b>${h.tip}</p>`:''}</div>`+
+  `<div class="help-col"><h3>${icon('i-play','sm')}操作说明</h3><h4>鼠标 / 触屏</h4><ul>${h.mouse.map(r=>`<li>${r}</li>`).join('')}</ul><h4>键盘</h4><div class="key-rows">${keys.map(([k,d])=>`<span><kbd>${k}</kbd>${d}</span>`).join('')}</div></div>`}
+function renderHelp(id){$('tips').innerHTML=helpHTML(id)}
+function openHelp(){const g=Cat.byId[game];$('help-title').textContent=g.name+' · 玩法';$('help-eyebrow').textContent=String(g.no).padStart(2,'0')+' / HOW TO PLAY';$('help-body').innerHTML=helpHTML(game);Store.set('help-seen-'+game,true);$('help-btn').classList.remove('nudge');openDialog('help-dialog')}
+// ---------- 更新说明：打开新版本时自动弹出 ----------
+const V=window.PIGGY_VERSION;
+function notesHTML(){const [cur,...old]=V.notes;
+ return `<section class="note-cur"><p class="note-meta">${cur.version} · ${cur.date}</p><h3>${cur.title}</h3><ul class="note-sum">${cur.summary.map(x=>`<li>${x}</li>`).join('')}</ul>`+
+  (cur.details?`<div class="note-details"><h4>${cur.title.split(' · ')[0]}：新规则详解</h4>${cur.details.map(d=>`<details ${d===cur.details[0]?'open':''}><summary>${d.title}</summary><ul>${d.items.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('')}</div>`:'')+`</section>`+
+  old.map(n=>`<details class="note-old"><summary>${n.version} · ${n.title}</summary><ul>${n.summary.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('')}
+function openNotes(auto){$('notes-title').textContent='更新说明 · '+V.version;$('notes-body').innerHTML=notesHTML();if(!$('notes-dialog').open)openDialog('notes-dialog');setTimeout(()=>{const b=$('notes-ok');if(b)b.focus({preventScroll:true})},30);Store.set('seen-version',V.version)}
+$('version-line').textContent='离线版 · '+V.version;
+// ---------- 版本与在线更新（Windows 桌面版由主进程提供 PiggyUpdate） ----------
+const Upd=window.PiggyUpdate||null;let updState=null;
+function updText(st){switch(st.status){case 'checking':return '正在检查更新…';case 'downloading':return `正在下载 ${st.latest}…（${st.done||0} / ${st.total||0} 个文件）`;case 'ready':return `新版本 ${st.latest} 已下载并校验，重启后生效。`;case 'latest':return `已经是最新版本。${st.checkedAt?'（'+new Date(st.checkedAt).toLocaleString('zh-CN',{hour12:false})+' 检查）':''}`;case 'needShell':return `发现新版本 ${st.latest}，这次需要下载新的程序文件。`;case 'error':return '暂时连不上更新服务器'+(st.error?'（'+st.error+'）':'')+'。不影响离线游玩，稍后会再试。';default:return st.auto===false?'自动检查已关闭，可以手动检查。':'启动后会在后台自动检查一次。'}}
+function renderUpdatePanel(){
+ const el=$('update-panel');if(!el)return;
+ if(!Upd){el.innerHTML=`<p>当前版本 <b>${V.version}</b>（${V.date}）。网页版不会自动更新，新版本请到 GitHub 项目页下载：<br><span class="muted">${V.repo}</span></p>`;return}
+ const st=updState||{};
+ el.innerHTML=`<div class="upd-row"><span>程序 <b>${st.shell||'—'}</b></span><span>游戏内容 <b>${V.version}</b></span>${st.source?`<span>来源 <b>${st.source}</b></span>`:''}</div><p class="upd-status ${st.status||''}">${updText(st)}</p>
+  <div class="upd-actions"><button class="secondary" id="upd-check" ${st.status==='checking'||st.status==='downloading'?'disabled':''}>检查更新</button>${st.status==='ready'?'<button class="primary" id="upd-restart">重启并更新</button>':''}${st.status==='needShell'?'<button class="primary" id="upd-page">打开下载页</button>':''}<label class="upd-auto"><input type="checkbox" id="upd-auto" ${st.auto!==false?'checked':''}>启动时自动检查</label></div>
+  <p class="muted small">更新来自 GitHub 项目 tzlh6/piggy-playground，连不上时自动改用 jsDelivr 镜像。只下载游戏内容并逐个校验；新版本启动失败会自动退回内置版本，成绩不受影响。</p>`;
+ $('upd-check').onclick=()=>{Sound.click();Upd.check()};if($('upd-restart'))$('upd-restart').onclick=()=>Upd.restart();if($('upd-page'))$('upd-page').onclick=()=>Upd.openPage();$('upd-auto').onchange=e=>Upd.setAuto(e.target.checked);
+}
+function renderUpdateChip(){const st=updState||{},chip=$('update-chip');chip.classList.toggle('busy',st.status==='downloading');
+ if(st.status==='ready'){chip.hidden=false;chip.textContent=`新版本 ${st.latest} 已就绪 · 重启更新`;chip.onclick=()=>Upd.restart()}
+ else if(st.status==='needShell'){chip.hidden=false;chip.textContent=`发现新版本 ${st.latest} · 下载新程序`;chip.onclick=()=>Upd.openPage()}
+ else if(st.status==='downloading'){chip.hidden=false;chip.textContent='正在下载新版本…';chip.onclick=()=>{renderUpdatePanel();openDialog('about-dialog')}}
+ else chip.hidden=true}
+if(Upd){try{Upd.onStatus(st=>{updState=st;renderUpdateChip();if($('about-dialog').open)renderUpdatePanel()});Promise.resolve(Upd.info()).then(st=>{updState=st;renderUpdateChip()}).catch(()=>{})}catch(e){}}
+syncSound();renderLobby();selectGame('mine',false);requestAnimationFrame(frame);
+if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);
+// 告诉桌面程序：这一版内容已正常启动（在线更新失败回退用）
+if(Upd&&Upd.ready)try{Upd.ready(V.version)}catch(e){}

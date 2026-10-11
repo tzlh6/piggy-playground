@@ -1,0 +1,423 @@
+{
+ "schema": 1,
+ "name": "猪猪游乐场",
+ "version": "4.3.0",
+ "date": "2026-10-11",
+ "ref": "v4.3.0",
+ "minShell": "4.3.0",
+ "notes": "猪猪轮盘改为「三阶段积分赛」，新增腐肉、猪蹄两件道具（规则见下）。 “枪”换成一只活的发射猪仔：装填、喂饲料、验弹、偷道具都有新动画；强化射击按真假有不同反应；整场胜利跳“猪王嘚瑟舞”。 游乐场新增分类筛选与排序；每款游戏都有“游戏说明 / 操作说明”，工具栏多了“玩法”按钮。 Windows 版支持联网自动更新：新版本在后台下载，重启后生效。",
+ "files": {
+  "app.js": {
+   "sha256": "862faa3c6cd3944068d64ddaf1cb477de34ced81de47edc558fd0f3c622b4506",
+   "size": 63492
+  },
+  "arcade-core.js": {
+   "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
+   "size": 17489
+  },
+  "arcade.js": {
+   "sha256": "4488f66421afd693c761b396ddcd9911063344982a315b84d2cc2e89e718e5d5",
+   "size": 27345
+  },
+  "assets/LICENSE-MIT.txt": {
+   "sha256": "24bb6713b73aa8993610c3f96347abcb04fbd37006497eaef1bb5212be59c083",
+   "size": 1072
+  },
+  "assets/cards/bee.svg": {
+   "sha256": "398dab3be87aef9c02ef62e2c52bb39332241b6330451fa466fe34c2b18bc4c4",
+   "size": 5689
+  },
+  "assets/cards/bow.svg": {
+   "sha256": "b37cd998a237f41c3b1aedeff3d1e584ef4bb08e031528182af3a31c5f1cd4d7",
+   "size": 5470
+  },
+  "assets/cards/chef.svg": {
+   "sha256": "70e837628520e8337e52c758dc4a70e037846c2a9895073c3b63393348bf16dd",
+   "size": 5554
+  },
+  "assets/cards/crown.svg": {
+   "sha256": "0c4149b6ab345c1a41d5be69e09541ee942a9b11aea983ac17b51400a37c97e5",
+   "size": 5517
+  },
+  "assets/cards/detective.svg": {
+   "sha256": "6a815660c1cbd5328b2692162dfe2e3fd03bbe547af0cd22ffb86d8dfea492b9",
+   "size": 5703
+  },
+  "assets/cards/flower.svg": {
+   "sha256": "b34c3cfbd9a597def04e28320d2ea4842b60213ad343f78636f4f47385ee3044",
+   "size": 7999
+  },
+  "assets/cards/glasses.svg": {
+   "sha256": "f20b9940c99f365259f754cc908bd9a93fc5682ba50459149bc7bfb9aa3b8ec8",
+   "size": 5327
+  },
+  "assets/cards/music.svg": {
+   "sha256": "bbf9b5fd387a4c4f0f65a489cc706138d5f61f0ee9849ec56d2b612668188110",
+   "size": 5493
+  },
+  "assets/cards/pirate.svg": {
+   "sha256": "0b4ec362f7bf09cdd22b39f72ef69603f8b2bd16390cb8f40afa4445a408fe27",
+   "size": 5626
+  },
+  "assets/cards/scarf.svg": {
+   "sha256": "738bc2f0bbd6f3a3f5070cadc88ec62dc61fa8ac6c692d9c2b8f71c27a1ddb70",
+   "size": 5299
+  },
+  "assets/cards/space.svg": {
+   "sha256": "78d3da7aead3a9a0970d7b06dcccc12a9f43afd8f579e1832e3b3ec6aae9fb2e",
+   "size": 5722
+  },
+  "assets/cards/wizard.svg": {
+   "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
+   "size": 5445
+  },
+  "assets/licenses/ShaistaShabbir-prog_candy-crush-match3-MIT.txt": {
+   "sha256": "79a0089d3d811775e9ad9e20e9a792633d2c5be95e2c00c16e012d81026b8d56",
+   "size": 1072
+  },
+  "assets/licenses/alpiex1336-code_Rhythm-Game-v2-MIT.txt": {
+   "sha256": "39e6cc04ff27007e2872bc558b60eae709efe94999bc28498b73f8f9e4d45812",
+   "size": 1072
+  },
+  "assets/licenses/egnaro9_match3-engine-MIT.txt": {
+   "sha256": "0a7224e46e3bf4080f029083068e8ebd3bb66f0b76aa278aa676a912d3d2957e",
+   "size": 1066
+  },
+  "assets/licenses/flashhawk_spp.js-MIT.txt": {
+   "sha256": "b50d6df8772c15a322787b65319cb015aa1f64a43792b6d877e3b54a67e56f98",
+   "size": 1082
+  },
+  "assets/licenses/selenebun_bullethell-MIT.txt": {
+   "sha256": "5bd073fd7b09727d0fd7b880dc21860b86deb63254edea1ba036cfe167086747",
+   "size": 1070
+  },
+  "assets/match/crown.svg": {
+   "sha256": "9afccbaec9e1f4a7dc4578543a0f76c603367e24b299b0b734f5dc9de018ab06",
+   "size": 5044
+  },
+  "assets/match/diver.svg": {
+   "sha256": "7a49d38b16c3d66a84556211acf510349b643f9c95df18c99d0795b6fb9918ad",
+   "size": 5155
+  },
+  "assets/match/leaf.svg": {
+   "sha256": "4449ea90d5663ab1801ee017fcd4b72a4bfaf2826205f9c00010fe8a16551afe",
+   "size": 5212
+  },
+  "assets/match/ribbon.svg": {
+   "sha256": "a9b6a32df90eda3874a39662c3d351af684536b170c9829963fbd871f26bb287",
+   "size": 5132
+  },
+  "assets/match/tiger.svg": {
+   "sha256": "b33a50e3034b74f7059e76b1a12a588fafeb987adf9cdca447c7d22f81ce9b19",
+   "size": 5279
+  },
+  "assets/match/wizard.svg": {
+   "sha256": "f89436c5e6b3f60dbe510700b8940c232e832ac841978b1604b940a2c9c9aab1",
+   "size": 5169
+  },
+  "assets/pig.ico": {
+   "sha256": "d209aa581f1da0b56be9712cea5191eae2149ead2bd46bbb00067fa40658b6fa",
+   "size": 53881
+  },
+  "assets/pig.png": {
+   "sha256": "783331ef9fbc64d146a14f038436cf488e173f230dd2639f843b3fb4fea7e4f1",
+   "size": 24938
+  },
+  "assets/pig.svg": {
+   "sha256": "451415a909f208d9b669f6fbf734de542f2fe2355ec027c6c8f1f8ed1c85e560",
+   "size": 4814
+  },
+  "assets/skins/berry-bee.svg": {
+   "sha256": "c5a3811070b1dfe2873072ea5b29c2c6d44e7c4684dee70e5055880c4800c762",
+   "size": 5689
+  },
+  "assets/skins/berry-bow.svg": {
+   "sha256": "9320c085b658696a8f6ffa20666981f94757e5c73ae6cbf26a69b1b5974f5ea9",
+   "size": 5470
+  },
+  "assets/skins/berry-chef.svg": {
+   "sha256": "c7de026d8cf174167cb942a8d7180b3742f2b2090a8aaaed8802d8a4d4f9623d",
+   "size": 5554
+  },
+  "assets/skins/berry-crown.svg": {
+   "sha256": "18f0aa23b175aec32335c8e9c7b80b0559c406e260766a4898090824ddd7d612",
+   "size": 5517
+  },
+  "assets/skins/berry-detective.svg": {
+   "sha256": "6c8bd32ddb3ab802a76a7fc7435f2bee63ae962c38d8bd2c3cfc46b8a005ad47",
+   "size": 5703
+  },
+  "assets/skins/berry-flower.svg": {
+   "sha256": "08395d031656c564e92cad4eb2dfad69b2702bbd40034c1ec16c69fe936e35da",
+   "size": 7999
+  },
+  "assets/skins/berry-glasses.svg": {
+   "sha256": "e02c515d31de3ce2f88c4ae96c1cb0c03cbf2556c9febeda930d5e189add2ad0",
+   "size": 5327
+  },
+  "assets/skins/berry-music.svg": {
+   "sha256": "bc2ba9b966b4d4547328c6fd29ac7f812e6f0079c742657ab760e17a24d12090",
+   "size": 5493
+  },
+  "assets/skins/berry-pig.svg": {
+   "sha256": "ec4de2ae31a3243f014a4aef4991f4a4d867e02d708e04fb0441805ff06d0206",
+   "size": 4814
+  },
+  "assets/skins/berry-pirate.svg": {
+   "sha256": "30ef9c6110b3559fb6193034af2bcab5582e626e70ec22c71cf22c3f3e36645c",
+   "size": 5626
+  },
+  "assets/skins/berry-scarf.svg": {
+   "sha256": "beda2a30dba577c48d4f23715ea8ca43db2e281925358c67bf39294e40183b2c",
+   "size": 5299
+  },
+  "assets/skins/berry-space.svg": {
+   "sha256": "656df22795bf2a8f1aadcc6b81bfa76f84027340fb7c22472f2176aea972af45",
+   "size": 5722
+  },
+  "assets/skins/berry-wizard.svg": {
+   "sha256": "580cf2dbe1a9aea87f427e5da279cac862a8afa58f99000bcb929aac13be53db",
+   "size": 5445
+  },
+  "assets/skins/cream-bee.svg": {
+   "sha256": "8ce68ec022d5a54cb5512c73b20b58480d6692977e9b99d1d439245a77dff4a0",
+   "size": 5689
+  },
+  "assets/skins/cream-bow.svg": {
+   "sha256": "00829e279a735252551ba098b070d53117d0d896b6ee88da61456691fc2b3a66",
+   "size": 5470
+  },
+  "assets/skins/cream-chef.svg": {
+   "sha256": "e51906cbd0140eaed0e042c1d1a17e52fcd7054959e0b3d78ff2de04dd222035",
+   "size": 5554
+  },
+  "assets/skins/cream-crown.svg": {
+   "sha256": "ca5ff1c3d104502a2c2833e18738e02ef609a47217d254aac7dc3ad3ebf81b08",
+   "size": 5517
+  },
+  "assets/skins/cream-detective.svg": {
+   "sha256": "58b5e64886400d4dcf9c855e225682300974f571ce6b879a3eaef06c6f5b95e5",
+   "size": 5703
+  },
+  "assets/skins/cream-flower.svg": {
+   "sha256": "e4d6ff17e7dc302a8019a5d1db675e77da201f4d84bb6376d36a9989d87a013b",
+   "size": 7999
+  },
+  "assets/skins/cream-glasses.svg": {
+   "sha256": "716031205b5baee99b8dd8b24ab5829c5feee2d0def32ab616a01b9bfaece4bc",
+   "size": 5327
+  },
+  "assets/skins/cream-music.svg": {
+   "sha256": "e47ebd61a9f29664940f5e8bbe70657e113117c4ba5de6e5ae47243a87a7e7e3",
+   "size": 5493
+  },
+  "assets/skins/cream-pig.svg": {
+   "sha256": "22f1a4beede91a53f81f37a937996ae33ed514848ac61cf94f05d11fed803fff",
+   "size": 4814
+  },
+  "assets/skins/cream-pirate.svg": {
+   "sha256": "a9477e15e49dd1db2172d16e24ca3678ab9afc4b02eb91be2053551d1848a852",
+   "size": 5626
+  },
+  "assets/skins/cream-scarf.svg": {
+   "sha256": "16db6325f7ab55f4940809036ac2ce9303b82f6b03b973ada935e16622d388c2",
+   "size": 5299
+  },
+  "assets/skins/cream-space.svg": {
+   "sha256": "02da06ca40a47243be2f751fc01560c4a8a5277a48187e6fae09ba2a6fee5f34",
+   "size": 5722
+  },
+  "assets/skins/cream-wizard.svg": {
+   "sha256": "e1dfddc9b7a37a288104b022fd3642598fb0d6abed8eb0d1cfe79cf5a901f3f7",
+   "size": 5445
+  },
+  "assets/skins/peach-bee.svg": {
+   "sha256": "398dab3be87aef9c02ef62e2c52bb39332241b6330451fa466fe34c2b18bc4c4",
+   "size": 5689
+  },
+  "assets/skins/peach-bow.svg": {
+   "sha256": "b37cd998a237f41c3b1aedeff3d1e584ef4bb08e031528182af3a31c5f1cd4d7",
+   "size": 5470
+  },
+  "assets/skins/peach-chef.svg": {
+   "sha256": "70e837628520e8337e52c758dc4a70e037846c2a9895073c3b63393348bf16dd",
+   "size": 5554
+  },
+  "assets/skins/peach-crown.svg": {
+   "sha256": "0c4149b6ab345c1a41d5be69e09541ee942a9b11aea983ac17b51400a37c97e5",
+   "size": 5517
+  },
+  "assets/skins/peach-detective.svg": {
+   "sha256": "6a815660c1cbd5328b2692162dfe2e3fd03bbe547af0cd22ffb86d8dfea492b9",
+   "size": 5703
+  },
+  "assets/skins/peach-flower.svg": {
+   "sha256": "b34c3cfbd9a597def04e28320d2ea4842b60213ad343f78636f4f47385ee3044",
+   "size": 7999
+  },
+  "assets/skins/peach-glasses.svg": {
+   "sha256": "f20b9940c99f365259f754cc908bd9a93fc5682ba50459149bc7bfb9aa3b8ec8",
+   "size": 5327
+  },
+  "assets/skins/peach-music.svg": {
+   "sha256": "bbf9b5fd387a4c4f0f65a489cc706138d5f61f0ee9849ec56d2b612668188110",
+   "size": 5493
+  },
+  "assets/skins/peach-pig.svg": {
+   "sha256": "451415a909f208d9b669f6fbf734de542f2fe2355ec027c6c8f1f8ed1c85e560",
+   "size": 4814
+  },
+  "assets/skins/peach-pirate.svg": {
+   "sha256": "0b4ec362f7bf09cdd22b39f72ef69603f8b2bd16390cb8f40afa4445a408fe27",
+   "size": 5626
+  },
+  "assets/skins/peach-scarf.svg": {
+   "sha256": "738bc2f0bbd6f3a3f5070cadc88ec62dc61fa8ac6c692d9c2b8f71c27a1ddb70",
+   "size": 5299
+  },
+  "assets/skins/peach-space.svg": {
+   "sha256": "78d3da7aead3a9a0970d7b06dcccc12a9f43afd8f579e1832e3b3ec6aae9fb2e",
+   "size": 5722
+  },
+  "assets/skins/peach-wizard.svg": {
+   "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
+   "size": 5445
+  },
+  "assets/skins/taro-bee.svg": {
+   "sha256": "9e4fa28049c1ac8fc56921846a9babecc56f4bafe5c8181cdfa16fbc115b8521",
+   "size": 5688
+  },
+  "assets/skins/taro-bow.svg": {
+   "sha256": "4e77fed339107f39be0de666f778c9c0c695a68e4bd47d365992163498058d63",
+   "size": 5469
+  },
+  "assets/skins/taro-chef.svg": {
+   "sha256": "17a6a798d9f517b25bba66d983ad44b2795d9381ccae8a4917e55a027f0acd25",
+   "size": 5553
+  },
+  "assets/skins/taro-crown.svg": {
+   "sha256": "bdd3341de9bb5426d5f106c0811bd3826f815f98f3bf2c9887183866af654fa8",
+   "size": 5516
+  },
+  "assets/skins/taro-detective.svg": {
+   "sha256": "df9f10da0aac1d0dc5ee7dfe71415b5997bede8baa70b706c73aea55d13c07fa",
+   "size": 5702
+  },
+  "assets/skins/taro-flower.svg": {
+   "sha256": "e18e13be200e746f3fb758cdfedf786084cbb4c5fa8f409a3641238f7a2f61d5",
+   "size": 7998
+  },
+  "assets/skins/taro-glasses.svg": {
+   "sha256": "34f94f520ecac6395b83b0d55bf21db873ba26bcae038de6cdff4bc851a66df6",
+   "size": 5326
+  },
+  "assets/skins/taro-music.svg": {
+   "sha256": "704b21c14e5a5eab80df2ca7b5dad9fdb30143dade9f76006074a052868d7837",
+   "size": 5492
+  },
+  "assets/skins/taro-pig.svg": {
+   "sha256": "133bdfcbcdbdd6d936bb78081cbb511055a60d4f60dda4ec8e2712f31eed5859",
+   "size": 4813
+  },
+  "assets/skins/taro-pirate.svg": {
+   "sha256": "7229b3ef8cefb82a29e0f9f93da1d8693e80a0a566be93d673c644681823d44e",
+   "size": 5625
+  },
+  "assets/skins/taro-scarf.svg": {
+   "sha256": "ff88aab5d6110e735213317bbe8f44470d14371e5a000263e8c556130abf0bc6",
+   "size": 5298
+  },
+  "assets/skins/taro-space.svg": {
+   "sha256": "a734d386c39aa78f3100f35583b42d1586271f16b4f8ac9c5a03002fc61d6f7c",
+   "size": 5721
+  },
+  "assets/skins/taro-wizard.svg": {
+   "sha256": "df9d1a374c9ccdac35e1f3c58286d5e7a31a00beb2ab82ba4d05ebf08bc70e85",
+   "size": 5444
+  },
+  "assets/voice0.mp3": {
+   "sha256": "962e903e4f209aa83326cfe640a36f39f5654f70a0f3ab48570e32a456d06eb7",
+   "size": 10966
+  },
+  "assets/voice1.mp3": {
+   "sha256": "14403168cadc680a1e6ab80d600800fa9bc7881bf9f353c5415032f54a5b1798",
+   "size": 13526
+  },
+  "assets/voice2.mp3": {
+   "sha256": "06fb0a8918860802eac000c3263c0e46658fc05e050cc2014cc373c2f37a57be",
+   "size": 14989
+  },
+  "assets/voice3.mp3": {
+   "sha256": "1e87b56ae7c71d909ba297967f05c9c02dc941105f037a5df3fdc894bed39cfc",
+   "size": 15720
+  },
+  "audio.js": {
+   "sha256": "002f40985256ef467738f3180d2d124757f2e0d0e1f99a8adc42f4a7191e2160",
+   "size": 31917
+  },
+  "catalog.js": {
+   "sha256": "89a4875fdd4de45dd4a415d54d7076dd2c03056d133d5b14000cee7b34ab80a6",
+   "size": 2811
+  },
+  "challenge-core.js": {
+   "sha256": "8764c38b8d5b1ec3eec510c8ddcf30d2554810c19d539562dcec26086b55f550",
+   "size": 11752
+  },
+  "challenge.js": {
+   "sha256": "c0109c1e6ae5c74e36f09cd1aeaa32b7cd3a353a3125e3687aab1ccc39f9e678",
+   "size": 19522
+  },
+  "core.js": {
+   "sha256": "f019b5ea7da62ead826187ec0cab6615e0ffea9110762e76901d4a61885d1f12",
+   "size": 8757
+  },
+  "help.js": {
+   "sha256": "84e87f2e7a02fd8f6da3d71f93e34ef408961f91d656f2e929efaa81808fbbac",
+   "size": 9944
+  },
+  "index.html": {
+   "sha256": "dabb6f07dc0d73a7accad2fe1d6af2f0f17ca1d29e2fa039301acad401002e0a",
+   "size": 22116
+  },
+  "look.js": {
+   "sha256": "fd7df14e0ca7b968b170bc9d7885cabf5969e1b5c79a30680359ea6d6992a3da",
+   "size": 1601
+  },
+  "match-core.js": {
+   "sha256": "18e3e95e80a2f51b3844cc8a8f780c849a418aa4bb98398ae4bb4425e7cd2ba7",
+   "size": 8475
+  },
+  "match-ui.js": {
+   "sha256": "d48d6c4b50de487f0854e6e3804af919e485d76195b901400990c6596eae6f25",
+   "size": 8230
+  },
+  "pig-art.js": {
+   "sha256": "2d1916537fc3090c29207ab911c859f6052886f12ee2e4372967986fe63e6375",
+   "size": 26249
+  },
+  "roulette-art.js": {
+   "sha256": "32d047b05a44ed9ad95b59ad8089faba319ec0458289c42459eb3a6ea26196df",
+   "size": 20517
+  },
+  "roulette-core.js": {
+   "sha256": "ac21ea7649b10d92fd9151c578fd270c37a5deda30b83d1e2132c928c01655ba",
+   "size": 20973
+  },
+  "roulette-ui.js": {
+   "sha256": "bc68707b4cdf6f00653d790fe8f0ea914dbe2f6c35f921771acf02ca41e8b354",
+   "size": 86862
+  },
+  "sounds.js": {
+   "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
+   "size": 42904
+  },
+  "style.css": {
+   "sha256": "af459d689f759fefaa50ce16197a407c916d95247aad4a22ce232314f9cd84a8",
+   "size": 82138
+  },
+  "version.js": {
+   "sha256": "55afba9af1b5f4bc431fce438298d0bfa9a6b7c8b478a3d84e68937bd0f17f56",
+   "size": 4513
+  }
+ }
+}

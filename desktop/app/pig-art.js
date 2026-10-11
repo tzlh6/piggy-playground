@@ -51,15 +51,23 @@ function eyeExpr(name,pal,scale){
   case 'sleep':return `<path d="M-4.4 -.4Q0 3.2 4.4 -.4" fill="none" stroke="${EYE}" stroke-width="2.2" stroke-linecap="round"/>`;
   case 'smug':return `<ellipse rx="4.1" ry="4.6" fill="${EYE}"/><path d="M-5.4 -.6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 -.4H5" stroke="${EYE}" stroke-width="1.8" stroke-linecap="round"/>`;
   case 'star':return `<path d="M0 -5.6L1.6 -1.7 5.6 -1.4 2.5 1.2 3.5 5.2 0 3 -3.5 5.2 -2.5 1.2 -5.6 -1.4 -1.6 -1.7Z" fill="#ffd96a" stroke="#c89421" stroke-width=".9"/>`;
+  // 4.3 轮盘新增：挤眼、眯眼、斜眼、耷拉眼皮
+  case 'tight':return `<path d="M-4.6 -3.2L2.4 0 -4.6 3.2" fill="none" stroke="${EYE}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  case 'squint':return `<path d="M-4.8 .4Q0 -2.4 4.8 .4" fill="none" stroke="${EYE}" stroke-width="2.8" stroke-linecap="round"/><path d="M-3.4 1.6Q0 3 3.4 1.6" fill="none" stroke="${EYE}" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>`;
+  case 'side':return `<ellipse rx="4.1" ry="4.7" fill="#fff" stroke="${EYE}" stroke-width="1"/><ellipse cx="-2" cy=".4" rx="2.6" ry="3.4" fill="${EYE}"/><circle cx="-2.8" cy="-.9" r=".9" fill="#fff"/>`;
+  case 'droop':return `<ellipse rx="4.1" ry="4.7" fill="${EYE}"/><path d="M-5.4 .6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 .6Q0 -1.2 5 .6" stroke="${EYE}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
   default:return `<ellipse rx="4.1" ry="4.7" fill="${EYE}"/><circle cx="-1.3" cy="-1.7" r="1.35" fill="#fff"/>`;
  }
 }
-const EXPRS=['normal','happy','shock','dizzy','sleep','smug','star','cry','angry','chew','worry'];
+const EXPRS=['normal','happy','shock','dizzy','sleep','smug','star','cry','angry','chew','worry','tense','wink','sick','sly','grin','burp','guilty','pain','weak','laugh'];
 function exprParts(expr){ // eye 形状、眉毛、嘴、眼泪
  return {
   normal:{eye:'normal',mouth:'smile'},happy:{eye:'happy',mouth:'grin'},shock:{eye:'shock',mouth:'o'},dizzy:{eye:'dizzy',mouth:'wavy'},
   sleep:{eye:'sleep',mouth:'smile'},smug:{eye:'smug',mouth:'smirk'},star:{eye:'star',mouth:'grin'},cry:{eye:'normal',mouth:'frown',brow:'worry',tear:true},
-  angry:{eye:'normal',mouth:'flat',brow:'angry'},chew:{eye:'happy',mouth:'chew'},worry:{eye:'normal',mouth:'frown',brow:'worry'}
+  angry:{eye:'normal',mouth:'flat',brow:'angry'},chew:{eye:'happy',mouth:'chew'},worry:{eye:'normal',mouth:'frown',brow:'worry'},
+  tense:{eye:'tight',mouth:'flat',brow:'worry'},wink:{eye:'normal',eyeF:'sleep',mouth:'o',brow:'raise'},sick:{eye:'droop',mouth:'wavy',brow:'worry',sick:true},
+  sly:{eye:'smug',mouth:'smirk',brow:'raise'},grin:{eye:'squint',mouth:'grin'},burp:{eye:'tight',mouth:'o'},guilty:{eye:'side',mouth:'frown',brow:'worry'},
+  pain:{eye:'tight',mouth:'o',brow:'worry',tear:true},weak:{eye:'droop',mouth:'wavy',brow:'worry'},laugh:{eye:'happy',mouth:'grin',brow:'raise'}
  }[expr]||{eye:'normal',mouth:'smile'};
 }
 function mouthPath(kind,pal){
@@ -76,6 +84,7 @@ function mouthPath(kind,pal){
  }
 }
 function browPath(kind){
+ if(kind==='raise')return `<path d="M58.5 66Q64 61.5 70 64.5" fill="none" stroke="${EYE}" stroke-width="2" stroke-linecap="round"/>`;
  if(kind==='worry')return `<path d="M24.5 62.5L33 60.5M60 67.5L69 69.5" stroke="${EYE}" stroke-width="2" stroke-linecap="round"/>`;
  if(kind==='angry')return `<path d="M25 59.8L34.5 63.5M59.5 70L69.5 66.5" stroke="${EYE}" stroke-width="2.2" stroke-linecap="round"/>`;
  return '';
@@ -83,8 +92,9 @@ function browPath(kind){
 function face(pal,expr){
  const e=exprParts(expr),[fx,fy]=G.eyeF,[nx,ny]=G.eyeN;
  const tear=e.tear?`<g class="pig-tears"><path d="M${nx+1} ${ny+6}c-2.4 3.8-2.6 6.6 0 6.8 2.6-.2 2.4-3 0-6.8Z" fill="#8fd2f4" stroke="#5aa8d4" stroke-width=".8"/><path d="M${fx-1} ${fy+6}c-2 3.2-2.2 5.6 0 5.8 2.2-.2 2-2.6 0-5.8Z" fill="#8fd2f4" stroke="#5aa8d4" stroke-width=".8"/></g>`:'';
- return `<g data-part="eyeF" data-pivot="${fx} ${fy}"><g transform="translate(${fx} ${fy}) scale(.92)">${eyeExpr(e.eye,pal)}</g></g>`+
-  `<g data-part="eyeN" data-pivot="${nx} ${ny}"><g transform="translate(${nx} ${ny})">${eyeExpr(e.eye,pal)}</g></g>`+
+ const sick=e.sick?`<ellipse cx="44" cy="86" rx="30" ry="18" fill="#9bcf6a" opacity=".32"/><path d="M20 66q3-3 6 0M66 70q3-3 6 0" stroke="#7aa94e" stroke-width="1.6" fill="none" opacity=".7"/>`:'';
+ return sick+`<g data-part="eyeF" data-pivot="${fx} ${fy}"><g transform="translate(${fx} ${fy}) scale(.92)">${eyeExpr(e.eyeF||e.eye,pal)}</g></g>`+
+  `<g data-part="eyeN" data-pivot="${nx} ${ny}"><g transform="translate(${nx} ${ny})">${eyeExpr(e.eyeN||e.eye,pal)}</g></g>`+
   `<g data-part="brow">${browPath(e.brow)}</g>`+tear+
   `<g data-part="mouth"><g transform="translate(-1.5 5)">${mouthPath(e.mouth,pal)}</g></g>`;
 }

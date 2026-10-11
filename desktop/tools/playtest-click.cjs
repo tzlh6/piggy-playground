@@ -15,7 +15,7 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
  const browser=await chromium.launch();
  const ctx=await browser.newContext({viewport:{width:1366,height:860}});const page=await ctx.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
- await page.goto('file://'+FILE);await sleep(400);
+ await page.addInitScript(()=>{try{localStorage.setItem('piggy2-seen-version',JSON.stringify(window.PIGGY_VERSION?window.PIGGY_VERSION.version:'4.3.0'))}catch(e){}});await page.goto('file://'+FILE);await sleep(400);
  const go=async id=>{await page.click(`.nav[data-game="${id}"]`);await sleep(350)};
  const S=(f,a)=>page.evaluate(f,a);
  // 画布逻辑坐标 → 页面坐标后单击
@@ -42,18 +42,19 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
  await run('15 切切猪',async()=>{await go('slice');await page.click('#challenge-go');let s=0;for(let k=0;k<80&&s<2;k++){await sleep(60);const it=await S(()=>{const p=state.g.items.find(i=>!i.cut&&i.kind!=='bomb'&&i.y<400&&i.y>40);return p?{x:p.x+p.vx*.05,y:p.y+p.vy*.05}:null});if(it){await clickCanvas('#challenge-canvas',it.x,it.y,760,460);s=await S(()=>state.g.items.filter(i=>i.cut).length+state.g.score/100)}}must(await S(()=>state.g.score>0),'单击切中小猪');return '单击切中，得分 '+(await S(()=>state.g.score))},page);
  await run('16 猪猪星际守卫',async()=>{await go('shooter');await page.click('#challenge-go');const p0=await S(()=>({...state.g.player}));await clickCanvas('#challenge-canvas',600,380,760,460);await sleep(900);const p1=await S(()=>({...state.g.player}));must(Math.hypot(p1.x-600,p1.y-380)<20,'点哪飞哪');must(Math.hypot(p1.x-p0.x,p1.y-p0.y)>100,'平滑移动');await page.click('[data-challenge="shield"]');must(await S(()=>state.g.cooldown>0),'护盾按钮');return '单击目标点平滑飞过去，按钮开护盾'},page);
  await run('17 猪猪节奏派对',async()=>{await go('rhythm');must(await S(()=>state.g.assist),'默认单击模式');await page.click('#challenge-go');const deadline=Date.now()+16000;while(Date.now()<deadline){const n=await S(()=>{const g=state.g;const n=g.notes.find(n=>!n.done&&!n.started&&n.t-g.time<.06&&n.t-g.time>-.1);return n?n.lane:-1});if(n>=0)await page.click(`[data-lane="${n}"]`);else await sleep(8)}const g=await S(()=>({p:state.g.perfect,good:state.g.good,miss:state.g.miss}));must(g.p+g.good>10&&g.p+g.good>g.miss*2,'单击命中音符 '+JSON.stringify(g));return JSON.stringify(g)},page);
- await run('18 猪猪轮盘（整场单击）',async()=>{await go('roulette');const t0=Date.now();let clicks=0;
+ await run('18 猪猪轮盘（整场单击）',async()=>{await go('roulette');await S(()=>PigRouletteDebug.fast(4));const t0=Date.now();let clicks=0;
   while(Date.now()-t0<480000){const st=await S(()=>{const D=PigRouletteDebug,t=D.state();return {fin:t.finished,busy:D.busy(),turn:t.g.turn,phase:t.g.phase}});if(st.fin)break;
-   if(st.busy||st.turn!==0||st.phase!=='play'){await sleep(120);continue}
+   if(st.busy||st.turn!==0||st.phase!=='play'){await sleep(100);continue}
    const a=await S(()=>{const t=PigRouletteDebug.state();return PigRouletteCore.chooseAction(t.g.publicView(0),Math.random,'smart')});
    if(a.type==='shoot')await page.click(a.target==='self'?'#rl-self':'#rl-opp');
-   else{const k=await S(it=>PigRouletteDebug.state().g.items[0].indexOf(it),a.item);await page.click(`#rl-bag0 [data-k="${k}"]`);if(a.item==='xray'){await sleep(80);await page.click(`#rl-slots [data-slot="${a.index}"]`)}}
-   clicks++;await sleep(150)}
-  const r=await S(()=>{const t=PigRouletteDebug.state();return {fin:t.finished,wins:t.g.wins,scored:t.g.scored}});must(r.fin,'整场打完');must(!(await page.locator('#result').isHidden()),'结果窗口');return `比分 ${r.wins.join(':')}，玩家单击 ${clicks} 次`},page);
+   else{const k=await S(it=>PigRouletteDebug.state().g.items[0].indexOf(it),a.item);await page.click(`#rl-bag0 [data-k="${k}"]`)}
+   clicks++;await sleep(120)}
+  await S(()=>PigRouletteDebug.fast(1));
+  const r=await S(()=>{const t=PigRouletteDebug.state();return {fin:t.finished,pts:t.g.points,stages:t.g.history.length,scored:t.g.scored}});must(r.fin&&r.scored,'整场打完');must(r.stages>=3,'三个阶段全部打完');must(!(await page.locator('#result').isHidden()),'结果窗口');return `三阶段积分赛 ${r.pts.join(':')}${r.stages===4?'（加赛）':''}，玩家单击 ${clicks} 次`},page);
 
  // 触屏点按（手机尺寸）
  const mctx=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:2});const m=await mctx.newPage();m.on('pageerror',e=>errors.push('mobile: '+e.message));
- await m.goto('file://'+FILE);await sleep(400);
+ await m.addInitScript(()=>{try{localStorage.setItem('piggy2-seen-version',JSON.stringify('4.3.0'))}catch(e){}});await m.goto('file://'+FILE);await sleep(400);
  const mgo=async id=>{await m.locator(`.nav[data-game="${id}"]`).scrollIntoViewIfNeeded();await m.tap(`.nav[data-game="${id}"]`);await sleep(350)};
  await run('触屏 · 2048 方向键',async()=>{await mgo('merge');const b=await m.evaluate(()=>state.board.join());for(const d of ['left','up','right'])await m.tap(`.dpad [data-dir="${d}"]`);must(await m.evaluate(()=>state.board.join())!==b,'点按推动');return 'ok'},m);
  await run('触屏 · 切切猪点按',async()=>{await mgo('slice');await m.tap('#challenge-go');let ok=false;for(let k=0;k<80&&!ok;k++){await sleep(60);const it=await m.evaluate(()=>{const p=state.g.items.find(i=>!i.cut&&i.kind!=='bomb'&&i.y<400&&i.y>40);return p?{x:p.x,y:p.y}:null});if(it){const r=await m.locator('#challenge-canvas').boundingBox();await m.touchscreen.tap(r.x+it.x/760*r.width,r.y+it.y/460*r.height);ok=await m.evaluate(()=>state.g.score>0)}}must(ok,'点按切中');return 'ok'},m);

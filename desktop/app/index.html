@@ -35,38 +35,17 @@
  <symbol id="i-snout" viewBox="0 0 64 48"><ellipse cx="32" cy="24" rx="28" ry="20" fill="#f2a9ba" stroke="#c97b90" stroke-width="3"/><ellipse cx="22" cy="24" rx="5" ry="8" fill="#a85b70"/><ellipse cx="42" cy="24" rx="5" ry="8" fill="#a85b70"/></symbol>
 </svg>
 <div class="app">
-<aside class="sidebar"><div class="logo"><img src="assets/pig.svg" data-pig-role="pig" alt=""><span>猪猪游乐场<small>PIGGY PLAYGROUND</small></span></div><div class="nav-label">今天，玩点什么？<span id="game-count">18 款</span></div><label class="game-search"><input id="game-search" type="search" aria-label="搜索游戏" placeholder="找一个小游戏…"></label>
-<nav aria-label="选择游戏">
- <button data-game="mine" class="nav active"><svg class="ico"><use href="#i-flag"/></svg><div>扫猪<small>嘘，别吵醒小猪</small></div><b>01</b></button>
- <button data-game="memory" class="nav"><svg class="ico"><use href="#i-cards"/></svg><div>记忆翻翻乐<small>把好朋友配成对</small></div><b>02</b></button>
- <button data-game="merge" class="nav"><svg class="ico"><use href="#i-spark"/></svg><div>猪猪 2048<small>再合一个，就一个</small></div><b>03</b></button>
- <button data-game="whack" class="nav"><svg class="ico"><use href="#i-target"/></svg><div>小猪捉迷藏<small>眼疾手快 30 秒</small></div><b>04</b></button>
- <button data-game="snake" class="nav"><svg class="ico"><use href="#i-snake"/></svg><div>贪吃猪<small>队伍越排越长</small></div><b>05</b></button>
- <button data-game="runner" class="nav"><svg class="ico"><use href="#i-run"/></svg><div>跳跳猪<small>跳过篱笆和泥坑</small></div><b>06</b></button>
- <div class="nav-divider">八个新伙伴</div>
- <button data-game="blocks" class="nav"><svg class="ico"><use href="#i-blocks"/></svg><div>猪猪方块<small>一排排，整整齐齐</small></div><b>07</b></button>
- <button data-game="breakout" class="nav"><svg class="ico"><use href="#i-breakout"/></svg><div>弹弹猪<small>撞开彩虹小积木</small></div><b>08</b></button>
- <button data-game="flappy" class="nav"><svg class="ico"><use href="#i-wing"/></svg><div>飞天猪<small>小短腿也有飞行梦</small></div><b>09</b></button>
- <button data-game="stack" class="nav"><svg class="ico"><use href="#i-stack"/></svg><div>叠叠猪<small>把房子叠到云上</small></div><b>10</b></button>
- <button data-game="connect" class="nav"><svg class="ico"><use href="#i-connect"/></svg><div>猪猪四子棋<small>单人斗智 / 两人同乐</small></div><b>11</b></button>
- <button data-game="sokoban" class="nav"><svg class="ico"><use href="#i-box"/></svg><div>松露推箱子<small>12 关，慢慢想</small></div><b>12</b></button>
- <button data-game="lights" class="nav"><svg class="ico"><use href="#i-light"/></svg><div>猪猪点灯<small>把星星灯关好</small></div><b>13</b></button>
- <button data-game="match" class="nav"><svg class="ico"><use href="#i-match"/></svg><div>猪猪消消乐<small>连锁快乐，加倍开心</small></div><b>14</b></button>
- <div class="nav-divider"><span>挑战小蹄子</span></div>
- <button data-game="slice" class="nav"><svg class="ico"><use href="#i-slice"/></svg><div>切切猪<small>一划多只，啵啵连切</small></div><b>15</b></button>
- <button data-game="shooter" class="nav"><svg class="ico"><use href="#i-ship"/></svg><div>猪猪星际守卫<small>穿过弹幕，挑战首领</small></div><b>16</b></button>
- <button data-game="rhythm" class="nav"><svg class="ico"><use href="#i-rhythm"/></svg><div>猪猪节奏派对<small>小蹄子，踩准每一拍</small></div><b>17</b></button>
- <div class="nav-divider"><span>暗黑童话桌</span></div>
- <button data-game="roulette" class="nav"><svg class="ico"><use href="#i-roulette"/></svg><div>猪猪轮盘<small>真屎假屎，三局两胜</small></div><b>18</b></button>
- <p id="search-empty" class="search-empty" hidden>还没有这个游戏，试试别的名字。</p>
-</nav>
-<div class="sidebar-bottom"><div class="mini-pig"><img src="assets/pig.svg" data-pig-role="pig" alt=""><span>休息一下<br><strong>快乐不需要联网。</strong></span></div><button class="text-button" id="about"><svg class="ico sm"><use href="#i-info"/></svg>关于与操作说明</button><div class="version">OFFLINE EDITION · 4.2</div></div></aside>
+<aside class="sidebar"><div class="logo"><img src="assets/pig.svg" data-pig-role="pig" alt=""><span>猪猪游乐场<small>PIGGY PLAYGROUND</small></span></div><label class="game-search"><input id="game-search" type="search" aria-label="搜索游戏" placeholder="找一个小游戏…"></label>
+<div class="lobby-filter"><div class="cat-chips" id="cat-chips" role="tablist" aria-label="游戏分类"></div><div class="nav-label"><span id="game-count">18 款</span><label class="sort-box">排序<select id="game-sort" aria-label="游戏排序"></select></label></div></div>
+<nav aria-label="选择游戏" id="game-nav"></nav>
+<p id="search-empty" class="search-empty" hidden>没有找到这个游戏，换个词试试。</p>
+<div class="sidebar-bottom"><div class="mini-pig"><img src="assets/pig.svg" data-pig-role="pig" alt=""><span>休息一下<br><strong>快乐不需要联网。</strong></span></div><div class="side-links"><button class="text-button" id="about"><svg class="ico sm"><use href="#i-info"/></svg>通用操作与关于</button><button class="text-button" id="open-notes"><svg class="ico sm"><use href="#i-spark"/></svg>更新说明</button></div><div class="version" id="version-line">离线版 · 4.3.0</div></div></aside>
 <main>
-<header><span class="breadcrumb">我的小小游乐场 <i>/</i> <b id="crumb">扫猪</b></span><div class="top-actions"><span class="offline"><i></i> 离线畅玩</span><button id="sound-toggle" class="icon-btn" aria-pressed="true" aria-label="关闭声音" title="声音开关（M）"><svg class="ico"><use href="#i-sound"/></svg></button><button id="look-settings" class="pill"><svg class="ico sm"><use href="#i-spark"/></svg>猪猪换装</button><button id="audio-settings" class="pill"><svg class="ico sm"><use href="#i-sound"/></svg>声音工坊</button></div></header>
+<header><span class="breadcrumb">我的小小游乐场 <i>/</i> <b id="crumb">扫猪</b></span><div class="top-actions"><button class="update-chip" id="update-chip" hidden></button><span class="offline"><i></i> 离线畅玩</span><button id="sound-toggle" class="icon-btn" aria-pressed="true" aria-label="关闭声音" title="声音开关（M）"><svg class="ico"><use href="#i-sound"/></svg></button><button id="look-settings" class="pill"><svg class="ico sm"><use href="#i-spark"/></svg>猪猪换装</button><button id="audio-settings" class="pill"><svg class="ico sm"><use href="#i-sound"/></svg>声音工坊</button></div></header>
 <section class="hero"><div><div class="eyebrow" id="eyebrow">01 / A LITTLE CHALLENGE</div><h1 id="title">草地里，藏着小秘密。</h1><p id="subtitle">用一点点推理，找到每只熟睡的小猪。</p></div><div class="hero-art"><span class="spark s1"><svg class="ico"><use href="#i-spark"/></svg></span><img src="assets/pig.svg" data-pig-role="pig" alt="点我听一声猪哼" title="点我听一声猪哼" id="hero-pig"><span class="spark s2"><svg class="ico"><use href="#i-spark"/></svg></span><span class="speech" id="speech">哼唧，来玩呀！</span></div></section>
 <section class="game-card">
  <div class="game-toolbar"><div class="game-caption"><span class="game-symbol"><svg class="ico"><use id="game-symbol" href="#i-flag"/></svg></span><div><h2 id="game-name">扫猪</h2><span id="game-tag">经典规则 · 首格安全</span></div></div>
-  <div class="controls"><div class="segmented" id="level" role="radiogroup" aria-label="难度"></div><button class="secondary" id="pause" title="暂停（P）"><svg class="ico sm"><use href="#i-pause"/></svg><span>暂停</span></button><button class="primary" id="restart" title="重新开始（R）"><svg class="ico sm"><use href="#i-restart"/></svg>重新开始</button></div></div>
+  <div class="controls"><div class="segmented" id="level" role="radiogroup" aria-label="难度"></div><button class="secondary" id="help-btn" title="游戏说明与操作说明"><svg class="ico sm"><use href="#i-info"/></svg><span>玩法</span></button><button class="secondary" id="pause" title="暂停（P）"><svg class="ico sm"><use href="#i-pause"/></svg><span>暂停</span></button><button class="primary" id="restart" title="重新开始（R）"><svg class="ico sm"><use href="#i-restart"/></svg>重新开始</button></div></div>
  <div class="score-strip"><div><span id="stat1-label">剩余标记</span><strong id="stat1">99</strong></div><div><span id="stat2-label">本局用时</span><strong id="stat2">00:00</strong></div><div><span id="stat3-label">最佳成绩</span><strong id="stat3">—</strong></div><div class="score-note" id="score-note">慢慢想，每一个数字都是线索。</div></div>
  <div class="play-toolbar" id="play-toolbar"></div>
  <div class="arena" id="arena"><div id="board"></div>
@@ -76,7 +55,7 @@
  </div>
  <div class="game-message" id="message" role="status" aria-live="polite"></div>
 </section>
-<section class="tips" id="tips"></section>
+<section class="help-panels" id="tips" aria-label="游戏说明与操作说明"></section>
 <footer>一点点挑战，一大把快乐。<span>R 重新开始 · P 暂停 · M 静音</span></footer>
 </main></div>
 
@@ -90,11 +69,13 @@
  <div class="pig-sounds"><b>猪猪声音库</b><small>本地合成，跟随三种音色与“猪叫”音量</small><div role="group" aria-label="猪猪声音库"><button class="secondary" data-pig-sound="pigHum">轻快哼哼</button><button class="secondary" data-pig-sound="pigGiggle">咯咯笑</button><button class="secondary" data-pig-sound="pigOink">哼唧</button><button class="secondary" data-pig-sound="pigSmug">得意一哼</button><button class="secondary" data-pig-sound="pigSnort">嫌弃喷鼻</button><button class="secondary" data-pig-sound="pigSqueal">惊叫</button><button class="secondary" data-pig-sound="pigYelp">哎哟</button><button class="secondary" data-pig-sound="pigWhimper">委屈呜咽</button><button class="secondary" data-pig-sound="pigWail">受击哀嚎</button><button class="secondary" data-pig-sound="pigSnore">打呼噜</button><button class="secondary" data-pig-sound="pigCheer">欢呼</button></div></div>
 </dialog>
 <dialog id="look-dialog"><div class="dialog-head"><div><div class="eyebrow">LITTLE PIG WARDROBE</div><h2>今天，做哪只小猪？</h2></div><button class="close" aria-label="关闭猪猪换装"><svg class="ico"><use href="#i-close"/></svg></button></div><p class="muted">短短的腿，卷卷的尾巴，圆圆的小肚子。点一只换上新造型，游戏里的小伙伴也一起换装。</p><div class="look-choices" id="look-choices"></div><div class="look-preview" id="look-preview" aria-label="当前配色的服饰预览"></div><p class="look-note">四种原创配色，十二套小猪服饰。4.2 新造型参考 PigHub 的比例与气质原创绘制：大肚子、极短腿、弯卷耳、卷尾巴。</p></dialog>
-<dialog id="about-dialog"><div class="dialog-head"><h2>你的小小游乐场</h2><button class="close" aria-label="关闭说明"><svg class="ico"><use href="#i-close"/></svg></button></div>
- <p>18 款游戏，全部离线，鼠标单击或触屏点按就能玩完每一款。成绩、猪猪造型和声音设置自动保存在本机。切换游戏会开始新局；切出窗口自动暂停。快捷键：R 重新开始，P 暂停，M 静音。每款游戏下方都有具体玩法，侧栏可以搜索游戏。</p>
- <p>扫猪：左键翻格、右键标旗，F 键切换标记模式；数字周围旗数吻合时，点数字连开（按住数字可预览周围格）。踩到猪时，其余小猪会像 Windows 扫雷一样一个接一个炸醒。猪猪 2048：方向键 / WASD / 滑动 / 屏幕方向按钮，相同的小猪合在一起会长大一级。贪吃猪：方向键 / WASD / 滑动转向。跳跳猪：空格、↑ 或点击跳（空中可再跳一次），↓ 趴下。翻牌与捉迷藏：点击即可。</p>
- <p>猪猪轮盘：真屎、假屎的数量公开、顺序隐藏。对自己打出假屎不扣血还能继续；打出真屎扣血并换手；对对手开枪无论真假都换手。六件道具都不结束回合：魔法书看下一发、X 光任选位置、饲料让下一发真屎×2（强化跟着枪走）、肉回一滴血、泥巴跳过对手下一回合、马桶搋子吸出当前一发。三局两胜，每局 4 滴血。只用鼠标：点背包里的道具、点中间的大按钮开枪；用 X 光时再点一个未知位置。</p>
- <p>只用鼠标 / 触屏：每款游戏都有屏幕按钮。跳跳猪点“趴下”会低头一会儿；切切猪点一下也能切；星际守卫点哪飞哪；节奏派对默认“单击模式”，长条点一下即可、双键点一个即可（可在工具栏关闭）。</p>
- <p>桌面便携版优先在 exe 同目录的「猪猪游乐场存档」保存记录。拷贝 exe 和这个文件夹即可带走成绩；目录不可写时保存在当前电脑。</p>
- <details><summary>来源与许可证</summary><p>扫猪逻辑改编自 Ania Kubow 的 MIT 开源 minesweeper。新增玩法参考 Steven Lambert 的 Basic Tetris / Breakout（CC0）、Ania Kubow 的 Connect Four（MIT）及 mashukui/web-games（MIT），规则与界面由本项目重新实现。猪猪造型参考 pighub.top 的圆滚滚气质，由本项目原创绘制，未复制站内图片。4.1 参考 flashhawk/spp.js 的切割轨迹、egnaro9/match3-engine 的特殊组合与独立棋子编号、ShaistaShabbir-prog/candy-crush-match3 的连锁演出、selenebun/bullethell 的小判定与慢速移动、alpiex1336-code/Rhythm-Game-v2 的音频时钟和长按判定。对应 MIT 许可随源文件保留。四段动画猪叫来自用户指定视频 BV1gG4y1J7KP，音频版权归原权利人；不属于 MIT 许可范围。新增游戏音效均为本项目合成。4.2 的猪猪轮盘规则、舞台、道具动画、全部猪猪新造型和合成猪叫（哼哼、咯咯笑、哀嚎等）均为本项目原创；PigHub 只作为猪猪比例与气质的观察参考，没有使用其图片。</p><pre id="license"></pre></details></dialog>
-<script src="core.js"></script><script src="match-core.js"></script><script src="arcade-core.js"></script><script src="challenge-core.js"></script><script src="roulette-core.js"></script><script src="pig-art.js"></script><script src="look.js"></script><script src="sounds.js"></script><script src="audio.js"></script><script src="match-ui.js"></script><script src="arcade.js"></script><script src="challenge.js"></script><script src="roulette-art.js"></script><script src="roulette-ui.js"></script><script src="app.js"></script></body></html>
+<dialog id="about-dialog"><div class="dialog-head"><div><div class="eyebrow">ABOUT · 通用操作</div><h2>你的小小游乐场</h2></div><button class="close" aria-label="关闭说明"><svg class="ico"><use href="#i-close"/></svg></button></div>
+ <section class="about-block"><h3>通用操作</h3><p>18 款游戏全部离线，鼠标单击或触屏点按就能玩完每一款。每款游戏的具体玩法，点工具栏的“玩法”或看游戏下方的“游戏说明 / 操作说明”。</p>
+  <div class="key-table"><span><kbd>R</kbd>重新开始</span><span><kbd>P</kbd>暂停 / 继续</span><span><kbd>M</kbd>静音</span><span><kbd>Esc</kbd>关闭弹窗</span></div>
+  <p class="muted">切换游戏会开始新的一局；打开设置或切出窗口会自动暂停，回来后点“继续”。侧栏可以按分类筛选、按最近玩过 / 玩得最多 / 名称排序，也可以搜索。</p></section>
+ <section class="about-block"><h3>存档</h3><p>成绩、猪猪造型和声音设置自动保存在本机。桌面便携版优先保存在 exe 同目录的「猪猪游乐场存档」，拷贝 exe 和这个文件夹即可带走成绩；目录不可写时保存在当前电脑。网页版保存在当前浏览器。</p></section>
+ <section class="about-block" id="update-block"><h3>版本与更新</h3><div class="update-panel" id="update-panel"></div></section>
+ <details><summary>来源与许可证</summary><p>扫猪逻辑改编自 Ania Kubow 的 MIT 开源 minesweeper。新增玩法参考 Steven Lambert 的 Basic Tetris / Breakout（CC0）、Ania Kubow 的 Connect Four（MIT）及 mashukui/web-games（MIT），规则与界面由本项目重新实现。猪猪造型参考 pighub.top 的圆滚滚气质，由本项目原创绘制，未复制站内图片。4.1 参考 flashhawk/spp.js 的切割轨迹、egnaro9/match3-engine 的特殊组合与独立棋子编号、ShaistaShabbir-prog/candy-crush-match3 的连锁演出、selenebun/bullethell 的小判定与慢速移动、alpiex1336-code/Rhythm-Game-v2 的音频时钟和长按判定。对应 MIT 许可随源文件保留。四段动画猪叫来自用户指定视频 BV1gG4y1J7KP，音频版权归原权利人；不属于 MIT 许可范围。新增游戏音效均为本项目合成。4.2 的猪猪轮盘、全部猪猪新造型和合成猪叫，以及 4.3 的三阶段积分赛规则、发射猪仔、腐肉 / 猪蹄道具、猪王嘚瑟舞与配乐均为本项目原创；PigHub 只作为猪猪比例与气质的观察参考，没有使用其图片。</p><pre id="license"></pre></details></dialog>
+<dialog id="help-dialog"><div class="dialog-head"><div><div class="eyebrow" id="help-eyebrow">HOW TO PLAY</div><h2 id="help-title">玩法</h2></div><button class="close" aria-label="关闭玩法说明"><svg class="ico"><use href="#i-close"/></svg></button></div><div id="help-body" class="help-body"></div></dialog>
+<dialog id="notes-dialog"><div class="dialog-head"><div><div class="eyebrow">WHAT'S NEW</div><h2 id="notes-title">更新说明</h2></div><button class="close" aria-label="关闭更新说明"><svg class="ico"><use href="#i-close"/></svg></button></div><div id="notes-body" class="notes-body"></div><div class="notes-foot"><button class="primary" id="notes-ok">知道了，开始玩</button></div></dialog>
+<script src="version.js"></script><script src="catalog.js"></script><script src="help.js"></script><script src="core.js"></script><script src="match-core.js"></script><script src="arcade-core.js"></script><script src="challenge-core.js"></script><script src="roulette-core.js"></script><script src="pig-art.js"></script><script src="look.js"></script><script src="sounds.js"></script><script src="audio.js"></script><script src="match-ui.js"></script><script src="arcade.js"></script><script src="challenge.js"></script><script src="roulette-art.js"></script><script src="roulette-ui.js"></script><script src="app.js"></script></body></html>
