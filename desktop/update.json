@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.3.0",
+ "version": "4.3.1",
  "date": "2026-10-11",
- "ref": "65d5262b53da8f9a0a5ba263ff993fd1c4507835",
+ "ref": "a25518c2dda4172947dc07b0853ecb73569c38fd",
  "minShell": "4.3.0",
- "notes": "猪猪轮盘改为「三阶段积分赛」，新增腐肉、猪蹄两件道具（规则见下）。 “枪”换成一只活的发射猪仔：装填、喂饲料、验弹、偷道具都有新动画；强化射击按真假有不同反应；整场胜利跳“猪王嘚瑟舞”。 游乐场新增分类筛选与排序；每款游戏都有“游戏说明 / 操作说明”，工具栏多了“玩法”按钮。 Windows 版支持联网自动更新：新版本在后台下载，重启后生效。",
+ "notes": "同屏双人修复：以前验过的那一颗打出去后，“查看我的线索（n）”的数字会变少，对方能借此猜到你验的是哪一颗。现在数字只在换弹后归零，已打出的线索显示“已过时”。 自动弹出的更新说明会把你没看过的每一版都完整列出，跨版本升级不会漏掉新规则。",
  "files": {
   "app.js": {
-   "sha256": "862faa3c6cd3944068d64ddaf1cb477de34ced81de47edc558fd0f3c622b4506",
-   "size": 63492
+   "sha256": "03ade83aee88abdd9e53237a1f1d3e338e0fcf06ff8a5931a5a5ba3d753623ff",
+   "size": 64159
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -372,8 +372,8 @@
    "size": 8757
   },
   "help.js": {
-   "sha256": "84e87f2e7a02fd8f6da3d71f93e34ef408961f91d656f2e929efaa81808fbbac",
-   "size": 9944
+   "sha256": "904e4882fd1f437b9d09a53573624c3c47dd6b542b1d73aeea0d5bfcdfb40886",
+   "size": 10074
   },
   "index.html": {
    "sha256": "dabb6f07dc0d73a7accad2fe1d6af2f0f17ca1d29e2fa039301acad401002e0a",
@@ -400,24 +400,24 @@
    "size": 20517
   },
   "roulette-core.js": {
-   "sha256": "ac21ea7649b10d92fd9151c578fd270c37a5deda30b83d1e2132c928c01655ba",
-   "size": 20973
+   "sha256": "09717a819f0f182f80b82914b462374bf83da2a16c03a9ac79dbac70899ffd43",
+   "size": 21754
   },
   "roulette-ui.js": {
-   "sha256": "bc68707b4cdf6f00653d790fe8f0ea914dbe2f6c35f921771acf02ca41e8b354",
-   "size": 86862
+   "sha256": "fdc2b6d9cc7707edcefe191d9f2e473291eeae7c193bf91989affc15d265ac7d",
+   "size": 87889
   },
   "sounds.js": {
    "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
    "size": 42904
   },
   "style.css": {
-   "sha256": "af459d689f759fefaa50ce16197a407c916d95247aad4a22ce232314f9cd84a8",
-   "size": 82138
+   "sha256": "d8eb6873786a1e6d51804bd3addcb7828e94b39ae6da58b12e7073f2f627b36a",
+   "size": 82917
   },
   "version.js": {
-   "sha256": "55afba9af1b5f4bc431fce438298d0bfa9a6b7c8b478a3d84e68937bd0f17f56",
-   "size": 4513
+   "sha256": "56021bdccc01ecbd2bc224bdc02524b6336b0ca4ad09afaf3b9bfee321bdde85",
+   "size": 5456
   }
  }
 }
