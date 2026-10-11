@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.piggy.playground.test" android:versionCode="1" android:versionName="1">
+    <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36" />
+    <application android:label="Piggy QA" android:allowBackup="false" android:debuggable="false" />
+    <instrumentation android:name=".SmokeTests" android:targetPackage="local.piggy.playground" android:label="Offline Android smoke tests" android:functionalTest="true" />
+</manifest>

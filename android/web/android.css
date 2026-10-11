@@ -1,0 +1,73 @@
+/* Android-only layout: game rules and desktop presentation are unchanged. */
+html,body{min-width:0;background:#fffbf1;overscroll-behavior-y:none}
+body{-webkit-tap-highlight-color:transparent}
+.sidebar,.hero,.breadcrumb,.offline,footer span{display:none!important}
+main{margin:0!important;padding:0 10px!important;max-width:860px;margin-inline:auto!important}
+main>header{height:62px!important;margin:0 0 10px!important;gap:8px;position:sticky;top:0;z-index:20;background:#fffbf1}
+.top-actions{gap:5px}
+main>header button{min-height:44px}
+.pill{font-size:12px;padding:8px 10px}
+.icon-btn{width:44px;height:44px}
+.android-hall-button{border:1px solid #ddcfca;border-radius:14px;background:#f9e6e9;color:#865d70;display:flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:600;padding:8px 12px;white-space:nowrap}
+.android-hall-button .ico{width:20px;height:20px}
+.game-card{padding:14px 10px!important;border-radius:18px}
+.game-toolbar{gap:10px}
+.game-caption{width:100%;gap:9px}
+.game-caption h2{font-size:19px}
+.game-caption>div>span{font-size:11px}
+.game-symbol{width:38px;height:38px}
+.controls{display:flex;width:100%;flex-wrap:wrap;justify-content:center;gap:8px}
+.controls #level{width:100%;display:flex;overflow-x:auto;justify-content:center;border-radius:10px}
+.controls #level[hidden]{display:none}
+.segmented button{flex:1;min-height:44px;white-space:nowrap;padding:8px 5px;font-size:11px}
+.segmented select{width:100%;max-width:none;min-height:44px;font-size:13px}
+#pause,#restart{min-height:44px;flex:1;justify-content:center}
+.score-strip{margin:12px 0 6px;padding:9px 0;grid-template-columns:repeat(3,1fr)}
+.score-strip>div{padding:0 10px}
+.score-strip>div:nth-child(3){border:0}
+.score-strip strong{font-size:23px}
+.score-note{display:none}
+.play-toolbar{flex-wrap:wrap;gap:8px}
+.play-toolbar button,.arcade-pad button,.run-pad button,.dpad button,.mode{min-height:44px}
+.arena{min-height:0}
+.run-pad{display:flex}
+.run-pad button{flex:1;max-width:170px;justify-content:center}
+.arcade-pad{margin:12px 0 6px;gap:7px}
+.arcade-pad button{min-width:48px;flex:1;padding:8px 5px;font-size:12px}
+.mine-cell{-webkit-user-select:none;user-select:none}
+.mine-wrap{overscroll-behavior-x:contain}
+.mine-board{touch-action:pan-x pan-y}
+.layer{min-height:250px}
+.game-message{font-size:12px;line-height:1.65;min-height:40px}
+.tips{padding:18px 4px;gap:14px;grid-template-columns:1fr}
+.tips p{line-height:1.8;font-size:12px}
+footer{padding:12px 4px 18px;font-size:11px}
+dialog{width:calc(100% - 24px);max-width:560px;max-height:calc(100% - 30px);overflow:auto;padding:20px;border-radius:22px;overscroll-behavior:contain}
+dialog .dialog-head h2{font-size:22px}
+dialog .close{width:44px;height:44px;flex:0 0 44px}
+dialog button{min-height:44px}
+.voice-grid{gap:8px}
+.voice-grid button{padding:8px 4px}
+.audio-demos{grid-template-columns:repeat(2,1fr)}
+.look-choices{grid-template-columns:repeat(2,1fr);gap:10px}
+.android-hall{padding:20px 16px;max-height:calc(100% - 28px)}
+.android-brand{display:flex;align-items:center;gap:10px}
+.android-brand img{width:56px;height:56px;object-fit:contain}
+.android-brand h2{font-size:21px!important;margin:0 0 5px}
+.android-brand p{font-size:11px;margin:0;color:#9a8b85}
+.android-hall .dialog-head{gap:8px}
+.android-game-search{width:100%;margin:16px 0 12px;padding:12px 14px;min-height:44px;border:1px solid #e1d8ce;border-radius:14px;background:#fffcf7;color:#6f6a5e;font:inherit;font-size:13px}
+.android-game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.android-game-card{border:1px solid #e7ded4;border-radius:16px;background:#fff7ed;color:#6c6f5a;text-align:left;padding:13px 10px;display:flex;flex-direction:column;gap:8px;position:relative}
+.android-game-card:nth-child(3n+2){background:#f1f5e9}.android-game-card:nth-child(3n){background:#f8edf1}
+.android-game-card .ico{width:24px;height:24px;color:#b4808f}
+.android-game-card div{font-size:13px;font-weight:600;line-height:1.5}
+.android-game-card small{display:block;font-weight:400;font-size:10px;color:#9c9389;margin-top:4px}
+.android-game-card b{position:absolute;right:11px;top:13px;font-size:10px;color:#b7aaa0;font-weight:400}
+.android-game-card[aria-current=page]{border-color:#ca8fa2;box-shadow:inset 0 0 0 1px #ca8fa2}
+.android-game-card[hidden]{display:none}
+.android-hall-footer{display:flex;align-items:center;justify-content:space-between;margin-top:15px;gap:8px;font-size:10px;color:#a19488}
+.android-hall-footer button{font-size:11px}
+.android-empty{font-size:13px;text-align:center;color:#9a8b85;padding:20px 0}
+@media(min-width:600px){.android-game-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.game-caption{width:auto}.controls{width:auto;max-width:420px}.controls #level{width:auto}.game-toolbar{justify-content:space-between}.android-game-card{min-height:115px}}
+@media(max-width:350px){.android-hall-button{padding:8px}.pill{padding:8px;font-size:11px}.android-hall{padding:16px 12px}.android-brand img{width:44px;height:44px}.android-brand h2{font-size:18px!important}.segmented button{font-size:10px}}
