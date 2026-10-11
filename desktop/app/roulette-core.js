@@ -50,7 +50,7 @@ class Game{
  startStage(n){
   this.stage=n;const c=this.cfg;this.tiebreak=!!c.tiebreak;
   this.maxHp=c.hp;this.hp=[c.hp,c.hp];this.items=[[],[]];this.bags=[[],[]];
-  this.boosted=false;this.mud=[false,false];this.clues=[{},{}];this.batch=0;this.order=[];this.pos=0;this.spent=[];this.announced={total:0,fake:0};
+  this.boosted=false;this.mud=[false,false];this.clues=[{},{}];this.clueHist=[[],[]];this.batch=0;this.order=[];this.pos=0;this.spent=[];this.spentHow=[];this.announced={total:0,fake:0};
   this.first=this.firstFor(n);this.turn=this.first;this.phase='play';this.stageWinner=-1;
   this.history.push({stage:n,name:c.name,first:this.first,points:c.points,batches:[],winner:-1});
   this.emit({type:'stage',stage:n,name:c.name,first:this.first,hp:c.hp,points:this.points.slice(),award:c.points,tiebreak:this.tiebreak,nearDeath:c.nearDeath});
@@ -65,7 +65,7 @@ class Game{
   this.batch++;const fixed=FIXED[this.stage+'-'+this.batch];let total,real;
   if(fixed){real=fixed[0];total=fixed[1]}else{total=2+pick(this.rng,7);real=1+pick(this.rng,total-1)}
   const list=[];for(let i=0;i<total;i++)list.push(i<real?'real':'fake');
-  this.order=shuffle(list,this.rng);this.pos=0;this.spent=[];this.clues=[{},{}];this.announced={total,fake:total-real};
+  this.order=shuffle(list,this.rng);this.pos=0;this.spent=[];this.spentHow=[];this.clues=[{},{}];this.clueHist=[[],[]];this.announced={total,fake:total-real};
   // 换弹清除尚未触发的泥巴控制；已经判定的行动者不回滚
   const mudCleared=[0,1].filter(p=>this.mud[p]);this.mud=[false,false];
   const gained=[[],[]];
@@ -78,13 +78,17 @@ class Game{
   this.record({k:'load',stage:this.stage,batch:this.batch,mudCleared});
  }
  // 测试钩子：换成指定的弹药队列（同时清空线索，公布数量随之更新）。
- _setMagazine(list){this.order=list.slice();this.pos=0;this.spent=[];this.clues=[{},{}];this.announced={total:list.length,fake:list.filter(s=>s==='fake').length}}
+ _setMagazine(list){this.order=list.slice();this.pos=0;this.spent=[];this.spentHow=[];this.clues=[{},{}];this.clueHist=[[],[]];this.announced={total:list.length,fake:list.filter(s=>s==='fake').length}}
  get mag(){return this.order.slice(this.pos)}
  emit(e){this.events.push(e);return e}
  record(entry){entry.stage=entry.stage||this.stage;this.log.push(entry);const h=this.history[this.history.length-1];if(h){(h.actions||(h.actions=[])).push(entry)}return entry}
  nearDeath(p){const nd=this.cfg.nearDeath;return !!nd&&this.hp[p]>0&&this.hp[p]<=nd}
  // 私密线索：相对位置 → 真假（只给本人）
  cluesOf(p){const out={};for(const k in this.clues[p]){const abs=+k;if(abs>=this.pos)out[abs-this.pos]=this.clues[p][k]}return out}
+ // 本批验弹记录：条数只在换弹 / 新阶段时归零，射击和退弹不会让它变少（避免同屏时给对方暗示）。
+ // 已经打出或退出的那一颗标为“已过时”。
+ clueCount(p){return (this.clueHist&&this.clueHist[p]||[]).length}
+ clueList(p){return (this.clueHist&&this.clueHist[p]||[]).map(c=>{const stale=c.abs<this.pos;return {item:c.item,abs:c.abs,shell:c.shell,stale,rel:stale?null:c.abs-this.pos,gone:stale?(this.spentHow[c.abs]||'shot'):null}})}
 
  // ---- 公开局面（AI 与界面共用，不含隐藏队列）----
  publicView(me){
@@ -132,10 +136,10 @@ class Game{
   if(it==='book'){
    const later=[];for(let i=this.pos+1;i<this.order.length;i++)later.push(i);
    if(!later.length){e.private={none:true};}
-   else{const fresh=later.filter(i=>!this.clues[p][i]),from=fresh.length?fresh:later,abs=from[pick(this.rng,from.length)];this.clues[p][abs]=this.order[abs];e.private={rel:abs-this.pos,shell:this.order[abs]}}
+   else{const fresh=later.filter(i=>!this.clues[p][i]),from=fresh.length?fresh:later,abs=from[pick(this.rng,from.length)];this.clues[p][abs]=this.order[abs];this.clueHist[p].push({item:it,abs,shell:this.order[abs]});e.private={rel:abs-this.pos,shell:this.order[abs]}}
    this.record({k:'item',by:p,item:it});
   }else if(it==='xray'){
-   const abs=this.pos;this.clues[p][abs]=this.order[abs];e.private={rel:0,shell:this.order[abs]};this.record({k:'item',by:p,item:it});
+   const abs=this.pos;this.clues[p][abs]=this.order[abs];this.clueHist[p].push({item:it,abs,shell:this.order[abs]});e.private={rel:0,shell:this.order[abs]};this.record({k:'item',by:p,item:it});
   }else if(it==='feed'){this.boosted=true;this.record({k:'item',by:p,item:it})}
   else if(it==='meat'){this.hp[p]=Math.min(this.maxHp,this.hp[p]+1);e.hp=this.hp[p];e.delta=1;this.record({k:'item',by:p,item:it,delta:1,hp:this.hp[p]})}
   else if(it==='rotten'){
@@ -147,7 +151,7 @@ class Game{
   }
   else if(it==='mud'){this.mud[opp]=true;e.target=opp;this.record({k:'item',by:p,item:it,target:opp})}
   else if(it==='plunger'){
-   const shell=this.order[this.pos];this.pos++;this.spent.push(shell);Object.assign(e,{shell,boosted:this.boosted});
+   const shell=this.order[this.pos];this.pos++;this.spent.push(shell);this.spentHow.push('pop');Object.assign(e,{shell,boosted:this.boosted});
    this.record({k:'item',by:p,item:it,shell});
    if(this.pos>=this.order.length){this.load();this.emit({type:'turn',player:this.turn})}
   }
@@ -157,7 +161,7 @@ class Game{
   }
  }
  shoot(p,target){
-  const shell=this.order[this.pos];this.pos++;this.spent.push(shell);
+  const shell=this.order[this.pos];this.pos++;this.spent.push(shell);this.spentHow.push('shot');
   const victim=target==='self'?p:1-p,boosted=this.boosted;
   this.boosted=false; // 强化射击无论真假都消耗
   let dmg=0,d=null;if(shell==='real'){dmg=boosted?2:1;d=this.damage(victim,dmg)}

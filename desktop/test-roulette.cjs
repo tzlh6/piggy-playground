@@ -74,7 +74,16 @@ function winStage(g,w){g.turn=w;g._setMagazine(['real','real','real']);g.hp[1-w]
  g=setup(['real'],['book'],[],{stage:2});r=g.act(0,{type:'item',item:'book'});ok(r.ok&&r.events[0].private.none&&!g.items[0].length,'只剩一颗：魔法书照样用掉、没有有效线索');
  g=setup(['fake','real'],['xray','plunger'],[],{stage:2});g.act(0,{type:'item',item:'xray'});g.act(0,{type:'item',item:'plunger'});ok(JSON.stringify(g.cluesOf(0))==='{}','退弹后旧线索随之移出');
  g=setup(['fake'],['xray','plunger'],[],{stage:2});g.act(0,{type:'item',item:'xray'});g.act(0,{type:'item',item:'plunger'});ok(JSON.stringify(g.clues)==='[{},{}]','换弹清空线索');
- ok(!g.log.some(e=>e.private||e.shell&&e.item==='xray'),'公共记录不含私密验弹结果');}
+ ok(!g.log.some(e=>e.private||e.shell&&e.item==='xray'),'公共记录不含私密验弹结果');
+ // 4.3.1：线索条数按批计，射击 / 退弹不减少（同屏时不给对方暗示）；只在换弹、新阶段归零
+ g=setup(['fake','real','fake','fake','real'],['xray','book','plunger','xray'],[],{stage:2});g.act(0,{type:'item',item:'xray'});ok(g.clueCount(0)===1&&g.clueCount(1)===0,'验弹后本批条数 +1，只算自己的');
+ g.act(0,{type:'shoot',target:'self'});let L=g.clueList(0);ok(g.clueCount(0)===1&&L.length===1&&L[0].stale&&L[0].gone==='shot'&&L[0].rel===null&&JSON.stringify(g.cluesOf(0))==='{}','打出验过的那一颗：条数不变，标为已过时');
+ g.act(0,{type:'item',item:'xray'});g.act(0,{type:'item',item:'plunger'});L=g.clueList(0);ok(g.clueCount(0)===2&&L.filter(c=>c.stale).length===2&&L[1].gone==='pop','退出验过的那一颗：条数不变，标为已过时（退出）');
+ g.act(0,{type:'item',item:'book'});L=g.clueList(0);const live=L.filter(c=>!c.stale);ok(g.clueCount(0)===3&&live.length===1&&live[0].item==='book'&&g.order[g.pos+live[0].rel]===live[0].shell&&live[0].shell===g.cluesOf(0)[live[0].rel],'有效线索给出相对位置与真假，与私密线索一致');
+ while(g.batch===1&&g.phase==='play'){g.turn=0;g.hp=[4,4];g.act(0,{type:'shoot',target:'self'})}ok(g.clueCount(0)===0&&!g.clueList(0).length,'换弹后条数归零');
+ g=setup(['fake','real'],['xray','xray'],[],{stage:2});g.act(0,{type:'item',item:'xray'});g.act(0,{type:'item',item:'xray'});ok(g.clueCount(0)===2&&g.clueList(0).every(c=>c.rel===0),'同一颗验两次算两条');
+ g=setup(['real'],['book'],[],{stage:2});g.act(0,{type:'item',item:'book'});ok(g.clueCount(0)===0,'没有有效线索的魔法书不计条数');
+ g=setup(['fake','real','fake'],['xray'],[],{stage:2});g.act(0,{type:'item',item:'xray'});winStage(g,0);g.nextStage();ok(g.clueCount(0)===0&&g.clueCount(1)===0,'新阶段条数归零');}
 
 // ---- 鲜肉、腐肉、濒死 ----
 {let g=setup(['real','fake'],['meat','rotten'],[],{stage:2});let s=snap(g),r=g.act(0,{type:'item',item:'meat'});ok(!r.ok&&snap(g)===s,'满血不能吃鲜肉');r=g.act(0,{type:'item',item:'rotten'});ok(!r.ok&&snap(g)===s,'满血不能吃腐肉');

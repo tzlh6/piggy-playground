@@ -65,7 +65,7 @@ function create(ui){
   renderHUD();status();
   message(mode==='duo'?'同屏双人：轮到谁，谁就点自己的道具和大按钮。验弹时另一位先回避。':'你是左边的小猪。每批弹只公布一次数量，记住它。');
  }
- function blankDisp(){return {hp:[2,2],maxHp:2,nd:0,items:[[],[]],boosted:false,mud:[false,false],turn:0,points:[0,0],stage:1,phase:'play',clues:[{},{}],down:[false,false]}}
+ function blankDisp(){return {hp:[2,2],maxHp:2,nd:0,items:[[],[]],boosted:false,mud:[false,false],turn:0,points:[0,0],stage:1,phase:'play',clues:[{},{}],clueN:[0,0],down:[false,false]}}
  const human=p=>{const t=s();return t.mode==='duo'||p===0};
  const pname=p=>{const t=s();return t.mode==='duo'?(p===0?'1P':'2P'):(p===0?'你':TIER_NAME[t.tier])};
  const nearDeath=(d,p)=>!!d.nd&&d.hp[p]>0&&d.hp[p]<=d.nd;
@@ -244,7 +244,7 @@ function create(ui){
  const BEATS={
   stage(t,e){
    const b=beat(2.2,{realtime:false});const cfg=Core.STAGES[e.stage];
-   b.start=()=>{b.up=t.actors.map(a=>a.down);t.actors.forEach(a=>a.down=false);const d=t.disp;Object.assign(d,{hp:[e.hp,e.hp],maxHp:e.hp,nd:e.nearDeath,items:[[],[]],boosted:false,mud:[false,false],turn:e.first,points:e.points.slice(),stage:e.stage,phase:'play',clues:[{},{}]});
+   b.start=()=>{b.up=t.actors.map(a=>a.down);t.actors.forEach(a=>a.down=false);const d=t.disp;Object.assign(d,{hp:[e.hp,e.hp],maxHp:e.hp,nd:e.nearDeath,items:[[],[]],boosted:false,mud:[false,false],turn:e.first,points:e.points.slice(),stage:e.stage,phase:'play',clues:[{},{}],clueN:[0,0]});
     t.actors.forEach(a=>{if(a.costume!==a.role)setCostume(a,a.role)});renderHUD();status();
     const open=cfg.open.length?'起手：'+cfg.open.map(k=>NAMES[k].name).join('＋')+(cfg.openRandom?'＋随机 '+cfg.openRandom+' 件':''):'没有道具，纯靠胆量';
     card(`<small>${e.tiebreak?'3∶3 平分 · 加赛决胜':'三阶段积分赛'}</small><b>${STAGE_LABEL[e.stage]}</b><p>双方 ${e.hp} 滴血 · ${open}</p><p>${e.tiebreak?'按第三阶段规则，只决定整场赢家':'胜者 +'+e.award+' 分'}${cfg.supply?' · 之后每次装填补给 '+cfg.supply+' 件':''}</p>${e.nearDeath?'<p class="nd">最后 2 格是濒死格：进入后无法回血，再受伤即落败</p>':''}<p class="first">${pname(e.first)}先手</p>`,'stage');
@@ -259,7 +259,7 @@ function create(ui){
   load(t,e){
    // 猪仔吃下一袋不透明弹料：吞咽、打嗝，看不出顺序。数量只在这里公布一次。
    const b=beat(3.4,{realtime:true,rate:t.speed>1?1.3:1}),tItems=2.5;
-   b.start=()=>{const d=t.disp;d.clues=[{},{}];if(e.mudCleared&&e.mudCleared.length){e.mudCleared.forEach(p=>d.mud[p]=false);logLine('换弹冲掉了还没生效的泥巴','sys')}renderHUD();
+   b.start=()=>{const d=t.disp;d.clues=[{},{}];d.clueN=[0,0];if(e.mudCleared&&e.mudCleared.length){e.mudCleared.forEach(p=>d.mud[p]=false);logLine('换弹冲掉了还没生效的泥巴','sys')}renderHUD();
     b.sack=node(b,ART.sack());b.burp=node(b,ART.FX.say('嗝～',{fill:'#fff6e8'}));b.crumbs=[0,1,2,3].map(()=>node(b,'<circle r="2.4" fill="#c9a26b"/>'));
     card(`<small>${e.opening?STAGE_LABEL[e.stage]+' · 第 1 批':'第 '+e.batch+' 批装填'}</small><b>本批共 ${e.total} 发</b><p class="fakes">其中 <em>${e.fake}</em> 发是假弹</p><p class="once">只公布这一次，请记住</p>`,'load');
     message(`装填：本批共 ${e.total} 发，其中 ${e.fake} 发是假弹。只公布这一次。${e.boosted?'猪仔的蓄力还在。':''}`);
@@ -460,11 +460,21 @@ function create(ui){
  // 私密结果：人机模式直接给玩家看；电脑的结果不显示
  function revealPrivate(t,e){
   const p=e.by,priv=e.private;if(!priv)return;
-  if(!priv.none)t.disp.clues[p][priv.rel]=priv.shell;
+  // 条数按批累计，只在换弹 / 新阶段归零；射击、退弹不减少，免得同屏时给对方暗示
+  if(!priv.none){t.disp.clues[p][priv.rel]=priv.shell;t.disp.clueN[p]=(t.disp.clueN[p]||0)+1}
   renderHUD();
   if(t.mode==='ai'&&p===0){Sound.rlPrivate();toast(privateHTML(e.item,priv,'仅你可见'),3.6,'private')}
  }
  function clueName(rel){return rel===0?'下一颗':'后面第 '+(rel+1)+' 颗'}
+ // 双人私密查看：本批每次验弹一行；有效的在前，已经打出 / 退出的标“已过时”
+ function clueListHTML(all){
+  if(!all.length)return '<p>本批还没有验弹线索。</p>';
+  const live=all.filter(c=>!c.stale).sort((a,b)=>a.rel-b.rel),old=all.filter(c=>c.stale).sort((a,b)=>a.abs-b.abs);
+  const src=c=>`<small class="src">${NAMES[c.item].name}</small>`,no=c=>`<small class="no">本批第 ${c.abs+1} 颗</small>`;
+  const li=live.map(c=>`<li>${src(c)}${clueName(c.rel)}${no(c)}：${c.shell==='real'?'<em class="real">真弹</em>':'<em class="fake">假弹</em>'}</li>`)
+   .concat(old.map(c=>`<li class="stale">${src(c)}本批第 ${c.abs+1} 颗${c.gone==='pop'?'已被退出':'已经打出'}：<em class="stale">已过时</em></li>`));
+  return `<ul class="rl-clue-list">${li.join('')}</ul>${live.length?'':'<p>本批的线索都已过时。</p>'}`;
+ }
  function privateHTML(item,priv,head){
   if(priv.none)return `<small>${head}</small><b>${NAMES[item].name}：没有有效线索</b><p>只剩最后一颗了，魔法书照样用掉。</p>`;
   return `<small>${head}</small><b>${NAMES[item].name}：${clueName(priv.rel)}是 ${priv.shell==='real'?'<em class="real">真弹</em>':'<em class="fake">假弹</em>'}</b><p>线索会随射击和退弹前移。</p>`;
@@ -744,7 +754,7 @@ function create(ui){
   const h=$('rl-hint');if(h){h.classList.remove('bad');h.textContent=hintText(t)}
   if(t.mode==='duo')message('轮到 '+pname(g.turn)+'：先用道具，或者直接选择开枪方向。');
  }
- function syncDisp(t){const g=t.g,d=t.disp;Object.assign(d,{hp:g.hp.slice(),maxHp:g.maxHp,nd:g.cfg.nearDeath,items:g.items.map(x=>x.slice()),boosted:g.boosted,mud:g.mud.slice(),turn:g.turn,points:g.points.slice(),stage:g.stage,phase:g.phase,clues:[g.cluesOf(0),g.cluesOf(1)]})}
+ function syncDisp(t){const g=t.g,d=t.disp;Object.assign(d,{hp:g.hp.slice(),maxHp:g.maxHp,nd:g.cfg.nearDeath,items:g.items.map(x=>x.slice()),boosted:g.boosted,mud:g.mud.slice(),turn:g.turn,points:g.points.slice(),stage:g.stage,phase:g.phase,clues:[g.cluesOf(0),g.cluesOf(1)],clueN:[g.clueCount(0),g.clueCount(1)]})}
  function finishMatch(t){
   if(t.finished)return;t.finished=true;syncDisp(t);renderHUD();status();
   const g=t.g,w=g.winner,ai=t.mode==='ai',win=!ai||w===0,score=g.points[0]+'∶'+g.points[1]+(g.history.length===4?'，加赛获胜':'');
@@ -805,10 +815,9 @@ function create(ui){
   if(m.item){const res=t.g.act(m.p,{type:'item',item:m.item});if(!res.ok){t.modal=null;$('rl-veil').hidden=true;deny(res.reason);return}
    const ev=res.events.find(e=>e.type==='item'&&e.private);m.events=res.events;html=privateHTML(m.item,ev.private,'仅 '+pname(m.p)+' 可见');Sound.rlPrivate()}
   else{Sound.rlPrivate();html=`<small>仅 ${pname(m.p)} 可见</small><b>我的线索</b>`}
-  const clues=t.g.cluesOf(m.p),keys=Object.keys(clues).map(Number).sort((a,b)=>a-b);
-  const list=keys.length?`<ul class="rl-clue-list">${keys.map(k=>`<li>${clueName(k)}：${clues[k]==='real'?'<em class="real">真弹</em>':'<em class="fake">假弹</em>'}</li>`).join('')}</ul>`:'<p>目前没有有效线索。</p>';
+  const list=clueListHTML(t.g.clueList(m.p));
   m.step='private';
-  $('rl-veil').innerHTML=`<div class="rl-veil-card private"><div class="rl-private-body">${html}${m.item?'<h4>全部线索</h4>':''}${list}</div><div class="rl-veil-actions"><button class="primary" id="rl-veil-hide">已记住，隐藏结果</button></div></div>`;
+  $('rl-veil').innerHTML=`<div class="rl-veil-card private"><div class="rl-private-body">${html}${m.item?'<h4>本批全部线索</h4>':''}${list}</div><div class="rl-veil-actions"><button class="primary" id="rl-veil-hide">已记住，隐藏结果</button></div></div>`;
   $('rl-veil-hide').onclick=()=>hideVeil();setTimeout(()=>{const b=$('rl-veil-hide');if(b)b.focus({preventScroll:true})},30);
  }
  function hideVeil(){
@@ -843,10 +852,11 @@ function create(ui){
    const el=$('rl-bag'+p);el.innerHTML=html;el.classList.toggle('active',mine);
    el.querySelectorAll('button.rl-item').forEach(b=>b.onclick=()=>useItem(+b.dataset.p,+b.dataset.k,b));
    // 线索：人机模式给玩家直接列出；双人模式只显示条数，查看要回避
-   const cl=d.clues[p]||{},keys=Object.keys(cl).map(Number).sort((a,b)=>a-b),box=$('rl-clues'+p);
-   if(t.mode==='ai'&&p===0)box.innerHTML=`<b>我的线索</b>${keys.length?keys.map(k=>`<span class="rl-clue ${cl[k]}">${clueName(k)} · ${cl[k]==='real'?'真弹':'假弹'}</span>`).join(''):'<small>用魔法书或 X 光获得，只有你看得到</small>'}`;
-   else if(t.mode==='ai')box.innerHTML=keys.length?`<small class="secret">私密线索 ${keys.length} 条（不公开）</small>`:'';
-   else{const can=idleNow&&g.phase==='play'&&actor===p&&keys.length>0;box.innerHTML=`<button class="rl-view-clues" data-p="${p}" ${can?'':'disabled'}>查看我的线索（${keys.length}）</button>`;box.querySelector('button').onclick=()=>viewClues(p)}
+   // 条数 n 是本批验弹次数：只在换弹 / 新阶段归零，打出那一颗也不减少
+   const cl=d.clues[p]||{},keys=Object.keys(cl).map(Number).sort((a,b)=>a-b),box=$('rl-clues'+p),n=(d.clueN&&d.clueN[p])||0;
+   if(t.mode==='ai'&&p===0)box.innerHTML=`<b>我的线索</b>${keys.length?keys.map(k=>`<span class="rl-clue ${cl[k]}">${clueName(k)} · ${cl[k]==='real'?'真弹':'假弹'}</span>`).join(''):`<small>${n?'本批线索都已过时':'用魔法书或 X 光获得，只有你看得到'}</small>`}`;
+   else if(t.mode==='ai')box.innerHTML=n?`<small class="secret">本批私密线索 ${n} 条（不公开）</small>`:'';
+   else{const can=idleNow&&g.phase==='play'&&actor===p&&n>0;box.innerHTML=`<button class="rl-view-clues" data-p="${p}" ${can?'':'disabled'} title="本批验弹次数，换弹后归零">查看我的线索（${n}）</button>`;box.querySelector('button').onclick=()=>viewClues(p)}
    $('rl-pts'+p).textContent=d.points[p];
   });
   $('rl-stages').innerHTML=[1,2,3].concat(g.history.length>=4||d.stage===4?[4]:[]).map(n=>{const h=g.history[n-1],done=h&&h.winner>=0&&(d.stage>n||d.phase!=='play'),cur=d.stage===n;return `<span class="rl-stage-chip ${cur?'cur':''} ${done?'won p'+h.winner:''}"><b>${n===4?'加赛':STAGE_LABEL[n].slice(1,2)}</b><small>${n===4?'决胜':'+'+Core.STAGES[n].points}</small></span>`}).join('');

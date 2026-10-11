@@ -296,11 +296,14 @@ function renderHelp(id){$('tips').innerHTML=helpHTML(id)}
 function openHelp(){const g=Cat.byId[game];$('help-title').textContent=g.name+' · 玩法';$('help-eyebrow').textContent=String(g.no).padStart(2,'0')+' / HOW TO PLAY';$('help-body').innerHTML=helpHTML(game);Store.set('help-seen-'+game,true);$('help-btn').classList.remove('nudge');openDialog('help-dialog')}
 // ---------- 更新说明：打开新版本时自动弹出 ----------
 const V=window.PIGGY_VERSION;
-function notesHTML(){const [cur,...old]=V.notes;
- return `<section class="note-cur"><p class="note-meta">${cur.version} · ${cur.date}</p><h3>${cur.title}</h3><ul class="note-sum">${cur.summary.map(x=>`<li>${x}</li>`).join('')}</ul>`+
-  (cur.details?`<div class="note-details"><h4>${cur.title.split(' · ')[0]}：新规则详解</h4>${cur.details.map(d=>`<details ${d===cur.details[0]?'open':''}><summary>${d.title}</summary><ul>${d.items.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('')}</div>`:'')+`</section>`+
-  old.map(n=>`<details class="note-old"><summary>${n.version} · ${n.title}</summary><ul>${n.summary.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('')}
-function openNotes(auto){$('notes-title').textContent='更新说明 · '+V.version;$('notes-body').innerHTML=notesHTML();if(!$('notes-dialog').open)openDialog('notes-dialog');setTimeout(()=>{const b=$('notes-ok');if(b)b.focus({preventScroll:true})},30);Store.set('seen-version',V.version)}
+// 更新说明：自上次看过的版本以来的每一版都完整展开（跨版本升级时不会漏掉新规则），更早的折叠
+function verCmp(a,b){const x=String(a||'0').split('.').map(Number),y=String(b||'0').split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0}
+function noteDetails(n,openFirst){return n.details?`<div class="note-details"><h4>${n.detailTitle||n.title.split(' · ')[0]+'：新规则详解'}</h4>${n.details.map((d,i)=>`<details ${openFirst&&i===0?'open':''}><summary>${d.title}</summary><ul>${d.items.map(x=>`<li>${x}</li>`).join('')}</ul></details>`).join('')}</div>`:''}
+function notesHTML(since){const all=V.notes;let fresh=all.filter(n=>verCmp(n.version,since)>0);if(!fresh.length)fresh=all.slice(0,1);
+ const rest=all.filter(n=>!fresh.includes(n));
+ return fresh.map((n,i)=>`<section class="note-cur ${i?'more':''}"><p class="note-meta">${n.version} · ${n.date}</p><h3>${n.title}</h3><ul class="note-sum">${n.summary.map(x=>`<li>${x}</li>`).join('')}</ul>${noteDetails(n,i===0)}</section>`).join('')+
+  rest.map(n=>`<details class="note-old"><summary>${n.version} · ${n.title}</summary><ul>${n.summary.map(x=>`<li>${x}</li>`).join('')}</ul>${noteDetails(n,false)}</details>`).join('')}
+function openNotes(auto){const since=auto?Store.get('seen-version',null)||'4.2.0':(V.notes[1]||{}).version;$('notes-title').textContent='更新说明 · '+V.version;$('notes-body').innerHTML=notesHTML(since);if(!$('notes-dialog').open)openDialog('notes-dialog');setTimeout(()=>{const b=$('notes-ok');if(b)b.focus({preventScroll:true})},30);Store.set('seen-version',V.version)}
 $('version-line').textContent='离线版 · '+V.version;
 // ---------- 版本与在线更新（Windows 桌面版由主进程提供 PiggyUpdate） ----------
 const Upd=window.PiggyUpdate||null;let updState=null;

@@ -504,6 +504,9 @@ body[data-game="roulette"] .score-strip{display:none}
 .rl-veil-card.private{border-color:#6ff0ff;background:#10262f}.rl-private-body small{display:block;font-size:12px;color:#9fe9f5;letter-spacing:2px}.rl-private-body b{display:block;font-size:20px;margin:6px 0;color:#e6fdff}.rl-private-body p{color:#bfeef6}
 .rl-private-body h4{margin:12px 0 4px;font-size:12px;color:#9fe9f5}
 .rl-clue-list{list-style:none;padding:0;margin:0 0 12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.rl-clue-list li{padding:4px 10px;border-radius:999px;background:#0b1d24;border:1px solid #2f6b78;color:#d6fbff;font-size:13px}
+.rl-clue-list{flex-direction:column;align-items:center}.rl-clue-list li{display:flex;align-items:center;gap:6px;border-radius:12px;white-space:nowrap}
+.rl-private-body .rl-clue-list li small{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0}.rl-private-body .rl-clue-list li small.src{padding:1px 7px;border-radius:6px;background:#173a45;color:#9fe7f3}.rl-private-body .rl-clue-list li small.no{color:#7fb3bf}
+.rl-clue-list li.stale{background:#1a1626;border-color:#3e3157;color:#9b8fb6}.rl-private-body .rl-clue-list li.stale small.src{background:#2a2340;color:#a99cc6}.rl-clue-list em.stale{background:#2a2340;color:#c9bce6;font-weight:700}
 .rl-veil-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .rl-toolbar-label{font-size:11px;color:#8d9683}
 /* 赛后回顾 */
@@ -697,6 +700,7 @@ kbd{display:inline-block;min-width:22px;padding:2px 7px;border-radius:7px;border
 .note-details summary,.note-old summary{cursor:pointer;font-weight:800;color:var(--ink2);font-size:13.5px}
 .note-details ul,.note-old ul{margin:8px 0 2px;padding-left:20px;line-height:1.75;color:#7d6f77;font-size:13px}
 .note-old{opacity:.85}
+.note-cur.more{margin-top:18px;padding-top:14px;border-top:2px solid #f1e4dc}.note-old .note-details{margin-top:8px}
 .notes-foot{display:flex;justify-content:flex-end;margin-top:12px}
 /* 关于：分区 */
 #about-dialog{width:min(720px,94vw)}

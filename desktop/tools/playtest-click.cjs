@@ -15,7 +15,7 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
  const browser=await chromium.launch();
  const ctx=await browser.newContext({viewport:{width:1366,height:860}});const page=await ctx.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
- await page.addInitScript(()=>{try{localStorage.setItem('piggy2-seen-version',JSON.stringify(window.PIGGY_VERSION?window.PIGGY_VERSION.version:'4.3.0'))}catch(e){}});await page.goto('file://'+FILE);await sleep(400);
+ await page.addInitScript(()=>{let v;try{Object.defineProperty(window,'PIGGY_VERSION',{configurable:true,get(){return v},set(x){v=x;try{localStorage.setItem('piggy2-seen-version',JSON.stringify(x.version))}catch(e){}}})}catch(e){}});await page.goto('file://'+FILE);await sleep(400);
  const go=async id=>{await page.click(`.nav[data-game="${id}"]`);await sleep(350)};
  const S=(f,a)=>page.evaluate(f,a);
  // 画布逻辑坐标 → 页面坐标后单击
@@ -54,7 +54,7 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
 
  // 触屏点按（手机尺寸）
  const mctx=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:2});const m=await mctx.newPage();m.on('pageerror',e=>errors.push('mobile: '+e.message));
- await m.addInitScript(()=>{try{localStorage.setItem('piggy2-seen-version',JSON.stringify('4.3.0'))}catch(e){}});await m.goto('file://'+FILE);await sleep(400);
+ await m.addInitScript(()=>{let v;try{Object.defineProperty(window,'PIGGY_VERSION',{configurable:true,get(){return v},set(x){v=x;try{localStorage.setItem('piggy2-seen-version',JSON.stringify(x.version))}catch(e){}}})}catch(e){}});await m.goto('file://'+FILE);await sleep(400);
  const mgo=async id=>{await m.locator(`.nav[data-game="${id}"]`).scrollIntoViewIfNeeded();await m.tap(`.nav[data-game="${id}"]`);await sleep(350)};
  await run('触屏 · 2048 方向键',async()=>{await mgo('merge');const b=await m.evaluate(()=>state.board.join());for(const d of ['left','up','right'])await m.tap(`.dpad [data-dir="${d}"]`);must(await m.evaluate(()=>state.board.join())!==b,'点按推动');return 'ok'},m);
  await run('触屏 · 切切猪点按',async()=>{await mgo('slice');await m.tap('#challenge-go');let ok=false;for(let k=0;k<80&&!ok;k++){await sleep(60);const it=await m.evaluate(()=>{const p=state.g.items.find(i=>!i.cut&&i.kind!=='bomb'&&i.y<400&&i.y>40);return p?{x:p.x,y:p.y}:null});if(it){const r=await m.locator('#challenge-canvas').boundingBox();await m.touchscreen.tap(r.x+it.x/760*r.width,r.y+it.y/460*r.height);ok=await m.evaluate(()=>state.g.score>0)}}must(ok,'点按切中');return 'ok'},m);
