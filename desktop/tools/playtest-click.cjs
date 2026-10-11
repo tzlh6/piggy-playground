@@ -1,4 +1,4 @@
-// 只用鼠标单击（及触屏点按）试玩全部 18 款游戏的主要操作。
+// 只用鼠标单击（及触屏点按）试玩全部 19 款游戏的主要操作。
 // 用法：node tools/playtest-click.cjs [index.html 或单文件网页路径] [截图目录]
 // 需要 Playwright（npm i -D playwright，或设置 PLAYWRIGHT_MODULE 指向已安装的模块）。
 const path=require('path'),fs=require('fs');
@@ -52,6 +52,23 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
   await S(()=>PigRouletteDebug.fast(1));
   const r=await S(()=>{const t=PigRouletteDebug.state();return {fin:t.finished,pts:t.g.points,stages:t.g.history.length,scored:t.g.scored}});must(r.fin&&r.scored,'整场打完');must(r.stages>=3,'三个阶段全部打完');must(!(await page.locator('#result').isHidden()),'结果窗口');return `三阶段积分赛 ${r.pts.join(':')}${r.stages===4?'（加赛）':''}，玩家单击 ${clicks} 次`},page);
 
+ await run('19 斗地猪（整局单击）',async()=>{await go('doudizhu');await page.click('#level [data-level="smart"]');await sleep(300);await S(()=>PigDdzDebug.fast(3));const t0=Date.now();let clicks=0,dragged=false;
+  while(Date.now()-t0<240000){const st=await S(()=>{const t=PigDdzDebug.state();return {ov:t.overlay,busy:PigDdzDebug.busy(),pending:t.pending,turn:t.disp.turn,seat:t.seat,phase:t.disp.phase,hand:t.disp.hand.length}});
+   if(st.ov==='result')break;
+   if(!dragged&&st.phase==='bid'&&!st.busy&&st.hand===17){// 按住拖过三张牌：一次选中三张，再拖回去取消
+    const box=await page.locator('#dz-hand').boundingBox();const cs=[];for(const el of await page.locator('#dz-hand .dz-card').all())cs.push(await el.boundingBox());cs.sort((a,b)=>a.x-b.x);
+    const c=cs[2];await page.mouse.move(c.x+8,c.y+c.height-12);await page.mouse.down();
+    const c2=cs[4];await page.mouse.move(c2.x+8,c2.y+c2.height-12,{steps:6});await page.mouse.up();dragged=await S(()=>PigDdzDebug.state().sel.size)===3;
+    await page.mouse.dblclick(box.x+box.width/2,box.y-140);must(dragged,'拖动多选 3 张');must(await S(()=>PigDdzDebug.state().sel.size)===0,'双击桌面取消选择')}
+   if(st.busy||st.pending||st.turn!==st.seat){await sleep(120);continue}
+   if(st.phase==='bid'){const can=await page.locator('#dz-actions [data-bid="1"]').isEnabled().catch(()=>false);await page.click(can?'#dz-actions [data-bid="1"]':'#dz-actions [data-bid="0"]');clicks++}
+   else if(st.phase==='play'){await page.click('#dz-hint');clicks++;await sleep(60);if(await page.locator('#dz-play').isEnabled())await page.click('#dz-play');else await page.click('#dz-pass');clicks++}
+   await sleep(150)}
+  await S(()=>PigDdzDebug.fast(1));
+  const r=await S(()=>{const t=PigDdzDebug.state();return t.disp.result&&{w:t.disp.result.landlordWin,d:t.disp.result.deltas,m:t.disp.result.mult}});must(r,'一局打完并出现结算');
+  await page.click('#dz-again');await sleep(500);must(await S(()=>PigDdzDebug.state().disp.round===2),'再来一局发新牌');
+  return `${r.w?'邪恶猪猪':'屠夫'}获胜，倍数 ×${r.m}，结算 ${r.d.join('/')}；玩家单击 ${clicks} 次，拖动多选可用`},page);
+
  // 触屏点按（手机尺寸）
  const mctx=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true,deviceScaleFactor:2});const m=await mctx.newPage();m.on('pageerror',e=>errors.push('mobile: '+e.message));
  await m.addInitScript(()=>{let v;try{Object.defineProperty(window,'PIGGY_VERSION',{configurable:true,get(){return v},set(x){v=x;try{localStorage.setItem('piggy2-seen-version',JSON.stringify(x.version))}catch(e){}}})}catch(e){}});await m.goto('file://'+FILE);await sleep(400);
@@ -60,6 +77,8 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
  await run('触屏 · 切切猪点按',async()=>{await mgo('slice');await m.tap('#challenge-go');let ok=false;for(let k=0;k<80&&!ok;k++){await sleep(60);const it=await m.evaluate(()=>{const p=state.g.items.find(i=>!i.cut&&i.kind!=='bomb'&&i.y<400&&i.y>40);return p?{x:p.x,y:p.y}:null});if(it){const r=await m.locator('#challenge-canvas').boundingBox();await m.touchscreen.tap(r.x+it.x/760*r.width,r.y+it.y/460*r.height);ok=await m.evaluate(()=>state.g.score>0)}}must(ok,'点按切中');return 'ok'},m);
  await run('触屏 · 轮盘开枪',async()=>{await mgo('roulette');await m.waitForFunction(()=>{const D=PigRouletteDebug;return !D.busy()&&D.state().g.turn===0},null,{timeout:60000});await m.locator('#rl-opp').scrollIntoViewIfNeeded();await m.tap('#rl-opp');await sleep(200);must(await m.evaluate(()=>PigRouletteDebug.busy()),'点按开枪进入演出');return 'ok'},m);
  await run('触屏 · 节奏点按',async()=>{await mgo('rhythm');await m.locator('[data-lane="0"]').scrollIntoViewIfNeeded();await m.tap('#challenge-go');const end=Date.now()+6000;while(Date.now()<end){const n=await m.evaluate(()=>{const g=state.g;const n=g.notes.find(n=>!n.done&&!n.started&&n.t-g.time<.06&&n.t-g.time>-.1);return n?n.lane:-1});if(n>=0)await m.tap(`[data-lane="${n}"]`);else await sleep(8)}must(await m.evaluate(()=>state.g.perfect+state.g.good>2),'点按命中');return 'ok'},m);
+ await run('触屏 · 斗地猪点牌',async()=>{await mgo('doudizhu');await m.waitForFunction(()=>PigDdzDebug.state().disp.hand.length>=17&&!PigDdzDebug.busy(),null,{timeout:60000});await m.locator('#dz-hand').scrollIntoViewIfNeeded();
+  const c=await m.locator('#dz-hand .dz-card').nth(3).boundingBox();await m.touchscreen.tap(c.x+6,c.y+c.height-10);must(await m.evaluate(()=>PigDdzDebug.state().sel.size)===1,'点按选中一张');return 'ok'},m);
  const sw=await m.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);results.push({name:'手机宽度无横向溢出',ok:sw<=1,note:'溢出 '+sw+' px'});
 
  await browser.close();

@@ -57,4 +57,8 @@ const rl=['rlPage','rlMagic','rlPoof','rlUnfold','rlScan','rlBeep','rlWhoosh','r
 for(const n of rl){const c=count(()=>S[n](true));assert(c.osc+c.noise>0,n)}
 S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.pigWail(true);S.pigCheer();S.rlFart();S.rlHit(true)}),{osc:0,noise:0,pig:0});S.enabled=true;
 for(const prof of ['soft','fairy','retro']){S.profile=prof;log.length=0;S.pigOink();assert(log.some(x=>x.type==='osc'))}S.profile='soft';
+const dd=['ddShuffle','ddDeal','ddSlap','ddSelect','ddPass','ddBid','ddTurn','ddLandlord','ddButcher','ddBomb','ddRocket','ddPlane','ddTrain','ddHop','ddAlarm','ddSpring','ddNet','ddBubble','ddTick','ddDenied','ddEmote'];
+for(const n of dd){const c=count(()=>S[n](3));assert(c.osc+c.noise>0,n)}
+S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.ddBomb();S.ddRocket();S.ddLandlord()}),{osc:0,noise:0,pig:0});S.enabled=true;
+console.log('PASS:',dd.length,'doudizhu cues (deal, slap, bomb, rocket, train, alarm, landlord…) audible and muted correctly.');
 console.log('PASS: 12 synthesized pig voices (hum, giggle, wail, yelp…) and',rl.length,'roulette cues; capped, stoppable, muted, all three timbres.');

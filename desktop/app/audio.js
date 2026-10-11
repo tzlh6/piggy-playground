@@ -227,6 +227,31 @@ function createSound(opts){
    this.tone(bass[b],{dur:.22,gain:.11,type:'sawtooth',to:bass[b]*.98});if(!quick&&b===3)this.tone(bass[b]*2,{dur:.12,gain:.04,type:'triangle',delay:.25})},
   rlDanceEnd(){[0,4,7,12].forEach((st,k)=>this.tone(note(392,st),{dur:.4,gain:.07,type:'triangle',delay:k*.05}));this.tone(49,{dur:.5,gain:.18,to:40,type:'sine'});this.noise({freq:2600,q:.7,dur:.4,gain:.06,delay:.02})},
   pigLaugh(o){o=o||{};const d=o.delay||0;for(let k=0;k<6;k++)this.pigSynth({pts:[[0,340+(k%2)*60],[.05,430+(k%2)*60],[.1,320]],dur:.11,gain:.4,am:[44,.4],noise:.18,rate:o.rate,delay:d+k*.12});this.pigSqueal({rate:(o.rate||1)*1.1,delay:d+.78})},
+  // ---- 斗地猪 ----
+  ddShuffle(){for(let k=0;k<8;k++)this.noise({freq:2200+k*220,q:1.6,dur:.05,gain:.05,delay:k*.045});this.noise({freq:900,to:3200,q:.7,dur:.34,gain:.035})},
+  ddDeal(k){this.noise({freq:3000+((k||0)%3)*320,q:2.2,dur:.035,gain:.03})},
+  ddSlap(n){n=n||1;this.noise({freq:1500,to:450,q:.9,dur:.07+Math.min(n,8)*.012,gain:.12});this.tone(180,{dur:.07,gain:.06,to:110});if(n>=5)this.noise({freq:3400,q:1.5,dur:.12,gain:.04,delay:.05})},
+  ddSelect(on){this.tone(on?1250:880,{dur:.035,gain:.035,type:'triangle'})},
+  ddPass(){this.tone(392,{dur:.1,gain:.05,type:'triangle'});this.tone(311,{dur:.15,gain:.045,type:'triangle',delay:.08});this.pigSnort({delay:.04,rate:1.08})},
+  ddBid(v){if(!v){this.ddPass();return}[0,4,7].slice(0,v).forEach((st,k)=>this.tone(note(523,st+v),{dur:.16,gain:.07,type:'triangle',delay:k*.08}));this.pigOink({delay:.06,rate:.9+v*.12})},
+  ddTurn(){this.tone(784,{dur:.12,gain:.045,type:'triangle'});this.tone(1046,{dur:.16,gain:.04,type:'triangle',delay:.07})},
+  ddLandlord(){this.noise({freq:300,to:2400,q:.5,dur:.45,gain:.09,filter:'lowpass'});this.noise({freq:900,to:80,q:.4,dur:.9,gain:.2,filter:'lowpass',delay:.28});this.tone(82,{dur:.9,gain:.16,to:41,delay:.28});
+   [0,3,6].forEach((st,k)=>this.tone(220*Math.pow(2,st/12),{dur:.5,gain:.05,type:'sawtooth',delay:.35+k*.06}));this.pigLaugh({rate:.74,delay:.62})},
+  ddButcher(){this.noise({freq:5200,to:9000,q:6,dur:.25,gain:.045});this.tone(1760,{dur:.3,gain:.025,type:'sine',delay:.02});this.tone(220,{dur:.1,gain:.05,type:'triangle',delay:.18});this.tone(277,{dur:.12,gain:.05,type:'triangle',delay:.28})},
+  ddBomb(){this.noise({freq:5200,q:3,dur:.55,gain:.035});this.tone(1800,{dur:.5,gain:.012,to:2400,type:'sine'});
+   this.noise({freq:2600,to:110,q:.4,dur:.7,gain:.34,filter:'lowpass',delay:.55});this.tone(105,{dur:.55,gain:.3,to:36,delay:.55});this.noise({freq:3800,q:1.2,dur:.18,gain:.08,delay:.6});this.pigSqueal({delay:.68,rate:1.08})},
+  ddRocket(){this.noise({freq:300,to:4200,q:.6,dur:.95,gain:.12});this.tone(196,{to:1568,dur:.95,gain:.04,type:'sawtooth'});
+   for(let k=0;k<12;k++)this.noise({freq:2600+Math.random()*3000,q:2.4,dur:.05,gain:.07,delay:1+k*.055});[0,4,7,12].forEach((st,k)=>this.tone(note(659,st),{dur:.22,gain:.05,type:'triangle',delay:1.05+k*.07}));this.pigCheer({delay:1.2})},
+  ddPlane(){for(let k=0;k<5;k++)this.noise({freq:700,to:200,q:1,dur:.09,gain:.08,delay:k*.17});this.noise({freq:500,to:2200,q:.8,dur:.6,gain:.05});this.pigGiggle({delay:.35})},
+  ddTrain(){[[523,659],[523,659]].forEach((pair,k)=>pair.forEach(f=>this.tone(f,{dur:.3,gain:.045,type:'triangle',delay:k*.42})));for(let k=0;k<7;k++)this.noise({freq:520,q:1.2,dur:.06,gain:.07,delay:.1+k*.13})},
+  ddHop(){for(let k=0;k<4;k++)this.tone(330+k*70,{to:660+k*70,dur:.1,gain:.055,type:'triangle',delay:k*.14});this.pigOink({delay:.3,rate:1.15})},
+  ddAlarm(){for(let k=0;k<3;k++){this.tone(932,{dur:.17,gain:.05,type:'triangle',delay:k*.34});this.tone(698,{dur:.17,gain:.05,type:'triangle',delay:k*.34+.17})}this.pigSqueal({delay:.12,rate:1.15})},
+  ddSpring(){[0,2,4,7,9,12,14].forEach((st,k)=>this.tone(note(523,st),{dur:.24,gain:.06,type:'triangle',delay:k*.07}));for(let k=0;k<5;k++)this.tone(2600+k*180,{to:3400+k*150,dur:.06,gain:.03,delay:.6+k*.09})},
+  ddNet(){this.noise({freq:400,to:1600,q:.7,dur:.32,gain:.08});this.tone(150,{dur:.2,gain:.08,to:90,delay:.3});this.pigSqueal({delay:.32,rate:.95})},
+  ddBubble(){for(let k=0;k<7;k++){const f=600+Math.random()*700;this.tone(f,{to:f*1.6,dur:.06,gain:.035,type:'sine',delay:k*.09})}},
+  ddTick(){this.tone(1180,{dur:.04,gain:.04,type:'triangle'})},
+  ddDenied(){this.rlDenied()},
+  ddEmote(i){const list=['pigSnort','pigOink','pigCheer','pigWhimper','pigSmug','pigWail','pigGiggle','pigLaugh'];const k=list[(i|0)%list.length];if(k==='pigWail')this.pigWail(false);else this[k]()},
   win(){[523,659,784,1047].forEach((f,k)=>this.tone(f,{dur:.35,gain:.09,type:'triangle',delay:k*.09}));[0,1,2,3].forEach((i,k)=>this.voice(i,{gain:.8,delay:.32+k*.17,pan:[-.6,.6,-.25,.25][k]}));this.later(1150,()=>[0,1,2,3].forEach((i,k)=>this.voice(i,{gain:.55,rate:1.08,delay:k*.04,pan:[-.7,.7,-.3,.3][k]})))},
   lose(){[392,330,262,196].forEach((f,k)=>this.tone(f,{dur:.28,gain:.08,type:'triangle',delay:k*.14}));this.voice(3,{rate:.82,gain:.8,delay:.5});this.pigWhimper({delay:1.25})},
   preview(i){this.stop();this.voice(i,{gain:1})}

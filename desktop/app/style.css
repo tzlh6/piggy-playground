@@ -722,3 +722,225 @@ kbd{display:inline-block;min-width:22px;padding:2px 7px;border-radius:7px;border
 @media(max-width:1100px){.help-panels,.help-body{grid-template-columns:1fr}}
 @media(max-width:760px){.lobby-filter{display:none}.help-panels{padding:14px 0 8px}.help-col{padding:12px 14px}.nav-badge{display:none}}
 @media(prefers-reduced-motion:reduce){.nav-badge,.update-chip,#help-btn.nudge{animation:none}}
+
+/* ================= 斗地猪（4.4） ================= */
+.dz-wrap{position:relative;margin:0 auto;user-select:none;-webkit-user-select:none}
+.dz-wrap.shake{animation:dzShake .4s cubic-bezier(.36,.07,.19,.97)}.dz-wrap.shake-big{animation:dzShake .6s cubic-bezier(.36,.07,.19,.97)}
+@keyframes dzShake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(4px,-2px)}30%,50%,70%{transform:translate(-6px,2px)}40%,60%{transform:translate(6px,-1px)}}
+.dz-stage{position:absolute;left:0;top:0;transform-origin:0 0;font-family:inherit;color:#fff}
+.dz-felt{position:absolute;inset:0;border-radius:30px;background:radial-gradient(ellipse at 50% 40%,#5fae7f 0%,#438f64 42%,#2d6c4a 100%);box-shadow:inset 0 0 0 10px #a8704a,inset 0 0 0 13px #7d4f30,inset 0 0 0 15px #c48c5c,inset 0 0 70px rgba(0,0,0,.35),0 18px 40px rgba(40,60,40,.22);overflow:hidden}
+.dz-felt:before{content:"";position:absolute;inset:15px;border-radius:22px;background-image:radial-gradient(ellipse 5px 3.5px at 50% 50%,rgba(255,255,255,.07) 98%,transparent 100%);background-size:34px 30px;opacity:.9}
+.dz-felt:after{content:"";position:absolute;left:50%;top:44%;width:620px;height:300px;transform:translate(-50%,-50%);border-radius:50%;border:3px dashed rgba(255,255,255,.12)}
+.dz-felt-logo{position:absolute;left:50%;top:44%;width:240px;height:120px;transform:translate(-50%,-50%);opacity:.09}
+.dz-top{position:absolute;left:28px;right:28px;top:20px;height:72px}
+.dz-roundinfo{position:absolute;left:4px;top:2px;line-height:1.25;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.dz-roundinfo b{display:block;font-size:20px;font-weight:900;letter-spacing:.04em}.dz-roundinfo span{font-size:12px;opacity:.85}
+.dz-bottomcards{position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;gap:6px;perspective:400px}
+.dz-bc{width:48px;height:67px;border-radius:6px;box-shadow:0 3px 6px rgba(0,0,0,.3);display:block}
+.dz-bc img{width:100%;height:100%;border-radius:6px;display:block}
+.dz-bc.flip{animation:dzFlip .6s ease both;animation-delay:var(--d)}
+@keyframes dzFlip{0%{transform:rotateY(90deg) scale(1.1)}60%{transform:rotateY(-10deg) scale(1.15)}100%{transform:none}}
+.dz-multi{position:absolute;right:4px;top:4px;display:flex;gap:6px}
+.dz-multi .chip{background:rgba(255,253,248,.95);color:#4a3b52;font-weight:900;font-size:15px;border-radius:14px;padding:4px 12px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.dz-multi .chip.soft{background:rgba(0,0,0,.25);color:#fff;font-weight:700}
+.dz-multi .chip.mult{background:linear-gradient(#ffe08a,#f4b63f);color:#6a3d0a}
+.dz-multi .chip.bump{animation:dzBump .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes dzBump{0%{transform:scale(1)}40%{transform:scale(1.5) rotate(-6deg)}100%{transform:scale(1)}}
+.dz-tracker{position:absolute;left:50%;top:96px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:rgba(20,40,28,.42);border-radius:12px;padding:3px 10px;font-size:13px;font-weight:800;white-space:nowrap}
+.dz-tracker>b{font-size:12px;margin-right:6px;opacity:.85}.dz-tracker>small{font-size:11px;margin-left:6px;opacity:.7;font-weight:600}
+.dz-tracker span{display:flex;flex-direction:column;align-items:center;min-width:23px;line-height:1.1}.dz-tracker span i{font-style:normal;font-size:11px;opacity:.75;font-weight:700}
+.dz-tracker span.zero{opacity:.3}.dz-tracker span.four{color:#ffd77a}
+/* 座位 */
+.dz-seat{position:absolute;width:200px;z-index:3}
+.dz-seat.pos2{left:20px;top:104px}.dz-seat.pos1{right:20px;top:104px}.dz-seat.pos0{left:10px;top:430px;width:150px}
+.dz-fig{width:156px;height:138px;margin:0 auto;position:relative;filter:drop-shadow(0 6px 6px rgba(0,0,0,.18))}
+.dz-seat.pos0 .dz-fig{width:118px;height:104px}
+.dz-fig svg{width:100%;height:100%;display:block;overflow:visible}
+.dz-fig.flip svg{transform:scaleX(-1)}
+.dz-fig.morph{animation:dzMorph .7s cubic-bezier(.2,1.5,.4,1)}
+@keyframes dzMorph{0%{transform:scale(.3) rotate(-12deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:none}}
+.dz-seat.active .dz-fig{animation:dzBob 1.1s ease-in-out infinite}
+@keyframes dzBob{50%{transform:translateY(-6px)}}
+.dz-fig .dz-butcher [data-part="arm"]{transform-box:view-box;transform-origin:50px 98px}
+.dz-seat.active .dz-fig .dz-butcher [data-part="arm"]{animation:dzWave 1.1s ease-in-out infinite}
+@keyframes dzWave{50%{transform:rotate(-12deg)}}
+.dz-plate{display:flex;align-items:center;gap:6px;background:rgba(255,253,248,.96);color:#3f3640;border-radius:16px;padding:4px 10px 4px 4px;box-shadow:0 3px 0 rgba(0,0,0,.14);margin:2px auto 0;width:max-content;max-width:100%;transition:box-shadow .2s}
+.dz-seat.active .dz-plate{box-shadow:0 0 0 3px #ffd34d,0 0 18px rgba(255,211,77,.8)}
+.dz-av{width:34px;height:34px;border-radius:50%;overflow:hidden;background:#fdeef2;flex:none;display:block}
+.dz-av svg,.dz-rav svg{width:100%;height:100%;display:block}
+.dz-pinfo{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.dz-pinfo b{font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}.dz-pinfo b small{font-weight:600;color:#9a8f96;font-size:11px}
+.dz-pinfo b .muted{color:#9a8f96}.dz-pinfo .tag{font-style:normal;font-size:10px;font-weight:800;background:#fde7ec;color:#c4536f;border-radius:6px;padding:0 5px;margin-left:4px;vertical-align:2px}
+.dz-pinfo .tag.ai{background:#e9f2e3;color:#567f52}.dz-pinfo .tag.auto{background:#fff3d6;color:#9a6a12}.dz-pinfo .tag.off{background:#eee;color:#888}
+.dz-pinfo em{font-style:normal;font-size:12px;font-weight:800;color:#567f52;min-height:14px}
+.dz-seat[data-role="evil"] .dz-pinfo em{color:#7a3fa0}.dz-seat[data-role="evil"] .dz-plate{background:linear-gradient(#f6ecfb,#fff)}
+.dz-meta{display:flex;justify-content:center;gap:6px;margin-top:5px;min-height:24px}
+.dz-count:empty,.dz-total:empty{display:none}
+.dz-count{display:inline-flex;align-items:center;gap:4px;background:rgba(0,0,0,.3);border-radius:12px;padding:2px 9px 2px 3px}
+.dz-count img{width:17px;height:24px;border-radius:3px;display:block}.dz-count b{font-size:17px;font-weight:900}
+.dz-total{display:inline-flex;align-items:center;gap:3px;background:rgba(255,253,248,.92);color:#5c4636;border-radius:12px;padding:2px 9px;font-size:13px;font-weight:900}
+.dz-total b.up{color:#3f8a3d}.dz-total b.down{color:#c4536f}
+.dz-bubble{position:absolute;top:18px;background:#fffdf8;color:#3f3640;font-weight:900;font-size:16px;border-radius:16px;padding:6px 12px;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.2);opacity:0;pointer-events:none;z-index:6}
+.dz-seat.pos2 .dz-bubble{left:150px}.dz-seat.pos1 .dz-bubble{right:150px}.dz-seat.pos0 .dz-bubble{left:112px;top:-8px}
+.dz-bubble:after{content:"";position:absolute;top:14px;border:7px solid transparent}
+.dz-seat.pos2 .dz-bubble:after,.dz-seat.pos0 .dz-bubble:after{left:-12px;border-right-color:#fffdf8}.dz-seat.pos1 .dz-bubble:after{right:-12px;border-left-color:#fffdf8}
+.dz-bubble.show{animation:dzBubble 1.9s ease forwards}
+@keyframes dzBubble{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.08)}20%{transform:scale(1)}82%{opacity:1}100%{opacity:0}}
+.dz-bubble.bid{background:#fff3c4;color:#8a5a0a}.dz-bubble.bid.v3{background:#ffd34d;color:#6a3d0a;font-size:19px}.dz-bubble.pass{color:#7d7380}.dz-bubble.emote{background:#fde7ec;color:#c4536f}
+.dz-bubble.bid:after{border-right-color:#fff3c4!important;border-left-color:transparent}.dz-seat.pos1 .dz-bubble.bid:after{border-left-color:#fff3c4!important;border-right-color:transparent!important}
+.dz-alarm{position:absolute;top:-4px;display:flex;align-items:center;gap:4px;z-index:5}.dz-seat.pos2 .dz-alarm{right:6px}.dz-seat.pos1 .dz-alarm{left:6px}.dz-seat.pos0 .dz-alarm{left:96px;top:0}
+.dz-alarm svg{width:38px;height:38px}.dz-alarm b{background:#ff4d5e;color:#fff;font-size:13px;font-weight:900;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.dz-alarm .dz-rays{animation:dzRays .5s steps(2) infinite}.dz-alarm.ring svg{animation:dzRing .6s ease}
+@keyframes dzRays{50%{opacity:0}}@keyframes dzRing{30%{transform:scale(1.4) rotate(-10deg)}60%{transform:scale(1.2) rotate(10deg)}}
+.dz-clock{position:absolute;top:2px;width:38px;height:38px;border-radius:50%;background:#fffdf8;color:#3f3640;border:3px solid #ffd34d;display:grid;place-items:center;font-weight:900;font-size:17px;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.dz-seat.pos2 .dz-clock{left:6px}.dz-seat.pos1 .dz-clock{right:6px}.dz-seat.pos0 .dz-clock{right:-14px;top:-4px}
+.dz-clock.urgent{border-color:#ff4d5e;color:#ff4d5e;animation:dzPulse .5s ease-in-out infinite alternate}
+@keyframes dzPulse{to{transform:scale(1.15)}}
+.dz-think{position:absolute;top:52px;display:flex;gap:4px;background:#fffdf8;border-radius:12px;padding:6px 9px;z-index:5}.dz-seat.pos2 .dz-think{left:150px}.dz-seat.pos1 .dz-think{right:150px}
+.dz-think i{width:7px;height:7px;border-radius:50%;background:#c4536f;animation:dzDot 1s ease-in-out infinite}.dz-think i:nth-child(2){animation-delay:.15s}.dz-think i:nth-child(3){animation-delay:.3s}
+@keyframes dzDot{50%{transform:translateY(-5px);opacity:.4}}
+/* 出牌区 */
+.dz-played{position:absolute;height:120px;z-index:2;transition:opacity .3s}
+.dz-played.pos2{left:206px;top:150px;width:300px}.dz-played.pos1{right:206px;top:150px;width:300px;text-align:right}.dz-played.pos0{left:290px;width:420px;top:286px;text-align:center}
+.dz-played.out{opacity:0}
+.dz-pcards{position:relative;height:87px;display:inline-block;vertical-align:top}
+.dz-played.pos1 .dz-pcards{margin-left:auto}
+.dz-pcard{position:absolute;top:0;width:62px;height:87px;border-radius:7px;box-shadow:-1px 2px 5px rgba(0,0,0,.28);display:block}
+.dz-pcard.sm{width:40px;height:56px;border-radius:5px}
+.dz-pcards.reveal{height:56px}
+.dz-pcard.in{animation:dzIn .34s cubic-bezier(.2,.9,.3,1.25) both;animation-delay:var(--d)}
+@keyframes dzIn{from{transform:var(--from,translate(0,40px)) rotate(-10deg) scale(.7);opacity:0}}
+.dz-plabel{display:block;margin-top:6px;font-size:13px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.dz-played.pos0 .dz-plabel{margin-top:4px}
+.dz-plabel.bomb,.dz-plabel.rocket{color:#ffd34d;font-size:16px}.dz-plabel.soft{opacity:.8;font-weight:700}
+.dz-passmark{display:inline-block;margin-top:18px}
+.dz-passmark span{display:inline-block;border:3px solid rgba(255,255,255,.85);color:#fff;border-radius:14px;padding:4px 14px;font-size:22px;font-weight:900;transform:rotate(-8deg);letter-spacing:.1em;background:rgba(0,0,0,.12)}
+.dz-passmark.in span{animation:dzStamp .3s cubic-bezier(.2,1.6,.4,1)}
+@keyframes dzStamp{from{transform:rotate(-8deg) scale(1.8);opacity:0}}
+/* 操作按钮 */
+.dz-actions{position:absolute;left:150px;width:840px;top:394px;height:50px;display:flex;justify-content:center;align-items:center;gap:12px;z-index:4}
+.dz-btn{min-width:98px;height:44px;border-radius:22px;border:0;font:inherit;font-weight:900;font-size:17px;background:#fffdf8;color:#4a3b52;box-shadow:0 4px 0 rgba(0,0,0,.2);cursor:pointer;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;padding:0 18px;transition:transform .1s}
+.dz-btn:hover:not(:disabled){transform:translateY(-2px)}.dz-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.dz-btn small{font-size:11px;font-weight:700;opacity:.9}
+.dz-btn.go{background:linear-gradient(#ff97b3,#e46f8c);color:#fff;min-width:130px}.dz-btn.bid{background:linear-gradient(#ffe08a,#f4b63f);color:#6a3d0a}.dz-btn.ghost{background:rgba(255,253,248,.92)}
+.dz-btn:disabled{opacity:.45;cursor:not-allowed}
+.dz-btn.nudge{animation:dzNudge .9s ease-in-out 3}
+@keyframes dzNudge{50%{transform:scale(1.12);box-shadow:0 0 0 5px rgba(255,211,77,.7)}}
+.dz-ask,.dz-wait{font-weight:900;font-size:16px;text-shadow:0 1px 3px rgba(0,0,0,.4)}.dz-wait{opacity:.85;font-weight:700}
+/* 手牌 */
+.dz-hand{position:absolute;z-index:5;touch-action:none}
+.dz-card{position:absolute;width:88px;height:123px;border-radius:9px;box-shadow:-2px 2px 6px rgba(0,0,0,.3);transition:left .2s ease,top .12s ease,box-shadow .12s;cursor:pointer}
+.dz-card img{width:100%;height:100%;display:block;border-radius:9px;pointer-events:none}
+.dz-card:hover{box-shadow:-2px 2px 6px rgba(0,0,0,.3),0 0 0 2px rgba(255,255,255,.7)}
+.dz-card.sel{box-shadow:0 0 0 3px #ffd34d,-2px 6px 12px rgba(0,0,0,.35)}
+.dz-card.fresh:after{content:"";position:absolute;inset:0;border-radius:9px;box-shadow:0 0 0 3px #c58bff,0 0 16px #b06cf0;animation:dzFresh 1.6s ease forwards}
+@keyframes dzFresh{80%{opacity:1}100%{opacity:0}}
+.dz-card.deal-in{animation:dzDeal .3s ease-out}
+@keyframes dzDeal{from{transform:translate(0,-170px) scale(.5) rotate(-20deg);opacity:0}}
+.dz-card.gather{animation:dzGather .6s ease-in forwards;animation-delay:var(--d)}
+@keyframes dzGather{to{transform:translate(0,-240px) scale(.4) rotate(30deg);opacity:0}}
+.dz-deck{position:absolute;left:476px;top:198px;width:48px;height:67px;z-index:3}
+.dz-deck img{position:absolute;width:48px;height:67px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.3)}.dz-deck img:nth-child(2){left:2px;top:-2px}.dz-deck img:nth-child(3){left:4px;top:-4px}
+/* 特效 */
+.dz-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:30px;z-index:8}
+.dz-fxel{position:absolute;transform:translate(-50%,-50%)}
+.dz-flycard{position:absolute;left:0;top:0;width:46px;height:64px;border-radius:5px;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.dz-banner{position:absolute;left:50%;top:232px;transform:translate(-50%,-50%);font-size:42px;font-weight:900;color:#fff;text-align:center;white-space:nowrap;opacity:0;pointer-events:none;z-index:9;text-shadow:0 3px 0 rgba(0,0,0,.25),0 0 18px rgba(0,0,0,.25);line-height:1.15}
+.dz-banner small{display:block;font-size:17px;font-weight:800;margin-top:4px}
+.dz-banner b{color:#e8c3ff}
+.dz-banner.show{animation:dzBanner 1.9s ease forwards}
+@keyframes dzBanner{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(.96)}}
+.dz-banner.soft{font-size:28px}.dz-banner.evil{color:#f6e3ff;text-shadow:0 0 22px #9b4fd1,0 3px 0 #4a1f63}.dz-banner.farm{color:#fff8d6;text-shadow:0 0 20px #4fa35f,0 3px 0 #2c5d36}
+.dz-banner.bomb{color:#ffe27a;text-shadow:0 0 22px #ff6a3d,0 3px 0 #8a2a12;font-size:48px;top:140px}.dz-banner.spring{color:#fff;text-shadow:0 0 22px #ff8fb3,0 3px 0 #b84a6c;font-size:50px}
+.dz-smoke{width:10px;height:10px}.dz-smoke i{position:absolute;left:-36px;top:-36px;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e9dcf5,#9a7bc0);opacity:0;animation:dzPuff 1.4s ease-out forwards}
+.dz-smoke.purple i{background:radial-gradient(circle at 35% 35%,#f1d4ff,#7a3fa0)}
+.dz-smoke i:nth-child(1){--x:-50px;--y:-30px}.dz-smoke i:nth-child(2){--x:40px;--y:-40px;animation-delay:.08s}.dz-smoke i:nth-child(3){--x:-30px;--y:40px;animation-delay:.16s}.dz-smoke i:nth-child(4){--x:50px;--y:30px;animation-delay:.1s}.dz-smoke i:nth-child(5){--x:0px;--y:-60px;animation-delay:.2s}
+@keyframes dzPuff{0%{opacity:0;transform:scale(.3)}25%{opacity:.95}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.6)}}
+.dz-boltfx svg{width:56px;height:112px;animation:dzBolt .9s ease forwards}
+@keyframes dzBolt{0%,20%,40%{opacity:1}10%,30%{opacity:.2}100%{opacity:0;transform:scale(1.2)}}
+.dz-trainfx{transform:none}.dz-train{display:flex;align-items:flex-end;gap:5px;animation:dzTrain 1.85s linear forwards}
+@keyframes dzTrain{from{transform:translateX(1060px)}to{transform:translateX(-760px)}}
+.dz-engine{width:120px;height:92px}.dz-smoke circle{animation:dzSteam .5s ease-out infinite}
+@keyframes dzSteam{to{transform:translate(8px,-10px);opacity:0}}
+.dz-wheels{animation:dzWheel .3s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes dzWheel{50%{transform:translateY(-1.5px)}}
+.dz-wagon{width:74px;height:42px;border-radius:9px;position:relative;margin-bottom:12px;border:2.5px solid rgba(0,0,0,.18)}
+.dz-wagon.w0{background:#f7c948}.dz-wagon.w1{background:#8fc6e8}.dz-wagon.w2{background:#a9d48f}.dz-wagon.w3{background:#f2a6c0}
+.dz-wagon img{position:absolute;left:8px;bottom:22px;width:58px;animation:dzBob .5s ease-in-out infinite}
+.dz-wagon i{position:absolute;bottom:-12px;width:20px;height:20px;border-radius:50%;background:#3b3343;border:3px solid #211c27}.dz-wagon i:nth-of-type(1){left:6px}.dz-wagon i:nth-of-type(2){right:6px}
+.dz-hopfx{display:flex;gap:16px}.dz-hopfx span{display:flex;gap:0;animation:dzHop .38s ease-in-out infinite alternate;animation-delay:var(--d)}
+.dz-hopfx img{width:56px}.dz-hopfx img+img{margin-left:-14px;transform:scaleX(-1)}
+.dz-hopfx{animation:dzFadeOut 1.7s ease forwards}
+@keyframes dzHop{to{transform:translateY(-34px)}}@keyframes dzFadeOut{0%{opacity:0}10%,80%{opacity:1}100%{opacity:0}}
+.dz-planefx{transform:none}.dz-planefx svg{width:230px;height:208px}
+.dz-planefx.ltr{animation:dzPlaneL 1.75s ease-in-out forwards}.dz-planefx.rtl{animation:dzPlaneR 1.75s ease-in-out forwards}.dz-planefx.ltr svg{transform:scaleX(-1)}
+@keyframes dzPlaneL{from{transform:translate(-260px,120px) rotate(-8deg)}50%{transform:translate(380px,-40px) rotate(4deg)}to{transform:translate(1060px,40px) rotate(-6deg)}}
+@keyframes dzPlaneR{from{transform:translate(1060px,120px) rotate(8deg)}50%{transform:translate(380px,-40px) rotate(-4deg)}to{transform:translate(-260px,40px) rotate(6deg)}}
+.dz-wing{transform-box:fill-box;transform-origin:10% 100%;animation:dzFlap .22s ease-in-out infinite alternate}@keyframes dzFlap{to{transform:rotate(-24deg)}}
+.dz-bombfx svg{width:136px;height:136px}.dz-bombfx{animation:dzBombIn .55s cubic-bezier(.3,1.4,.5,1) forwards}
+@keyframes dzBombIn{from{transform:translate(calc(-50% + var(--fx)),calc(-50% + var(--fy))) scale(.4) rotate(-40deg)}70%{transform:translate(-50%,-50%) scale(1.15) rotate(8deg)}to{transform:translate(-50%,-50%) scale(1.05) rotate(-4deg)}}
+.dz-spark{animation:dzSparkle .12s steps(2) infinite;transform-box:fill-box;transform-origin:center}@keyframes dzSparkle{50%{transform:scale(1.4) rotate(20deg)}}
+.dz-burstfx svg{width:280px;height:280px}.dz-burstfx{animation:dzBurst .85s ease-out forwards}
+@keyframes dzBurst{0%{transform:translate(-50%,-50%) scale(.2)}30%{transform:translate(-50%,-50%) scale(1.15)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
+.dz-mud{width:22px;height:16px;border-radius:50%;background:#7a5236;animation:dzMud .9s ease-out forwards}
+@keyframes dzMud{to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.6);opacity:0}}
+.dz-rocketfx svg{width:96px;height:202px}.dz-rocketfx{animation:dzRocket 1.15s cubic-bezier(.5,0,.8,.6) forwards}
+@keyframes dzRocket{0%{transform:translate(-50%,-50%)}15%{transform:translate(-52%,-50%)}25%{transform:translate(-48%,-52%)}100%{transform:translate(-50%,-760px)}}
+.dz-flame{animation:dzFlame .1s steps(2) infinite;transform-box:fill-box;transform-origin:50% 0}@keyframes dzFlame{50%{transform:scaleY(1.3)}}
+.dz-firework{width:4px;height:4px}.dz-firework i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:#ffd34d;opacity:0;animation:dzFw 1.1s ease-out forwards;animation-delay:var(--d)}
+.dz-firework i:nth-child(3n){background:#ff8fb3}.dz-firework i:nth-child(3n+1){background:#8fd2f4}
+.dz-firework i:nth-child(1){--a:0deg}.dz-firework i:nth-child(2){--a:30deg}.dz-firework i:nth-child(3){--a:60deg}.dz-firework i:nth-child(4){--a:90deg}.dz-firework i:nth-child(5){--a:120deg}.dz-firework i:nth-child(6){--a:150deg}.dz-firework i:nth-child(7){--a:180deg}.dz-firework i:nth-child(8){--a:210deg}.dz-firework i:nth-child(9){--a:240deg}.dz-firework i:nth-child(10){--a:270deg}.dz-firework i:nth-child(11){--a:300deg}.dz-firework i:nth-child(12){--a:330deg}
+@keyframes dzFw{0%{opacity:1;transform:rotate(var(--a)) translateX(0)}100%{opacity:0;transform:rotate(var(--a)) translateX(110px) scale(.4)}}
+.dz-flower svg{width:44px;height:44px}.dz-flower{animation:dzFlower 1.7s ease-out forwards;animation-delay:var(--d);opacity:0}
+@keyframes dzFlower{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-260px) scale(1.2) rotate(var(--r))}}
+.dz-netfx svg{width:230px;height:196px}.dz-netfx{animation:dzNet .7s cubic-bezier(.3,1.5,.5,1) forwards;z-index:3}
+@keyframes dzNet{from{transform:translate(-50%,-260px) scale(1.2)}to{transform:translate(-50%,-46%)}}
+.dz-bubbles{width:4px;height:4px}.dz-bubbles i{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff 0 18%,rgba(220,245,255,.5) 40%,rgba(160,215,240,.35) 100%);border:1.5px solid rgba(160,210,235,.8);animation:dzBub 1.8s ease-out forwards}
+.dz-bubbles i:nth-child(1){left:-70px;top:10px;animation-delay:0.00s;transform:scale(1)}.dz-bubbles i:nth-child(2){left:-40px;top:30px;animation-delay:0.09s;transform:scale(1.4)}.dz-bubbles i:nth-child(3){left:-10px;top:0px;animation-delay:0.18s;transform:scale(0.8)}.dz-bubbles i:nth-child(4){left:20px;top:20px;animation-delay:0.27s;transform:scale(1.2)}.dz-bubbles i:nth-child(5){left:50px;top:-5px;animation-delay:0.36s;transform:scale(1)}.dz-bubbles i:nth-child(6){left:-55px;top:-30px;animation-delay:0.45s;transform:scale(1.6)}.dz-bubbles i:nth-child(7){left:35px;top:-25px;animation-delay:0.54s;transform:scale(0.9)}.dz-bubbles i:nth-child(8){left:0px;top:-50px;animation-delay:0.63s;transform:scale(1.3)}
+@keyframes dzBub{0%{opacity:0;translate:0 20px}20%{opacity:1}100%{opacity:0;translate:0 -110px}}
+.dz-sparkle{width:4px;height:4px}.dz-sparkle i{position:absolute;width:12px;height:12px;background:#ffd34d;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:dzFw .8s ease-out forwards}
+.dz-sparkle i:nth-child(1){--a:0deg}.dz-sparkle i:nth-child(2){--a:60deg}.dz-sparkle i:nth-child(3){--a:120deg}.dz-sparkle i:nth-child(4){--a:180deg}.dz-sparkle i:nth-child(5){--a:240deg}.dz-sparkle i:nth-child(6){--a:300deg}
+/* 覆盖层：结算、联机大厅 */
+.dz-overlay{position:absolute;inset:0;border-radius:30px;background:rgba(28,38,30,.5);display:grid;place-items:center;z-index:30;color:#3f3640;animation:dzFadeIn .25s ease}
+@keyframes dzFadeIn{from{opacity:0}}
+.dz-result,.dz-lobby{background:#fffdf8;border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,.35);padding:18px 24px 18px;width:660px;max-height:580px;overflow:auto;animation:dzPop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes dzPop{from{transform:scale(.85);opacity:0}}
+.dz-rhead{display:flex;align-items:center;gap:14px}.dz-rfig{width:120px;height:104px;flex:none}.dz-rfig svg{width:100%;height:100%}
+.dz-rhead h3{margin:0;font-size:32px;font-weight:900}.dz-result.win h3{color:#e46f8c}.dz-result.lose h3{color:#6c7a8e}.dz-rhead p{margin:2px 0 0;font-weight:800;color:#7d7380}
+.dz-calc{display:flex;align-items:center;gap:6px;background:#f7f2ea;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px;margin:10px 0}
+.dz-rtable{width:100%;border-collapse:collapse;font-size:14px}
+.dz-rtable th{font-size:12px;color:#9a8f96;text-align:left;font-weight:700;padding:4px 6px;border-bottom:1px solid #efe4dc}
+.dz-rtable td{padding:6px;border-bottom:1px solid #f4ece4;font-weight:800;vertical-align:middle}
+.dz-rtable tr.me td{background:#fff7e6}
+.dz-rtable td:first-child{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dz-rav{width:30px;height:30px;border-radius:50%;overflow:hidden;background:#fdeef2;display:inline-block;flex:none}
+.dz-rtable .role{font-style:normal;font-size:12px;border-radius:8px;padding:1px 7px}.dz-rtable .role.evil{background:#f1e4fa;color:#7a3fa0}.dz-rtable .role.farm{background:#e9f2e3;color:#567f52}
+.dz-rtable td.up{color:#3f8a3d}.dz-rtable td.down{color:#c4536f}
+.dz-rtable td.left{white-space:nowrap}.dz-rtable td.left img{width:24px;height:34px;margin-right:-12px;border-radius:3px;box-shadow:-1px 1px 2px rgba(0,0,0,.2);vertical-align:middle}.dz-rtable td.left .out{color:#9a8f96;font-size:12px}
+.dz-ractions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.dz-reopen{position:absolute;right:28px;top:100px;z-index:25;background:#fffdf8;border:0;border-radius:16px;padding:6px 14px;font:inherit;font-weight:900;color:#c4536f;box-shadow:0 3px 0 rgba(0,0,0,.18);cursor:pointer}
+.dz-lobby h3{margin:0 0 4px;font-size:24px;font-weight:900}.dz-lobby h4{margin:0 0 6px;font-size:17px}.dz-lobby p{margin:4px 0;color:#5f5361;font-size:14px}
+.dz-lhead{display:flex;gap:12px;align-items:center}.dz-lhead svg{width:110px;height:96px;flex:none}
+.dz-namefield{display:flex;align-items:center;gap:8px;font-weight:800;margin:10px 0}.dz-namefield input,.dz-manual input{font:inherit;border:2px solid #efe4dc;border-radius:12px;padding:6px 10px;background:#fff;color:#3f3640}
+.dz-namefield input{width:180px}
+.dz-cols{display:grid;grid-template-columns:1fr 1.35fr;gap:14px}.dz-cols section{background:#f7f2ea;border-radius:16px;padding:12px 14px}
+.dz-rooms{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow:auto;margin:6px 0}
+.dz-room{display:grid;grid-template-columns:1fr auto;gap:0 8px;text-align:left;border:2px solid #efe4dc;background:#fff;border-radius:12px;padding:6px 10px;font:inherit;cursor:pointer;color:#3f3640}
+.dz-room:hover:not(:disabled){border-color:#e46f8c}.dz-room:disabled{opacity:.5;cursor:not-allowed}
+.dz-room b{font-weight:900}.dz-room span{font-size:12px;color:#7d7380;grid-column:1}.dz-room em{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-size:12px;color:#9a8f96}
+.dz-searching{display:flex;align-items:center;gap:8px;color:#7d7380}.dz-searching i{width:14px;height:14px;border-radius:50%;border:3px solid #f3b6c4;border-top-color:#e46f8c;animation:dzSpin .9s linear infinite}
+@keyframes dzSpin{to{transform:rotate(360deg)}}
+.dz-manual{display:flex;gap:6px}.dz-manual input{flex:1;min-width:0}
+.dz-note{font-size:12px!important;color:#8f8790!important;margin-top:10px!important}
+.dz-addr b{background:#fff3c4;border-radius:8px;padding:1px 6px;font-family:Consolas,monospace;user-select:text;-webkit-user-select:text}
+.dz-seatcards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 4px}
+.dz-seatcard{background:#f7f2ea;border-radius:16px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;border:2px solid transparent}
+.dz-seatcard.me{border-color:#f3b6c4}.dz-seatcard.open{opacity:.85;border-style:dashed;border-color:#e0d6cc}
+.dz-seatcard .dz-rav{width:58px;height:58px}.dz-seatcard b{font-weight:900}.dz-seatcard small{color:#7d7380;font-weight:700}
+.dz-seatctl{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:4px}.dz-seatctl button{font-size:12px;padding:3px 8px;min-height:0}
+.dz-emotes{position:absolute;left:156px;top:350px;width:440px;display:flex;flex-wrap:wrap;gap:6px;background:#fffdf8;border-radius:16px;padding:10px;z-index:20;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.dz-emotes button{border:0;background:#fde7ec;color:#c4536f;border-radius:12px;padding:6px 10px;font:inherit;font-weight:800;cursor:pointer}.dz-emotes button:hover{background:#f9cdd9}
+.play-toolbar .dz-tl{font-size:13px;color:var(--muted,#9a8f96);font-weight:700}
+.play-toolbar .dz-leave{color:#c4536f}
+.arena.paused .dz-wrap *{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){.dz-seat.active .dz-fig,.dz-seat.active .dz-fig .dz-butcher [data-part="arm"]{animation:none}}

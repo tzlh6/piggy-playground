@@ -1,10 +1,10 @@
-// 用 Electron 22（Chromium 108，与 Win7 便携版同内核）启动桌面程序，检查 18 款游戏与轮盘演出。
+// 用 Electron 22（Chromium 108，与 Win7 便携版同内核）启动桌面程序，检查 19 款游戏、轮盘演出与斗地猪。
 // 用法（Linux 需显示环境，可用 xvfb-run）：xvfb-run -a node tools/playtest-electron.cjs [项目目录] [截图目录]
 const path=require('path'),fs=require('fs');
 const {_electron}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const ROOT=path.resolve(process.argv[2]||path.join(__dirname,'..'));const OUT=process.argv[3]&&path.resolve(process.argv[3]);if(OUT)fs.mkdirSync(OUT,{recursive:true});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const games=['mine','memory','merge','whack','snake','runner','blocks','breakout','flappy','stack','connect','sokoban','lights','match','slice','shooter','rhythm','roulette'];
+const games=['mine','memory','merge','whack','snake','runner','blocks','breakout','flappy','stack','connect','sokoban','lights','match','slice','shooter','rhythm','roulette','doudizhu'];
 (async()=>{
  const user=fs.mkdtempSync(path.join(require('os').tmpdir(),'piggy-e-'));
  const app=await _electron.launch({executablePath:require(path.join(ROOT,'node_modules','electron')),args:[ROOT,'--no-sandbox'],cwd:ROOT,env:Object.assign({},process.env,{PIGGY_USERDATA:user,PIGGY_UPDATE_BASE:'http://127.0.0.1:9/'})});
