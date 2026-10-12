@@ -10,3 +10,4 @@
 - 原始个人发行密钥存放在仓库之外；开源构建使用开发者自己的密钥。
 
 - 安卓发行：同步 Manifest 与共用游戏版本，增加 versionCode；同签名构建和检查后先上传 Release APK，再用 `android/tools/make-update-manifest.py` 从实际 APK 生成并提交更新清单。不要把模拟桥接验收写成安卓真机安装验收。
+- 安卓清单同步后运行 `android/tools/check-update-channel.py --purge`，刷新 jsDelivr 镜像并逐一核对两个实际通道的 JSON 与本地清单一致；出现 404、旧内容或刷新限流时先解决，不能仅凭 GitHub 主地址成功就称更新通道已通过。电脑请求与用户手机网络验收分开表述。
