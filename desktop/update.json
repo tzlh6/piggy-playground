@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.4.0",
+ "version": "4.4.1",
  "date": "2026-10-12",
- "ref": "6735dc0fa07185bd10fab3f313090406f67cf899",
+ "ref": "b92ed5a8920390abbcde15cf12795e3dcb26a8a5",
  "minShell": "4.4.0",
- "notes": "新增第 19 款游戏「斗地猪」：经典斗地主规则，地主是“邪恶猪猪”，两位农民是“屠夫”。 人机对战三档（悠闲 / 聪明 / 恶魔，恶魔会记牌、残局会推演），也能和同一个 Wi-Fi 里的朋友局域网联机，空位补电脑。 全新猪猪扑克（猪蹄、猪鼻、松露、卷尾四种花色，J/Q/K 是猪侍卫、猪皇后、猪国王，大王是邪恶猪猪本猪），炸弹、王炸、飞机、顺子、连对、春天都有专属动画和音效。 联机功能改动了程序本身：旧的 4.3 程序会提示“下载新程序”，换成 4.4.0 的 exe 即可，成绩和设置都在存档文件夹里，不受影响。",
+ "notes": "猪猪轮盘的开枪、八件道具、装填和猪王嘚瑟舞全部重新做了动画：更大的动作、更顺的镜头、打击停顿和粒子特效。 说明文字改回“真屎 / 假屎”。 斗地猪一局结束先演一段结算大戏：屠夫赢了就把邪恶猪猪做成烤乳猪吃掉；邪恶猪猪赢了就大发神威，把屠夫劈成焦炭。可以点“跳过”。 规则、积分和联机都没有变。",
  "files": {
   "app.js": {
    "sha256": "8d423bd5f3a7213c44558ee9b9f41100b12e7e37204a0ab21af07a7c329b717a",
@@ -352,8 +352,8 @@
    "size": 15720
   },
   "audio.js": {
-   "sha256": "52fc8e1569a4276cd62d20060688db3533af10283e3d58ad8e693d034f3200b2",
-   "size": 35760
+   "sha256": "0139fc6d567efb68215d79ff3d21d4a38e681fa04bb3fca68ca08dc8530f0adb",
+   "size": 38766
   },
   "catalog.js": {
    "sha256": "953375b65bac159f0aef1adb23a4691ea7d5e33821464f069b629da070b8463f",
@@ -372,28 +372,32 @@
    "size": 8757
   },
   "doudizhu-art.js": {
-   "sha256": "3897efc30c357c3de9f7952158522ab9530e194384962eeb2afa98c3ba7a040b",
-   "size": 26458
+   "sha256": "2f12d078727886d1b762740990114a545edf9ec2f65d041836c89f88decbf9f6",
+   "size": 27920
   },
   "doudizhu-core.js": {
    "sha256": "3e78db3a52efea2a2de7783445ef43ad0639a74bf3c9a8f05738c3b616088c20",
    "size": 31674
+  },
+  "doudizhu-finale.js": {
+   "sha256": "72d2b2ba9fc63b806ea27755de42987349e3f3398636ea76b4c1c0ea9b965f9e",
+   "size": 39679
   },
   "doudizhu-net.js": {
    "sha256": "ee62d8593c5803664aa9409e4a6e1b2c9cd07948f3a36a9f8ab56c59b59748d3",
    "size": 20810
   },
   "doudizhu-ui.js": {
-   "sha256": "eb37f1f8e860db656eba1296197fa2611e9732d388211d832085a12cca522e18",
-   "size": 56853
+   "sha256": "146fc8a466afc941e39becd31d4f93a049533b5166a26cc1ee5cc811ce7ee436",
+   "size": 58584
   },
   "help.js": {
-   "sha256": "a1e0f0daf570ed22e5d48991129b749360da9769b9cffa971ed5eeebac6fa4db",
+   "sha256": "0fbd47b90486fb4ac810371898aadc3bdecf3fb707520d9ab961ae7967a83440",
    "size": 12864
   },
   "index.html": {
-   "sha256": "bce1774534ee46a2c236c98cdeb105901544617e70e915c60226585c917bd8fd",
-   "size": 23075
+   "sha256": "90c4298547f02fde3f98d84f57f407d565d8ab5770a4bfe60d1fc4997f581dff",
+   "size": 23117
   },
   "look.js": {
    "sha256": "fd7df14e0ca7b968b170bc9d7885cabf5969e1b5c79a30680359ea6d6992a3da",
@@ -412,28 +416,28 @@
    "size": 28627
   },
   "roulette-art.js": {
-   "sha256": "32d047b05a44ed9ad95b59ad8089faba319ec0458289c42459eb3a6ea26196df",
-   "size": 20517
+   "sha256": "a238401eeef9e73a7a84973539b6b65beb35a5a62cb02dab4ab3aa5674b1b67c",
+   "size": 26892
   },
   "roulette-core.js": {
-   "sha256": "09717a819f0f182f80b82914b462374bf83da2a16c03a9ac79dbac70899ffd43",
+   "sha256": "f852be67e79b8ed9788f623a8063438aa4494a3e9ce10d66a20c6adf58502d28",
    "size": 21754
   },
   "roulette-ui.js": {
-   "sha256": "fdc2b6d9cc7707edcefe191d9f2e473291eeae7c193bf91989affc15d265ac7d",
-   "size": 87889
+   "sha256": "d119b36ce0085dbada8f61f6331839dd849420e854b1070d2479269a11358605",
+   "size": 111323
   },
   "sounds.js": {
    "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
    "size": 42904
   },
   "style.css": {
-   "sha256": "c93724effd993d81d9a40901d389c9cec7b3557eb95a57d3a719bf32e0f834b6",
-   "size": 110367
+   "sha256": "d8ebc56f680be7b94b8e280dc93e4398dc041e3e06d4007bdfc32555a3ca8aa9",
+   "size": 110849
   },
   "version.js": {
-   "sha256": "e8249e259f4db4cda621b52f81514332f0ca8343c1e1315b0f1e70841d404fd5",
-   "size": 9549
+   "sha256": "c3189960d16e976ba1f1d72b9e49f6ba43b00d2c357e657c0acead3f7a39350d",
+   "size": 12031
   }
  }
 }
