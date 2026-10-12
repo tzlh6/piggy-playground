@@ -1,55 +1,31 @@
-# 猪猪游乐场 · 安卓 4.4.1
+# 猪猪游乐场 · 安卓 4.4.2
 
-同步共用游戏 4.4.1：共 19 款小游戏，新增斗地猪三档人机对战、轮盘三阶段积分赛与八件道具、轮盘全新动画和斗地猪结算大戏。游戏内容全部内置，可离线游玩。手机大厅支持搜索、分类与最近 / 最常玩 / 名称排序；斗地猪的原始手牌和操作区移到放大的触屏区域，牌宽至少 44 px，支持点选和划选。当前安卓版的斗地猪提供人机对战；局域网联机仍由 Windows 版提供。
+4.4.2 修复「检查更新」「下载新版」「安装新版」「GitHub 下载页」点了没有反应的问题，增加独立更新线路和中文连接提示。共用游戏保持 4.4.1：19 款小游戏、轮盘新版动画、斗地猪结算大戏、三档人机对战和放大的触屏手牌。游戏全部内置，可离线游玩；大厅支持搜索、分类和排序。局域网联机目前仅适用于 Windows。
 
 ## 安装与更新
 
-官方 APK：[GitHub 4.4.1 发行页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.1-android)，附件为 `PiggyPlayground-4.4.1-Android.apk`。Android 8.0（API 26）及以上，需启用并更新 Android System WebView，建议 WebView 109 或更新版本。
+官方 APK：[安卓 4.4.2 发行页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.2-android)，附件为 `PiggyPlayground-4.4.2-Android.apk`。Android 8.0（API 26）及以上，需启用 Android System WebView，建议 WebView 109 或更新版本。
 
-原 4.2 不具备更新功能，需要先手动下载、直接覆盖安装一次 4.4.1。包名 `local.piggy.playground`，版本编号 `40401`，沿用原发行签名；覆盖安装保留成绩、造型、难度和音效设置，卸载后记录会被删除。请保留应用数据，直接覆盖安装。
+4.4.1 的手动更新按钮存在接口参数错误，4.2 没有更新功能，均需先下载 4.4.2 APK，直接覆盖安装一次。包名 `local.piggy.playground`、版本编号 `40402`，沿用原发行签名与存储来源；保留应用数据，覆盖安装继续使用成绩、造型、难度和声音设置。
 
-安装 4.4.1 后，在「游戏大厅 → 版本与更新」中检查更新。默认启动时自动检查一次，可关闭自动检查。发现新版本后，由玩家点「下载新版」；显示进度，校验通过后点「安装新版」，交给安卓系统确认。首次从本应用更新时，需要在系统页面允许「安装未知应用」，返回后继续系统安装确认。也可以打开 GitHub 下载页手动下载。网络失败或更新失败均不影响离线游玩。
+安装后在「游戏大厅 → 版本与更新」检查更新。默认启动自动检查一次，可关闭；发现新版后由玩家点选下载，校验通过后交给安卓系统确认覆盖安装。首次从应用内安装更新时，系统会要求允许本应用「安装未知应用」，返回后继续安装确认。连接失败不影响离线游玩。
 
-仅申请 `INTERNET`（检查与下载）和 `REQUEST_INSTALL_PACKAGES`（系统确认覆盖安装）两个权限，不申请存储、麦克风、定位权限；无账号和广告。APK 暂存在应用私有缓存，系统安装器仅取得这个文件的临时只读访问权限。
+仅申请 `INTERNET` 与 `REQUEST_INSTALL_PACKAGES`，不申请存储、麦克风或定位权限；无账号和广告。下载文件保存在应用私有缓存，安装器仅取得该 APK 的临时只读访问权限。
 
-## 更新实现与发行
+## 更新实现
 
-- `src/.../MainActivity.java`：离线 WebView、返回键、安全区域和后台暂停；窄范围 `PiggyAndroidBridge` 只允许更新操作。
-- `UpdateManager.java`：固定 HTTPS 更新通道，主地址 `main/android/update.json`，失败后尝试 jsDelivr 清单镜像；APK 从项目的 GitHub Release 下载。镜像只用于读取清单，APK 下载仍需能访问 GitHub。
-- `UpdatePolicy.java`：限定官方项目的 Release 地址、可信 HTTPS 跳转域名、版本编号、64 MB 文件上限与 SHA-256。
-- 安装前再次校验 SHA-256、包名、版本及当前应用签名，拒绝降级或不同签名的包。自动检查不会自动下载或自动安装。
-- `UpdateProvider.java`：只开放一个已验证 APK 的临时只读 URI，其他路径与写操作一律拒绝。
-- `web/android.js`、`android.css`：安卓专用触屏大厅和牌桌布局。
-- `web/android-update.js`：更新界面与安卓专用更新说明。来自网络的说明和错误使用纯文字显示。
-- `assets/game.html`：由共用游戏源码和安卓适配生成，保持稳定 HTTPS 虚拟来源，让覆盖安装继续使用原成绩与设置。
+- `web/android-update.js`：无参操作不再传入 `undefined`；自动检查开关仍传一个布尔值。调用失败显示中文提示。远端更新说明与错误始终通过 `textContent` 显示。
+- `UpdateNetwork.java`：同时请求 GitHub API、jsDelivr Gcore、jsDelivr Fastly、GitHub Raw 与原 jsDelivr 地址，检查总等待上限 12 秒，单次连接 5 秒 / 读取 6 秒；取消未完成请求。仅接受有效清单，多个可用响应选版本编号最高的，避免较快的旧缓存掩盖新版本。TLS 使用系统正常证书验证。
+- `UpdateManager.java`：下载先使用本项目 GitHub Release，失败后通过 GitHub 官方 API 找到同名、同大小附件再下载；两个入口均校验大小、SHA-256、包名、版本及当前应用签名。APK 降级或签名不匹配一律拒绝。
+- `UpdatePolicy.java`：限制官方 Release 地址、可信 HTTPS 域名和 64 MB APK 上限。
+- `UpdateProvider.java`：只开放固定已校验 APK 的临时只读 URI，拒绝其他路径及写入。
+- `MainActivity.java`：稳定的离线 WebView 来源、安全区域、返回键和后台暂停。WebView 自身仍禁止联网，原生桥接仅开放更新功能。
 
-后续发行先增加 Android Manifest 的 `versionName` / `versionCode`，与共用游戏版本保持一致。构建并核验同签名 APK 后，在本项目 GitHub Release 上传 `PiggyPlayground-<version>-Android.apk`；然后生成并提交 `android/update.json`，避免更新通道指向尚未上传的附件。
+安卓原生修正版可以独立提升 Manifest 版本。`game-version.json` 明确指定共用游戏版本，构建时核对 `desktop/package.json`，主动同步新游戏内容时一起更新。安卓更新说明用独立已读记录，避免游戏版本不变时漏掉原生修正版说明。
 
-```text
-python android/tools/make-update-manifest.py <已核验的 APK> --tag v<version>
-```
+## 构建与发行
 
-清单从实际发行 APK 读取大小与 SHA-256，并核对内置网页与已准备源文件一致。维护者不得把发行密钥、口令或安装包放进源码提交；安装包只作为 GitHub Release 附件发布。自行签名的分支应配置自己的更新通道；不同签名不能覆盖作者签名的发行版本。
-
-提交更新清单后，还要刷新可变镜像缓存并逐一读取两个真实地址，不能只验证 GitHub 主地址：
-
-```text
-python android/tools/check-update-channel.py --purge --report build/android-channel-check.json
-```
-
-脚本要求镜像的各个 CDN 节点确认刷新完成，并验证每个地址的实际 JSON 与发行清单完全一致。缓存刷新被限流、地址返回 404 或清单滞后时，检查会失败；修复后再交付。电脑端通道检查仍不能代表用户手机网络的实测结果。
-
-## 验证范围（2026-10-12）
-
-已完成 JDK 17 / Android Platform 36 / Build Tools 36.0.0 构建，v2/v3 签名、资源对齐、启动入口与版本核对；与原 4.2 的签名相同。32 项更新安全边界测试通过。360×640 的 19 款游戏入口均正常且没有整页横向溢出，浏览器无页面错误；390×844 中点牌、叫分和合法出牌通过。单独的模拟桥接页面通过检查更新、下载进度、安装入口、自动检查开关及远端文字安全展示检查。
-
-斗地猪 43,875 项规则检查与 1,090 场 AI 完整对局、轮盘 5,796 项规则检查与 1,800 场 AI 完整对局、单击操作规则回归通过。浏览器预览和模拟桥接不是安卓真机测试。
-
-本机没有连接安卓设备，也没有运行模拟器：原生联网、下载后的包签名读取、系统未知来源授权、安装确认、4.2 覆盖升级后的实际记录保留，以及声音和触屏性能仍需真机验收。Instrumentation 测试 APK 已重新编译，尚未执行。
-
-## 开源构建
-
-在仓库根目录运行 `python android/build.py --prepare-only`，生成内置离线网页，无需 SDK。构建 APK 使用 JDK 17、官方 Android SDK Platform 36 与 Build Tools 36，工具目录如下：
+在仓库根目录运行 `python android/build.py --prepare-only`，无需 Android SDK 即可生成内置触屏网页。APK 构建使用 Windows、JDK 17、Android Platform 36、Build Tools 36.0.0 与开发者自己的仓库外签名密钥。
 
 ```text
 tools/
@@ -58,17 +34,39 @@ tools/
   platform/     # android.jar
 ```
 
-用 `--tools` 或 `PIGGY_ANDROID_TOOLS` 指定工具目录，默认 `.android-tools/`。只放一个对应 JDK / SDK 版本，脚本做唯一性检查。工具链面向 Windows，建议使用 ASCII 路径。创建自己的签名密钥（别名 `piggy`），在当前进程设置 `PIGGY_ANDROID_STOREPASS`，然后：
+使用 `--tools` 或 `PIGGY_ANDROID_TOOLS` 指定工具目录，默认 `.android-tools/`。每个目录只保留一个对应版本，建议 ASCII 路径。密钥别名为 `piggy`，口令通过当前进程的 `PIGGY_ANDROID_STOREPASS` 传入。
 
 ```text
-python android/build.py --tools <工具目录> --keystore <仓库外的密钥> --output build/PiggyPlayground-4.4.1-Android.apk --tests
+python android/build.py --tools <工具目录> --keystore <仓库外密钥> --output build/PiggyPlayground-4.4.2-Android.apk --tests
 ```
 
-也可使用 `android/build-release.ps1 -ToolsPath <工具目录> -KeystorePath <密钥路径> -WithTests`。本地工具根目录的布局和公开构建入口不依赖作者的私人路径。32 项更新边界测试可用 JDK 单独运行：
+也可使用 `android/build-release.ps1 -ToolsPath <工具目录> -KeystorePath <密钥路径> -WithTests`。源码不含原发行密钥或口令，自行签名的分支不能覆盖作者签名的 APK，应配置自己的更新通道。
+
+正式发行顺序：提高 Manifest 版本及 versionCode → 同签名构建与检查 → 提交对应源码 → 在独立 `v<version>-android` Release 上传实际 APK → 从此 APK 生成并提交清单 → 刷新并逐一核对全部更新地址。
 
 ```text
-javac -encoding UTF-8 --release 8 -d build/android-unit android/src/local/piggy/playground/UpdatePolicy.java android/tests/unit/UpdatePolicyTests.java
+python android/tools/make-update-manifest.py <已核验 APK> --tag v4.4.2-android
+python android/tools/check-update-channel.py --purge --report build/android-channel-check.json
+```
+
+清单生成器核对 APK 内网页与准备源逐字节相同。地址核验要求每条线路的实际 JSON 与本地发行清单一致；缓存刷新被限流、404 或旧内容时检查失败。电脑通道检查不代表用户手机网络的实测结果。
+
+## 本轮检查（2026-10-13）
+
+已通过 JDK / 官方 SDK 构建、v2/v3 签名、资源对齐、版本与启动入口检查；发行证书与 4.2 / 4.4.1 一致。35 项更新边界检查与 12 项网络回归检查通过，包括原线路断连、过期清单、总体超时、取消请求和中文错误。电脑上使用生产 `HttpsURLConnection` 代码请求五条真实更新线路均成功。
+
+以旧 APK 内置网页和新 APK 内置网页进行严格参数数量的桥接对照：旧版检查与下载页按钮未能调用接口；新版检查、下载、安装、下载页均以零参数调用，自动检查开关传一个布尔值。调用异常可见，更新说明中的 HTML 标签保持纯文字。390×844 窗口无横向溢出。这是浏览器模拟桥接检查，不是安卓设备实测。
+
+新增 `UpdaterTests` Instrumentation，编译完成，可在隔离模拟器上复现旧版按钮、验证新版原生检查与浏览器 Intent，并检查覆盖安装的存储保留。本机软件模拟器启动后一直 offline，未能执行；没有修改系统虚拟化或安全设置。手机上的联网、实际安装确认、记录保留和性能仍待用户手机验收。共用游戏代码未改，沿用 4.4.1 的规则检查结果，不把历史游戏检查写成此次重跑。
+
+纯 Java 检查可独立运行：
+
+```text
+javac -encoding UTF-8 --release 8 -d build/android-unit android/src/local/piggy/playground/UpdatePolicy.java android/src/local/piggy/playground/UpdateNetwork.java android/tests/unit/UpdatePolicyTests.java android/tests/unit/UpdateNetworkTests.java
 java -cp build/android-unit local.piggy.playground.UpdatePolicyTests
+java -cp build/android-unit local.piggy.playground.UpdateNetworkTests
 ```
 
-新增代码采用 MIT，原视频录音不属于 MIT；第三方许可随共用源码保留。参考官方文档：[APK 签名](https://developer.android.com/tools/apksigner)、[系统安装授权](https://developer.android.com/reference/android/provider/Settings#ACTION_MANAGE_UNKNOWN_APP_SOURCES)。
+`UpdateNetworkTests --live` 另请求真实更新地址。隔离模拟器安装正式 APK 与同签名测试 APK 后，可运行 `adb -s <隔离模拟器> shell am instrument -w local.piggy.playground.test/.UpdaterTests`；`-e baseline true` 用于旧 4.4.1 对照，随后覆盖安装 4.4.2 并用 `-e preserved true` 核对测试存储标记。不要在玩家手机运行这些 QA 测试。
+
+新增代码采用 MIT，原视频录音不属于 MIT；第三方许可随共用源码保留。实现参考：[Chromium Java bridge 参数匹配](https://raw.githubusercontent.com/chromium/chromium/main/android_webview/docs/java-bridge.md)、[GitHub Contents API](https://docs.github.com/en/rest/repos/contents#get-repository-content)、[Release 附件 API](https://docs.github.com/en/rest/releases/assets#get-a-release-asset)、[APK 签名](https://developer.android.com/tools/apksigner)。

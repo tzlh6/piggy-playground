@@ -167,6 +167,7 @@
   }, true);
 
   window.PigAndroid = Object.freeze({
+    version,
     pause,
     back() {
       const modal = Array.from(document.querySelectorAll('dialog[open]')).pop();

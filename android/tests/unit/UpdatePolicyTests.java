@@ -32,7 +32,7 @@ public final class UpdatePolicyTests {
         UpdatePolicy.verifyDigest(data.length, data.length, digest, sha.toUpperCase()); passed++;
         reject(() -> UpdatePolicy.verifyDigest(data.length, data.length + 1, digest, sha));
         reject(() -> UpdatePolicy.verifyDigest(data.length, data.length, digest, HASH));
-        for (String host : new String[]{"github.com", "raw.githubusercontent.com", "cdn.jsdelivr.net", "release-assets.githubusercontent.com", "objects.githubusercontent.com"}) {
+        for (String host : new String[]{"github.com", "api.github.com", "raw.githubusercontent.com", "cdn.jsdelivr.net", "fastly.jsdelivr.net", "gcore.jsdelivr.net", "release-assets.githubusercontent.com", "objects.githubusercontent.com"}) {
             if (!UpdatePolicy.allowedHost("https://" + host + "/test")) throw new AssertionError(host); passed++;
         }
         for (String bad : new String[]{"http://github.com/x", "https://evil.test/x", "https://github.com:444/x", "https://evil@github.com/x", "https://github.com.evil.test/x"}) {

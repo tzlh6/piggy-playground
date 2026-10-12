@@ -1,22 +1,28 @@
 """Verify every live Android update address, optionally purging the mutable mirror."""
 from pathlib import Path
-import argparse, json, urllib.request
+import argparse, base64, json, urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 CHANNELS = [
-    ('GitHub', 'https://raw.githubusercontent.com/tzlh6/piggy-playground/main/android/update.json'),
-    ('jsDelivr', 'https://cdn.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json'),
+    ('GitHub API', 'https://api.github.com/repos/tzlh6/piggy-playground/contents/android/update.json?ref=main', 'application/vnd.github.raw+json'),
+    ('jsDelivr Gcore', 'https://gcore.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json', 'application/json'),
+    ('jsDelivr Fastly', 'https://fastly.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json', 'application/json'),
+    ('GitHub Raw', 'https://raw.githubusercontent.com/tzlh6/piggy-playground/main/android/update.json', 'application/json'),
+    ('jsDelivr', 'https://cdn.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json', 'application/json'),
 ]
 PURGE = 'https://purge.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json'
 HEADERS = {'User-Agent': 'PiggyPlayground-Android', 'Accept-Encoding': 'identity',
            'Cache-Control': 'no-cache', 'Pragma': 'no-cache'}
 
-def read(url):
-    with urllib.request.urlopen(urllib.request.Request(url, headers=HEADERS), timeout=20) as response:
+def read(url, accept='application/json'):
+    with urllib.request.urlopen(urllib.request.Request(url, headers={**HEADERS, 'Accept': accept}), timeout=20) as response:
         content = response.read(65537)
         if len(content) > 65536:
             raise ValueError('Update response exceeds the native limit')
-        return json.loads(content.decode('utf-8')), response.status, response.headers.get('Age')
+        actual = json.loads(content.decode('utf-8'))
+        if actual.get('encoding') == 'base64' and actual.get('path') == 'android/update.json':
+            actual = json.loads(base64.b64decode(actual['content']).decode('utf-8'))
+        return actual, response.status, response.headers.get('Age')
 
 def main():
     parser = argparse.ArgumentParser()
@@ -34,8 +40,8 @@ def main():
         target = paths.get('/gh/tzlh6/piggy-playground@main/android/update.json', {})
         if target.get('throttled') or not target.get('providers') or not all(target['providers'].values()):
             raise RuntimeError('Cache refresh is throttled or incomplete; verify all providers before release')
-    for name, url in CHANNELS:
-        actual, status, age = read(url)
+    for name, url, accept in CHANNELS:
+        actual, status, age = read(url, accept)
         if actual != expected:
             raise RuntimeError(name + ' returned a stale or different update manifest')
         report['checks'].append({'name': name, 'url': url, 'http': status, 'age': age, 'matches': True})

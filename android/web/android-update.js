@@ -1,7 +1,7 @@
 /* Native Android updates; only the fixed project release channel is reachable. */
 (() => {
   'use strict';
-  const version = window.PIGGY_VERSION.version;
+  const version = window.PigAndroid.version;
   const native = window.PiggyAndroidBridge || null;
   const hall = document.getElementById('android-games');
   let state = {current: version, status: 'idle', auto: true};
@@ -13,13 +13,23 @@
   updates.querySelector('.close').onclick = () => updates.close();
   updates.addEventListener('close', () => Sound.stop());
   const chip = document.getElementById('update-chip');
-  function action(name, value) { if (native) { try { native[name](value); } catch (ignored) {} } }
+  function action(name, ...args) {
+    if (!native) return;
+    try {
+      // Android selects a Java bridge method by argument count; undefined is still an argument.
+      if (args.length === 0) native[name]();
+      else native[name](...args);
+    } catch (error) {
+      state = {...state, status: 'error', error: '未能调用安卓更新功能，请关闭此窗口后重试。'};
+      render();
+    }
+  }
   function render() {
     const busy = ['checking', 'downloading'].includes(state.status);
     const mb = bytes => (Number(bytes || 0) / 1048576).toFixed(1) + ' MB';
     const labels = {
       idle: state.auto ? '启动后会自动检查一次；也可以手动检查。' : '自动检查已关闭，仍可手动检查。',
-      checking: '正在检查更新…',
+      checking: '正在检查更新，请稍候…',
       available: `发现新版 ${state.latest || ''}，可以下载更新。`,
       downloading: `正在下载 ${state.latest || ''}：${mb(state.done)} / ${mb(state.total)}。`,
       ready: `新版 ${state.latest || ''} 已校验，可以安装。`,
@@ -62,8 +72,9 @@
   const sharedNotes = openNotes;
   openNotes = function(auto) {
     sharedNotes(auto);
+    Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = '<p class="note-meta">安卓 4.4.1 · 2026-10-12</p><h3>手机游乐场追上最新版</h3><ul><li>补齐 19 款小游戏，新增斗地猪三档人机对战，轮盘三阶段积分赛与新版动画。</li><li>大厅支持搜索、分类与排序；斗地猪手牌与出牌按钮放大，支持点牌和划选。</li><li>可自动检查新版，点选下载安装；同签名覆盖安装保留成绩与设置。</li></ul><p class="muted small">下方保留共用游戏的历史更新说明，其中局域网联机仅适用于 Windows 版；本安卓版提供离线人机对战。</p>';
+    note.innerHTML = '<p class="note-meta">安卓 4.4.2 · 2026-10-13</p><h3>修复更新按钮与连接问题</h3><ul><li>修复检查更新、下载、安装和 GitHub 下载页点击后没有反应的问题。</li><li>同时尝试多个更新地址；一条线路连接失败时，其他线路仍可继续检查。</li><li>下载增加 GitHub 官方备用入口；连接失败时显示清楚的中文提示。</li><li>保留 4.4.1 的 19 款游戏、动画与触屏操作；覆盖安装保留成绩和设置。</li></ul><p class="muted small">下方是共用游戏 4.4.1 及历史更新说明，其中局域网联机仅适用于 Windows 版；本安卓版提供离线人机对战。</p>';
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };

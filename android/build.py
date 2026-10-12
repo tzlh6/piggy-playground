@@ -31,9 +31,14 @@ def prepare():
     mobile_js = (ROOT / 'web/android.js').read_text(encoding='utf-8') + '\n' + (ROOT / 'web/android-update.js').read_text(encoding='utf-8')
     version = ET.parse(ROOT / 'AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
     desktop_version = json.loads((DESKTOP / 'package.json').read_text(encoding='utf-8'))['version']
-    assert version == desktop_version, 'Android and game source versions differ'
+    game_version = json.loads((ROOT / 'game-version.json').read_text(encoding='utf-8'))['version']
+    assert desktop_version == game_version, 'Update game-version.json when deliberately syncing newer game content'
     assert mobile_js.count('__PIGGY_ANDROID_VERSION__') == 1
     mobile_js = mobile_js.replace('__PIGGY_ANDROID_VERSION__', version)
+    # Native-only patches have their own release notes while sharing the same game content.
+    seen_game = "if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);"
+    assert html.count(seen_game) == 1
+    html = html.replace(seen_game, f"if(Store.get('seen-android-version',null)!=='{version}')setTimeout(()=>openNotes(true),450);")
     html = html.replace('</head>', '<style>' + mobile_css + '</style></head>')
     # Block navigation and web requests even though the native updater has INTERNET.
     # Native bridge capabilities stay limited to updater actions on our packaged page.

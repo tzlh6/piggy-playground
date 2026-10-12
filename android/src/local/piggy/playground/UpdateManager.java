@@ -11,14 +11,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import org.json.JSONObject;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,10 +26,6 @@ import javax.net.ssl.HttpsURLConnection;
 /** Native HTTPS updater. The WebView remains offline and receives only status snapshots. */
 public final class UpdateManager {
     public interface Listener { void changed(JSONObject state); }
-    private static final String[] MANIFESTS = {
-        "https://raw.githubusercontent.com/tzlh6/piggy-playground/main/android/update.json",
-        "https://cdn.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json"
-    };
     private final Activity activity;
     private final Listener listener;
     private final SharedPreferences prefs;
@@ -41,6 +34,7 @@ public final class UpdateManager {
     private final long currentCode;
     private final JSONObject state = new JSONObject();
     private JSONObject release;
+    private volatile UpdateNetwork network;
     private boolean busy, closed, awaitingPermission;
 
     public UpdateManager(Activity activity, Listener listener) throws Exception {
@@ -74,18 +68,15 @@ public final class UpdateManager {
         if (!begin()) return;
         put("error", ""); status("checking");
         worker.execute(() -> {
-            try {
-                JSONObject found = null;
-                Exception last = null;
-                for (String url : MANIFESTS) {
-                    try {
-                        found = readManifest(url);
-                        validate(found);
-                        put("source", url.contains("jsdelivr") ? "jsDelivr" : "GitHub");
-                        break;
-                    } catch (Exception error) { found = null; last = error; }
-                }
-                if (found == null) throw last == null ? new IOException("更新清单暂不可用") : last;
+            try (UpdateNetwork requests = new UpdateNetwork()) {
+                network = requests;
+                UpdateNetwork.Selection<JSONObject> selected = UpdateNetwork.select(UpdateNetwork.MANIFESTS, route -> {
+                    JSONObject candidate = manifest(requests.text(route.url, route.accept, 65536));
+                    validate(candidate);
+                    return candidate;
+                }, candidate -> candidate.getLong("versionCode"), 12000);
+                JSONObject found = selected.value;
+                put("source", selected.source);
                 synchronized (this) { release = found; }
                 put("checkedAt", System.currentTimeMillis()); put("latest", found.getString("version"));
                 put("notes", found.optString("notes", "发现新版本，可下载后覆盖安装。"));
@@ -100,7 +91,7 @@ public final class UpdateManager {
                     status(ready ? "ready" : "available");
                 }
             } catch (Exception error) { fail(error); }
-            finally { end(); }
+            finally { network = null; end(); }
         });
     }
     private static void validate(JSONObject manifest) throws Exception {
@@ -110,36 +101,15 @@ public final class UpdateManager {
             manifest.getLong("bytes"), manifest.getString("sha256"), manifest.getString("url"));
         if (manifest.optString("notes", "").length() > 12000) throw new IOException("更新说明过长");
     }
-    private JSONObject readManifest(String url) throws Exception {
-        HttpsURLConnection connection = connect(url);
-        try (InputStream input = connection.getInputStream(); ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[4096]; int count;
-            while ((count = input.read(buffer)) != -1) {
-                if (bytes.size() + count > 65536) throw new IOException("更新清单过大");
-                bytes.write(buffer, 0, count);
-            }
-            return new JSONObject(new String(bytes.toByteArray(), StandardCharsets.UTF_8));
-        } finally { connection.disconnect(); }
-    }
-    private static HttpsURLConnection connect(String initial) throws Exception {
-        String url = initial;
-        for (int redirects=0; redirects<=5; redirects++) {
-            if (!UpdatePolicy.allowedHost(url)) throw new IOException("更新地址不受信任");
-            HttpsURLConnection connection = (HttpsURLConnection)new URL(url).openConnection();
-            connection.setConnectTimeout(10000); connection.setReadTimeout(15000);
-            connection.setInstanceFollowRedirects(false); connection.setUseCaches(false);
-            connection.setRequestProperty("User-Agent", "PiggyPlayground-Android");
-            connection.setRequestProperty("Accept-Encoding", "identity");
-            final int result;
-            try { result = connection.getResponseCode(); } catch (Exception error) { connection.disconnect(); throw error; }
-            if (result == 200) return connection;
-            String location = connection.getHeaderField("Location");
-            connection.disconnect();
-            if ((result == 301 || result == 302 || result == 303 || result == 307 || result == 308) && location != null)
-                url = new URL(new URL(url), location).toString();
-            else throw new IOException("更新服务暂不可用（HTTP " + result + "）");
+    private static JSONObject manifest(String body) throws Exception {
+        JSONObject result = new JSONObject(body);
+        if (!result.has("schema") && "base64".equals(result.optString("encoding")) &&
+                "android/update.json".equals(result.optString("path"))) {
+            byte[] decoded = java.util.Base64.getMimeDecoder().decode(result.getString("content"));
+            if (decoded.length > 65536) throw new IOException("更新清单过大");
+            result = new JSONObject(new String(decoded, java.nio.charset.StandardCharsets.UTF_8));
         }
-        throw new IOException("更新地址跳转过多");
+        return result;
     }
     public void download() {
         final JSONObject target;
@@ -148,31 +118,58 @@ public final class UpdateManager {
         put("error", ""); put("done", 0); status("downloading");
         worker.execute(() -> {
             File apk = UpdateProvider.apk(activity), part = new File(apk.getParentFile(), "download.part.apk");
-            try {
+            try (UpdateNetwork requests = new UpdateNetwork()) {
+                network = requests;
                 validate(target);
                 if (!apk.getParentFile().isDirectory() && !apk.getParentFile().mkdirs()) throw new IOException("无法创建更新目录");
-                HttpsURLConnection connection = connect(target.getString("url"));
-                long expected = target.getLong("bytes"), done = 0, lastProgress = 0;
-                long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MINUTES.toNanos(5);
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(part)) {
-                    byte[] buffer = new byte[32768]; int count;
-                    while ((count = input.read(buffer)) != -1) {
-                        if (Thread.currentThread().isInterrupted() || System.nanoTime() > deadline) throw new IOException("下载已中止，可稍后重试");
-                        done += count;
-                        if (done > expected || done > UpdatePolicy.MAX_APK_BYTES) throw new IOException("下载大小与更新清单不一致");
-                        output.write(buffer, 0, count); digest.update(buffer, 0, count);
-                        if (done - lastProgress >= 65536) { put("done", done); emit(); lastProgress = done; }
-                    }
-                    output.getFD().sync();
-                } finally { connection.disconnect(); }
-                UpdatePolicy.verifyDigest(done, expected, digest.digest(), target.getString("sha256"));
+                long done;
+                try { done = transfer(requests, target.getString("url"), "application/octet-stream", part, target); }
+                catch (Exception primary) {
+                    if (Thread.currentThread().isInterrupted()) throw primary;
+                    put("done", 0); emit();
+                    // The official API resolves the same asset; size, hash and signing checks still apply.
+                    done = transfer(requests, assetApi(requests, target), "application/octet-stream", part, target);
+                }
                 verifyPackage(part, target);
                 java.nio.file.Files.move(part.toPath(), apk.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
                 put("done", done); status("ready");
             } catch (Exception error) { fail(error); }
-            finally { if (part.exists()) part.delete(); end(); }
+            finally { network = null; if (part.exists()) part.delete(); end(); }
         });
+    }
+    private long transfer(UpdateNetwork requests, String url, String accept, File part, JSONObject target) throws Exception {
+        HttpsURLConnection connection = requests.open(url, accept);
+        long expected = target.getLong("bytes"), done = 0, lastProgress = 0;
+        long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MINUTES.toNanos(5);
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(part)) {
+            byte[] buffer = new byte[32768]; int count;
+            while ((count = input.read(buffer)) != -1) {
+                if (Thread.currentThread().isInterrupted() || System.nanoTime() > deadline) throw new IOException("下载已中止，可稍后重试");
+                done += count;
+                if (done > expected || done > UpdatePolicy.MAX_APK_BYTES) throw new IOException("下载大小与更新清单不一致");
+                output.write(buffer, 0, count); digest.update(buffer, 0, count);
+                if (done - lastProgress >= 65536) { put("done", done); emit(); lastProgress = done; }
+            }
+            output.getFD().sync();
+        } finally { requests.disconnect(connection); }
+        UpdatePolicy.verifyDigest(done, expected, digest.digest(), target.getString("sha256"));
+        return done;
+    }
+    private String assetApi(UpdateNetwork requests, JSONObject target) throws Exception {
+        String[] parts = java.net.URI.create(target.getString("url")).getPath().split("/");
+        JSONObject published = new JSONObject(requests.text("https://api.github.com/repos/tzlh6/piggy-playground/releases/tags/" + parts[5],
+            "application/vnd.github+json", 262144));
+        if (published.optBoolean("draft") || published.optBoolean("prerelease") || !parts[5].equals(published.getString("tag_name")))
+            throw new IOException("正式更新版本暂不可用");
+        org.json.JSONArray assets = published.getJSONArray("assets");
+        for (int index = 0; index < assets.length(); index++) {
+            JSONObject asset = assets.getJSONObject(index);
+            if (parts[6].equals(asset.optString("name")) && "uploaded".equals(asset.optString("state")) &&
+                    asset.optLong("size") == target.getLong("bytes") && asset.optLong("id") > 0)
+                return "https://api.github.com/repos/tzlh6/piggy-playground/releases/assets/" + asset.getLong("id");
+        }
+        throw new IOException("新版安装包尚未就绪，请稍后重试");
     }
     private void verify(File apk, JSONObject target) throws Exception {
         if (apk.length() != target.getLong("bytes")) throw new IOException("更新文件大小不一致");
@@ -244,11 +241,12 @@ public final class UpdateManager {
         });
     }
     private void fail(Exception error) {
-        String message = error.getMessage();
-        put("error", error instanceof java.net.UnknownHostException ? "当前网络无法连接更新服务器" :
-            error instanceof java.net.SocketTimeoutException ? "连接更新服务器超时" :
-            message != null && message.length() < 140 ? message : "更新暂不可用，请稍后重试");
+        put("error", UpdateNetwork.message(error));
         status("error");
     }
-    public synchronized void close() { closed = true; worker.shutdownNow(); }
+    public synchronized void close() {
+        closed = true; worker.shutdownNow();
+        UpdateNetwork requests = network;
+        if (requests != null) requests.close();
+    }
 }

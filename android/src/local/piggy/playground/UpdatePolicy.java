@@ -36,7 +36,9 @@ public final class UpdatePolicy {
         try {
             String host = secureUri(url).getHost();
             return "github.com".equals(host) || "raw.githubusercontent.com".equals(host) ||
-                "cdn.jsdelivr.net".equals(host) || "release-assets.githubusercontent.com".equals(host) ||
+                "api.github.com".equals(host) || "cdn.jsdelivr.net".equals(host) ||
+                "fastly.jsdelivr.net".equals(host) || "gcore.jsdelivr.net".equals(host) ||
+                "release-assets.githubusercontent.com".equals(host) ||
                 "objects.githubusercontent.com".equals(host);
         } catch (RuntimeException invalid) { return false; }
     }
