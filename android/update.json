@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.1",
-  "versionCode": 40401,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.1-android/PiggyPlayground-4.4.1-Android.apk",
-  "bytes": 443410,
-  "sha256": "43c177b7b2cd9c6347c0969fb2554c69f370f76b6257af66ba48238ec1ffdb60",
-  "notes": "补齐 19 款游戏与 4.4.1 动画，新增版本检查、下载校验和系统覆盖安装入口；大厅支持分类排序，斗地猪手牌放大。覆盖安装保留成绩和设置。"
+  "version": "4.4.2",
+  "versionCode": 40402,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.2-android/PiggyPlayground-4.4.2-Android.apk",
+  "bytes": 447506,
+  "sha256": "cc5e818d2bfd159f14b2f31f4384803b8d7b726e321aba5dcbf484961b4c7450",
+  "notes": "修复检查更新、下载、安装和 GitHub 下载页点了没有反应；增加多条更新线路、GitHub 官方备用下载和中文连接提示。游戏内容仍为 4.4.1，保留 19 款游戏、动画及触屏操作。请保留应用数据，直接覆盖安装；4.4.1 / 4.2 用户需先手动安装一次此修正版。"
 }
