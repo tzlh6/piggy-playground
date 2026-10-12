@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "package": "local.piggy.playground",
+  "version": "4.4.1",
+  "versionCode": 40401,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.1-android/PiggyPlayground-4.4.1-Android.apk",
+  "bytes": 443410,
+  "sha256": "43c177b7b2cd9c6347c0969fb2554c69f370f76b6257af66ba48238ec1ffdb60",
+  "notes": "补齐 19 款游戏与 4.4.1 动画，新增版本检查、下载校验和系统覆盖安装入口；大厅支持分类排序，斗地猪手牌放大。覆盖安装保留成绩和设置。"
+}
