@@ -1,7 +1,7 @@
 /* Mobile navigation and touch adaptation. Existing controllers still own each game. */
 (() => {
   'use strict';
-  const header = document.querySelector('header');
+  const header = document.querySelector('main > header');
   const button = document.createElement('button');
   button.id = 'android-hall-button';
   button.className = 'android-hall-button';
@@ -10,7 +10,10 @@
   document.getElementById('look-settings').textContent = '换装';
   document.getElementById('audio-settings').textContent = '音效';
   const version = '__PIGGY_ANDROID_VERSION__';
-  const gameButtons = document.querySelectorAll('.sidebar button.nav[data-game]');
+  const games = PigCatalog.GAMES;
+  configs.doudizhu.levels = configs.doudizhu.levels.filter(([id]) => id !== 'lan');
+  configs.doudizhu.tag = '经典斗地主 · 人机三档';
+  if (Store.get('level-doudizhu', '') === 'lan') Store.set('level-doudizhu', 'smart');
 
   const touchTips = {
     mine: {1: ['圈出藏身处', '长按未打开的格子标旗，再长按可取消。也可以切换上方的标记模式后点按。']},
@@ -20,38 +23,65 @@
     slice: {0: ['点按或划过软糖猪', '点小猪也能切中；按住画面划过可以一划连切，避开黑色危险球。']},
     shooter: {0: ['点哪飞哪，自动射击', '点场内位置，小猪会平滑飞过去；也可以拖动或用方向按钮，按住慢移按钮穿过窄缝。'], 1: ['点护盾，九秒恢复', '护盾按钮清掉当前弹幕并短暂保护小猪。受击后也有短暂无敌；绿色星星补一条生命。']},
     rhythm: {0: ['到白线时点一下', '默认单击模式：长条点一下自动保持，双音符点其中一轨即可。关闭单击模式后，长条按住到尾端，双音符同时按两轨。']},
-    roulette: {0: ['先用道具，再选枪口', '点背包使用道具，X 光再点要查看的位置。对自己打出假屎可以继续，对对手开枪总会结束回合。']}
+    roulette: {0: ['先用道具，再选枪口', '点背包使用道具。X 光查看下一颗，魔法书随机查看后面的未知一颗。对自己打出假屎可以继续，对对手开枪总会结束回合。']},
+    doudizhu: {0: ['点牌选中，再点出牌', '点牌选中，再点取消；按住划过多张牌一起选择。点「提示」找牌，点「不要」让过，叫分最高的当邪恶猪猪。']}
   };
   Object.entries(touchTips).forEach(([id, edits]) => Object.entries(edits).forEach(([index, tip]) => configs[id].tips[index] = tip));
-  document.querySelectorAll('#tips .tip').forEach((tip, index) => {
-    const text = configs[document.body.dataset.game].tips[index];
-    tip.querySelector('b').textContent = text[0];
-    tip.querySelector('p').textContent = text[1];
+  Object.entries(touchTips).forEach(([id, edits]) => {
+    PigHelp.HELP[id].mouse = Object.values(edits).map(([title, text]) => title + '：' + text);
   });
+  PigHelp.HELP.doudizhu.rules = PigHelp.HELP.doudizhu.rules.filter(text => !text.includes('局域网'));
+  renderHelp(document.body.dataset.game);
 
   const hall = document.createElement('dialog');
   hall.id = 'android-games';
   hall.className = 'android-hall';
   hall.setAttribute('aria-label', '游戏大厅');
-  hall.innerHTML = `<div class="dialog-head"><div class="android-brand"><img alt="" data-pig-role="pig"><div><h2>猪猪游乐场</h2><p>${gameButtons.length} 款小游戏 · 随时离线玩</p></div></div><button class="close" aria-label="返回游戏"><svg class="ico"><use href="#i-close"/></svg></button></div><input class="android-game-search" type="search" placeholder="今天想玩哪一个？" aria-label="搜索小游戏"><div class="android-game-grid"></div><p class="android-empty" hidden>换个名字找找，小猪在这里等你。</p><div class="android-hall-footer"><span>一点点挑战，一大把快乐。</span><button class="text-button" id="android-about">玩法与说明</button></div>`;
+  hall.innerHTML = `<div class="dialog-head"><div class="android-brand"><img alt="" data-pig-role="pig"><div><h2>猪猪游乐场</h2><p>${games.length} 款小游戏 · 安卓 ${version}</p></div></div><button class="close" aria-label="返回游戏"><svg class="ico"><use href="#i-close"/></svg></button></div><input class="android-game-search" type="search" placeholder="今天想玩哪一个？" aria-label="搜索小游戏"><div class="android-categories" role="tablist" aria-label="游戏分类"></div><div class="android-sort-row"><span id="android-game-count"></span><label>排序 <select id="android-sort" aria-label="游戏排序"></select></label></div><div class="android-game-grid"></div><p class="android-empty" hidden>换个名字找找，小猪在这里等你。</p><div class="android-hall-footer"><button class="text-button" id="android-about">玩法与说明</button><button class="text-button" id="android-notes">更新说明</button><button class="text-button" id="android-update">版本与更新</button></div>`;
   hall.querySelector('img').src = PigLook.src();
   document.body.append(hall);
   const search = hall.querySelector('input');
   const grid = hall.querySelector('.android-game-grid');
-  const cards = [];
-  gameButtons.forEach(original => {
-    const card = document.createElement('button');
-    card.className = 'android-game-card';
-    card.dataset.mobileGame = original.dataset.game;
-    card.innerHTML = original.innerHTML;
-    card.addEventListener('click', () => {
-      hall.close();
-      original.click();
-      window.scrollTo({top: 0, behavior: 'instant'});
+  let category = Store.get('android-lobby-cat', 'all');
+  let sorting = Store.get('android-lobby-sort', 'default');
+  if (!PigCatalog.CATS.some(([id]) => id === category)) category = 'all';
+  if (!PigCatalog.SORTS.some(([id]) => id === sorting)) sorting = 'default';
+  const sort = hall.querySelector('#android-sort');
+  sort.innerHTML = PigCatalog.SORTS.map(([id, name]) => `<option value="${id}">${name}</option>`).join('');
+  sort.value = sorting;
+  function renderGames() {
+    const query = search.value.trim().toLowerCase();
+    const stats = Store.get('play-stats', {}) || {};
+    let list = games.filter(g => (category === 'all' || g.cat === category) &&
+      (g.name + g.desc + g.keys + PigCatalog.catName[g.cat]).toLowerCase().includes(query));
+    const by = {
+      default: (a, b) => a.no - b.no,
+      recent: (a, b) => ((stats[b.id] || {}).last || 0) - ((stats[a.id] || {}).last || 0) || a.no - b.no,
+      most: (a, b) => ((stats[b.id] || {}).n || 0) - ((stats[a.id] || {}).n || 0) || a.no - b.no,
+      name: (a, b) => a.name.localeCompare(b.name, 'zh-CN')
+    };
+    list.sort(by[sorting]); grid.replaceChildren();
+    list.forEach(g => {
+      const card = document.createElement('button');
+      card.className = 'android-game-card'; card.dataset.mobileGame = g.id;
+      card.setAttribute('aria-current', g.id === document.body.dataset.game ? 'page' : 'false');
+      card.innerHTML = `<svg class="ico"><use href="#${g.icon}"/></svg><div>${g.name}<small>${g.desc}</small></div><b>${String(g.no).padStart(2, '0')}</b>`;
+      card.addEventListener('click', () => {
+        hall.close(); if (game !== g.id) selectGame(g.id);
+        window.scrollTo({top: 0, behavior: 'instant'});
+      });
+      grid.append(card);
     });
-    grid.append(card);
-    cards.push(card);
-  });
+    hall.querySelector('.android-empty').hidden = list.length > 0;
+    hall.querySelector('#android-game-count').textContent = `${list.length} / ${games.length} 款`;
+    hall.querySelector('.android-categories').innerHTML = PigCatalog.CATS.map(([id, name]) =>
+      `<button role="tab" data-category="${id}" aria-selected="${id === category}">${name}</button>`).join('');
+  }
+  hall.querySelector('.android-categories').onclick = event => {
+    const tab = event.target.closest('[data-category]'); if (!tab) return;
+    category = tab.dataset.category; Store.set('android-lobby-cat', category); renderGames();
+  };
+  sort.onchange = () => { sorting = sort.value; Store.set('android-lobby-sort', sorting); renderGames(); };
 
   function pause() {
     setPause(true);
@@ -60,11 +90,7 @@
   function openHall() {
     pause();
     search.value = '';
-    cards.forEach(card => {
-      card.hidden = false;
-      card.setAttribute('aria-current', card.dataset.mobileGame === document.body.dataset.game ? 'page' : 'false');
-    });
-    hall.querySelector('.android-empty').hidden = true;
+    renderGames();
     hall.querySelector('img').src = PigLook.src();
     if (!hall.open) hall.showModal();
     // Do not summon the keyboard on launch; leave it for an intentional search tap.
@@ -74,19 +100,33 @@
   button.addEventListener('click', openHall);
   hall.querySelector('.close').addEventListener('click', () => hall.close());
   hall.addEventListener('close', () => Sound.stop());
-  search.addEventListener('input', () => {
-    const query = search.value.trim().toLowerCase();
-    cards.forEach(card => card.hidden = !card.textContent.toLowerCase().includes(query));
-    hall.querySelector('.android-empty').hidden = cards.some(card => !card.hidden);
-  });
+  search.addEventListener('input', renderGames);
   document.getElementById('android-about').addEventListener('click', () => {
     hall.close();
     document.getElementById('about').click();
   });
-  const paragraphs = document.querySelectorAll('#about-dialog > p');
-  paragraphs[0].textContent = `${gameButtons.length} 款游戏，全部离线。成绩、猪猪造型和声音设置自动保存在手机内。游戏大厅可搜索和切换游戏，切换会开始新局；切到后台自动暂停，回来后点「继续玩」。返回键先关闭弹窗，再回到游戏大厅。`;
-  paragraphs[1].textContent = '扫猪：点格子翻开，长按标旗，也可切换标记模式。2048 与贪吃猪：滑动或方向按钮。跳跳猪：点跑道或跳跃按钮，趴下也可点按。切切猪：点小猪或手指划切。星际守卫：点哪飞哪或拖动，下方按钮控制慢速与护盾。节奏派对：默认单击模式，长条点一下、双音符点其中一轨。猪猪轮盘：点道具，再选对自己或对对手开枪；X 光可选择任意未知位置，默认电影感动画，可切换轻快节奏。其余游戏看各自下方的玩法提示。';
-  paragraphs[2].textContent = `安卓离线版 ${version}。无需账号，也无需联网、存储或麦克风权限。重新打开会开始新局，最高成绩、造型、音量与难度设置会保留；卸载 App 会清除这些记录。Android 8.0 及以上，需启用并更新系统 WebView。`;
+  const paragraphs = document.querySelectorAll('#about-dialog > .about-block');
+  paragraphs[0].querySelector('p').textContent = `${games.length} 款游戏，全部可离线。游戏大厅可搜索、分类和排序；切换游戏会开始新局。切到后台自动暂停，回来后点「继续玩」。返回键先关闭弹窗，再回到游戏大厅。斗地猪提供三档人机对战。`;
+  paragraphs[0].querySelector('.muted').textContent = '扫猪长按标旗；2048 与贪吃猪可滑动；跳跳猪、切切猪、星际守卫、节奏派对支持点按。轮盘点道具再选枪口；斗地猪点牌或划过多张牌，再点出牌。更多规则点每款游戏的「玩法」。';
+  paragraphs[1].querySelector('p').textContent = '成绩、猪猪造型和声音设置自动保存在手机内。覆盖安装新版会保留记录；卸载 App 会清除记录。无需账号，无广告，不申请存储或麦克风权限。Android 8.0 及以上，需启用并更新系统 WebView。';
+
+  // Keep the original hand and action nodes (and their rule handlers), but move them
+  // below the scaled animation stage so card faces and buttons remain finger-sized.
+  function adaptCards() {
+    const board = document.getElementById('board');
+    const hand = document.getElementById('dz-hand');
+    const actions = document.getElementById('dz-actions');
+    if (!hand || !actions || board.querySelector('.android-dz-controls')) return;
+    const tray = document.createElement('section');
+    tray.className = 'android-dz-controls';
+    tray.setAttribute('aria-label', '手牌与出牌操作');
+    const label = document.createElement('p');
+    label.textContent = '点牌选中 · 按住划选 · 再点出牌';
+    tray.append(actions, label, hand);
+    board.append(tray);
+  }
+  new MutationObserver(adaptCards).observe(document.getElementById('board'), {childList: true});
+  adaptCards();
 
   // Touch long-press flags cancel on a scroll or drag, and consume the following tap.
   let hold = null;

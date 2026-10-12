@@ -41,12 +41,13 @@ public class SmokeTests extends Instrumentation {
             screenshots.mkdirs();
             launch();
             await("document.body.dataset.androidReady === 'true'", "packaged HTML loaded");
-            check("document.querySelectorAll('.android-game-card').length === 18", "all 18 games in hall");
+            execute("if(document.getElementById('notes-dialog').open)document.getElementById('notes-dialog').close(); document.querySelector('[data-category=all]').click()");
+            check("document.querySelectorAll('.android-game-card').length === 19", "all 19 games in hall");
             check("document.getElementById('android-games').open", "hall shown at launch");
             check("document.documentElement.scrollWidth <= innerWidth", "portrait fits phone width");
             screenshot("hall.png");
 
-            String[] games = {"mine","memory","merge","whack","snake","runner","blocks","breakout","flappy","stack","connect","sokoban","lights","match","slice","shooter","rhythm","roulette"};
+            String[] games = {"mine","memory","merge","whack","snake","runner","blocks","breakout","flappy","stack","connect","sokoban","lights","match","slice","shooter","rhythm","roulette","doudizhu"};
             for (String game : games) {
                 select(game);
                 check("document.body.dataset.game === '" + game + "' && document.getElementById('board').childElementCount > 0", game + " initialized offline");
@@ -96,8 +97,14 @@ public class SmokeTests extends Instrumentation {
             await("innerHeight > innerWidth", "portrait layout restored");
 
             PackageInfo info = getTargetContext().getPackageManager().getPackageInfo(getTargetContext().getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS);
-            if (info.requestedPermissions != null && info.requestedPermissions.length != 0) throw new AssertionError("Unexpected permissions in release APK");
-            pass("release APK requests no permissions");
+            java.util.Set<String> permissions = new java.util.HashSet<>(java.util.Arrays.asList(info.requestedPermissions));
+            if (!permissions.equals(new java.util.HashSet<>(java.util.Arrays.asList("android.permission.INTERNET", "android.permission.REQUEST_INSTALL_PACKAGES")))) throw new AssertionError("Unexpected permissions in release APK");
+            pass("release APK requests only HTTPS update and user-confirmed install permissions");
+            execute("document.getElementById('android-hall-button').click(); document.getElementById('android-update').click()");
+            check("document.getElementById('android-updates').open && !document.getElementById('android-auto').disabled", "native update bridge and mobile update dialog");
+            execute("document.getElementById('android-auto').checked=false; document.getElementById('android-auto').dispatchEvent(new Event('change'))");
+            await("!JSON.parse(PiggyAndroidBridge.info()).auto", "auto-check preference persisted natively");
+            execute("document.getElementById('android-auto').checked=true; document.getElementById('android-auto').dispatchEvent(new Event('change')); document.getElementById('android-updates').close()");
 
             select("mine");
             execute("document.querySelector('#level [data-level=medium]').click()");

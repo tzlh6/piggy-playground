@@ -4,7 +4,8 @@ body{-webkit-tap-highlight-color:transparent}
 .sidebar,.hero,.breadcrumb,.offline,footer span{display:none!important}
 main{margin:0!important;padding:0 10px!important;max-width:860px;margin-inline:auto!important}
 main>header{height:62px!important;margin:0 0 10px!important;gap:8px;position:sticky;top:0;z-index:20;background:#fffbf1}
-.top-actions{gap:5px}
+.top-actions{gap:5px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+main>header:has(.update-chip:not([hidden])){height:auto!important;min-height:62px;padding:8px 0}
 main>header button{min-height:44px}
 .pill{font-size:12px;padding:8px 10px}
 .icon-btn{width:44px;height:44px}
@@ -69,5 +70,30 @@ dialog button{min-height:44px}
 .android-hall-footer{display:flex;align-items:center;justify-content:space-between;margin-top:15px;gap:8px;font-size:10px;color:#a19488}
 .android-hall-footer button{font-size:11px}
 .android-empty{font-size:13px;text-align:center;color:#9a8b85;padding:20px 0}
+.android-categories{display:flex;gap:5px;flex-wrap:wrap}
+.android-categories button{border:1px solid #e1d8ce;border-radius:999px;background:#fff7ed;color:#74695f;font:inherit;font-size:11px;padding:8px 11px;min-height:40px}
+.android-categories button[aria-selected=true]{background:#f3dce4;border-color:#c48ea1;color:#875669}
+.android-sort-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0;color:#968579;font-size:11px;gap:8px}
+.android-sort-row select{font:inherit;min-height:40px;border:1px solid #e1d8ce;border-radius:10px;background:#fffaf4;color:#796d62;padding:6px}
+.android-hall-footer{flex-wrap:wrap;justify-content:space-between}
+.android-hall-footer .has-update{color:#487848;font-weight:700}
+.android-update-status,.android-update-notes{line-height:1.8;font-size:14px;overflow-wrap:anywhere}
+.android-update-notes{white-space:pre-wrap;background:#fff7ed;padding:12px;border-radius:12px}
+.android-update-error{color:#a34c5c;font-size:13px;overflow-wrap:anywhere}
+.android-update-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.android-auto{display:flex;align-items:center;gap:8px;font-size:13px}
+.android-auto input{width:20px;height:20px;accent-color:#bd8294}
+#android-updates progress{width:100%;accent-color:#b88095}
+#android-updates [hidden]{display:none!important}
+.android-dz-controls{margin:12px 0 4px;border-radius:14px;background:#faf3ed;padding:12px 6px}
+.android-dz-controls>p{font-size:11px;text-align:center;color:#9a817e;margin:10px 0}
+.android-dz-controls .dz-actions{position:static;width:100%;height:auto;min-height:44px;flex-wrap:wrap;gap:7px}
+.android-dz-controls .dz-btn{min-height:44px;min-width:48px;padding:8px 12px;font-size:14px}
+.android-dz-controls .dz-ask{width:100%;font-size:14px;text-align:center}
+.android-dz-controls .dz-wait{font-size:13px;text-align:center;line-height:1.7}
+.android-dz-controls .dz-hand{position:static!important;left:auto!important;top:auto!important;width:100%!important;height:auto!important;min-height:76px;display:flex;flex-wrap:wrap;justify-content:center;gap:7px;padding:8px 0}
+.android-dz-controls .dz-card{position:relative!important;left:auto!important;top:auto!important;width:44px;height:62px;border-radius:5px;flex:0 0 44px;margin-top:5px;transition:transform .12s,box-shadow .12s}
+.android-dz-controls .dz-card img{border-radius:5px}
+.android-dz-controls .dz-card.sel{transform:translateY(-6px)}
 @media(min-width:600px){.android-game-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.game-caption{width:auto}.controls{width:auto;max-width:420px}.controls #level{width:auto}.game-toolbar{justify-content:space-between}.android-game-card{min-height:115px}}
 @media(max-width:350px){.android-hall-button{padding:8px}.pill{padding:8px;font-size:11px}.android-hall{padding:16px 12px}.android-brand img{width:44px;height:44px}.android-brand h2{font-size:18px!important}.segmented button{font-size:10px}}

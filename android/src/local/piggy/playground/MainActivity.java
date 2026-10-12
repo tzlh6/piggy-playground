@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -26,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-/** Offline launcher. No network permission, JS-to-native interface, or external storage. */
+/** Offline game launcher with a narrow native update bridge; no external storage access. */
 public class MainActivity extends Activity {
     private static final int CREAM = Color.rgb(255, 251, 241);
     private static final String ORIGIN = "https://appassets.androidplatform.net/";
@@ -35,6 +36,8 @@ public class MainActivity extends Activity {
     private boolean foreground;
     private boolean wasBackground;
     private AlertDialog exitDialog;
+    private UpdateManager updater;
+    private boolean checkedOnLaunch;
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -42,6 +45,12 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(CREAM);
         setContentView(root);
         configureInsets();
+        try {
+            updater = new UpdateManager(this, status -> {
+                if (web != null) web.evaluateJavascript(
+                    "if(window.PigAndroid)window.PigAndroid.onUpdate(" + status.toString() + ")", null);
+            });
+        } catch (Exception error) { android.util.Log.e("PiggyUpdate", "Unable to initialize updater", error); }
         createGame();
         if (Build.VERSION.SDK_INT >= 33) {
             getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
@@ -88,6 +97,7 @@ public class MainActivity extends Activity {
             settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
             settings.setMediaPlaybackRequiresUserGesture(true);
             WebView.setWebContentsDebuggingEnabled(false);
+            if (updater != null) web.addJavascriptInterface(new UpdateBridge(), "PiggyAndroidBridge");
             web.setWebViewClient(new WebViewClient() {
                 @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                     return true; // Game and attribution content have no external navigation.
@@ -106,6 +116,10 @@ public class MainActivity extends Activity {
                             showProblem("请先启用并更新手机的 Android System WebView，再重新打开游乐场。", false);
                         } else if (!foreground || wasBackground) {
                             pauseGame();
+                        }
+                        if ("true".equals(ready) && updater != null && !checkedOnLaunch) {
+                            checkedOnLaunch = true;
+                            root.postDelayed(() -> { if (!isDestroyed()) updater.autoCheck(); }, 1800);
                         }
                     });
                 }
@@ -171,6 +185,15 @@ public class MainActivity extends Activity {
             "if(window.PigAndroid) window.PigAndroid.pause()", null);
     }
 
+    public final class UpdateBridge {
+        @JavascriptInterface public String info() { return updater.info(); }
+        @JavascriptInterface public void check() { updater.check(); }
+        @JavascriptInterface public void setAuto(boolean on) { updater.setAuto(on); }
+        @JavascriptInterface public void download() { updater.download(); }
+        @JavascriptInterface public void install() { runOnUiThread(() -> { pauseGame(); updater.install(); }); }
+        @JavascriptInterface public void openPage() { updater.openPage(); }
+    }
+
     private void requestBack() {
         if (web == null) { finish(); return; }
         web.evaluateJavascript("window.PigAndroid ? window.PigAndroid.back() : 'exit'", value -> {
@@ -195,6 +218,7 @@ public class MainActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         foreground = true;
+        if (updater != null) updater.resume();
         if (web != null) {
             web.resumeTimers();
             web.onResume();
@@ -219,6 +243,7 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        if (updater != null) updater.close();
         if (exitDialog != null) exitDialog.dismiss();
         if (web != null) {
             root.removeView(web);

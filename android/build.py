@@ -28,13 +28,16 @@ def prepare():
     assert html.count(initial) == 1
     html = html.replace(initial, "let game='mine',level=Store.get('level-mine','easy'),state")
     mobile_css = (ROOT / 'web/android.css').read_text(encoding='utf-8')
-    mobile_js = (ROOT / 'web/android.js').read_text(encoding='utf-8')
+    mobile_js = (ROOT / 'web/android.js').read_text(encoding='utf-8') + '\n' + (ROOT / 'web/android-update.js').read_text(encoding='utf-8')
     version = ET.parse(ROOT / 'AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
     desktop_version = json.loads((DESKTOP / 'package.json').read_text(encoding='utf-8'))['version']
     assert version == desktop_version, 'Android and game source versions differ'
     assert mobile_js.count('__PIGGY_ANDROID_VERSION__') == 1
     mobile_js = mobile_js.replace('__PIGGY_ANDROID_VERSION__', version)
     html = html.replace('</head>', '<style>' + mobile_css + '</style></head>')
+    # Block navigation and web requests even though the native updater has INTERNET.
+    # Native bridge capabilities stay limited to updater actions on our packaged page.
+    html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data:; media-src data: blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
     html = html.replace('</body>', '<script>' + mobile_js.replace('</script', '<\\/script') + '</script></body>')
     assert 'src="assets/' not in html and 'src="http' not in html
     output.write_text(html, encoding='utf-8', newline='\n')
