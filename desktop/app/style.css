@@ -422,7 +422,7 @@ body[data-look=berry]{--pink:#efb2ce;--pink-l:#f9e3ee}body[data-look=cream]{--pi
 .rl-card small{display:block;font-size:12px;letter-spacing:2px;color:#c9b6e6}.rl-card b{display:block;font-size:clamp(22px,3.4vw,34px);margin:2px 0 4px;color:#ffe27a;text-shadow:0 2px 0 #0008}
 .rl-card p{margin:3px 0 0;font-size:13px;color:#e8dcff}.rl-card p.nd{color:#ffb4c2;font-weight:700}.rl-card p.first{margin-top:8px;font-weight:800;color:#fff}
 .rl-card.load{top:5%;transform:translate(-50%,0);border-color:#ffe27a;padding:10px 20px 10px;animation-name:rlCardTop}@keyframes rlCardTop{0%{opacity:0;transform:translate(-50%,-14px) scale(.85)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}.rl-card.load b{font-size:clamp(26px,4vw,40px)}.rl-card .fakes{font-size:16px}.rl-card .fakes em{font-style:normal;font-size:24px;color:#d9d2f2;font-weight:900}
-.rl-card.king{top:8%;transform:translate(-50%,0);border-color:#ffe27a;background:linear-gradient(180deg,#5a3b12f2,#2e1d0af2);animation-name:rlCardTop}.rl-card.king b{font-size:clamp(24px,3vw,44px);letter-spacing:4px;white-space:nowrap}
+.rl-card.king{top:auto;bottom:7%;transform:translate(-50%,0);border-color:#ffe27a;background:linear-gradient(180deg,#5a3b12f2,#2e1d0af2);animation-name:rlCardTop}.rl-card.king b{font-size:clamp(24px,3vw,44px);letter-spacing:4px;white-space:nowrap}
 .rl-card .once{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;background:#ffcf7a22;color:#ffe2a6;font-weight:700}
 @keyframes rlCardIn{0%{opacity:0;transform:translate(-50%,-44%) scale(.8)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .rl-toast{position:absolute;right:12px;top:12px;max-width:min(70%,320px);padding:10px 14px;border-radius:14px;background:#0f2a33f0;border:2px solid #6ff0ff;color:#e6fdff;box-shadow:0 10px 24px #0008;animation:rlCardIn2 .35s ease-out both}
@@ -944,3 +944,9 @@ kbd{display:inline-block;min-width:22px;padding:2px 7px;border-radius:7px;border
 .play-toolbar .dz-leave{color:#c4536f}
 .arena.paused .dz-wrap *{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){.dz-seat.active .dz-fig,.dz-seat.active .dz-fig .dz-butcher [data-part="arm"]{animation:none}}
+
+/* 4.4.1 斗地猪结算大戏 */
+.dz-finale{position:absolute;inset:0;z-index:26;border-radius:30px;overflow:hidden;pointer-events:none}
+.dz-finale-svg{display:block;width:100%;height:100%}
+.dz-finale-skip{position:absolute;right:20px;bottom:18px;pointer-events:auto;padding:8px 16px;border-radius:999px;border:2px solid #ffe2a6;background:#2a1a10cc;color:#fff6e2;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.dz-finale-skip:hover{background:#4a2e18ee}

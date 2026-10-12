@@ -103,7 +103,42 @@ const FX={
  hoofHand:()=>`<g><path data-h="arm" d="M0 0L10 0" fill="none" stroke="#f7b6c6" stroke-width="9" stroke-linecap="round"/><path data-h="arm2" d="M0 0L10 0" fill="none" stroke="#c0517a" stroke-width="1.6" stroke-dasharray="3 6" opacity=".5"/><g data-h="tip"><g transform="rotate(180) scale(1.25)"><path d="M-12-2h24v6h-24z" fill="#f7b6c6" stroke="#c0517a" stroke-width="1.6"/><path d="M-13 2q-1 14 6 18 6 2 7-6 1 8 7 6 7-4 6-18Z" fill="#6b4a3e" stroke="#3f2a22" stroke-width="2" stroke-linejoin="round"/><path d="M0 4v10" stroke="#3f2a22" stroke-width="2" stroke-linecap="round"/></g></g></g>`,
  satchel:()=>`<g><path d="M-20-8q20-12 40 0l3 22q-23 8-46 0Z" fill="#b98a5a" stroke="#6b4a2a" stroke-width="2.2" stroke-linejoin="round"/><path d="M-20-8q20 10 40 0" fill="none" stroke="#6b4a2a" stroke-width="2"/><rect x="-5" y="-4" width="10" height="8" rx="2" fill="#f2c04a" stroke="#6b4a2a" stroke-width="1.4"/><path d="M-14-10q-2-10 6-12M14-10q2-10-6-12" fill="none" stroke="#6b4a2a" stroke-width="2.4"/></g>`,
  danceCone:()=>`<g><path d="M-30 -560L-190 0H190L30 -560Z" fill="url(#rl-dance-cone)"/><ellipse rx="190" ry="40" fill="url(#rl-dance-floor)"/></g>`,
- note:(c)=>`<g fill="${c||'#ffd66b'}"><ellipse cx="-4" cy="6" rx="5" ry="4"/><path d="M0 6V-12l10-3v5l-8 2" stroke="${c||'#ffd66b'}" stroke-width="2.4" fill="none"/></g>`
+ note:(c)=>`<g fill="${c||'#ffd66b'}"><ellipse cx="-4" cy="6" rx="5" ry="4"/><path d="M0 6V-12l10-3v5l-8 2" stroke="${c||'#ffd66b'}" stroke-width="2.4" fill="none"/></g>`,
+ // ---- 4.4.1 新增 ----
+ // 瞄准圈：外圈虚线慢转，十字准星
+ reticle:(c)=>{c=c||'#ff5d73';return `<g><circle r="30" fill="${c}" fill-opacity=".08" stroke="${c}" stroke-width="3" stroke-dasharray="9 6"/><circle r="17" fill="none" stroke="${c}" stroke-width="2.2" opacity=".85"/><path d="M0-40v13M0 27v13M-40 0h13M27 0h13" stroke="${c}" stroke-width="3.4" stroke-linecap="round"/><circle r="3" fill="${c}"/></g>`},
+ ring:(c,w)=>`<circle r="40" fill="none" stroke="${c||'#fff6d0'}" stroke-width="${w||6}"/>`,
+ // 开火闪光：多角星 + 白芯
+ muzzle:(c)=>{let d='';for(let i=0;i<16;i++){const a=i/16*Math.PI*2,r=i%2?16:38;d+=(i?'L':'M')+(Math.cos(a)*r).toFixed(1)+' '+(Math.sin(a)*r).toFixed(1)}return `<g><path d="${d}Z" fill="${c||'#fff1b8'}" stroke="#ffb347" stroke-width="2.4" stroke-linejoin="round"/><circle r="13" fill="#fffdf2"/></g>`},
+ speed:(c)=>`<g stroke="${c||'#fff6dc'}" stroke-width="3.2" stroke-linecap="round" opacity=".85"><path d="M-70-14H-18M-86 0H-24M-66 14H-20M-50-26H-30M-48 26H-30"/></g>`,
+ // 伤害数字
+ dmg:(text,c)=>`<g><text text-anchor="middle" y="12" font-size="42" font-weight="900" fill="${c||'#ff4d5e'}" stroke="#2a0a12" stroke-width="7" stroke-linejoin="round" paint-order="stroke" font-family="Arial Black,Impact,sans-serif">${text}</text></g>`,
+ word:(text,o)=>{o=o||{};return `<g transform="rotate(${o.rot||0})"><text text-anchor="middle" y="${(o.size||28)*.36}" font-size="${o.size||28}" font-weight="900" fill="${o.fill||'#fff4d6'}" stroke="${o.stroke||'#4a2412'}" stroke-width="${o.sw||6}" stroke-linejoin="round" paint-order="stroke">${text}</text></g>`},
+ // 发射猪仔的 X 光片：骨架 + 肚子里一团看不清的“？”（不透露顺序），以猪仔局部坐标绘制
+ skeleton:()=>{const B=(root.PigArt&&root.PigArt.BODY_PATH)||'';const rib=k=>{const x=74+k*13;return `<path d="M${x} 47Q${x+9} 78 ${x+2} 104" fill="none" stroke="#dffcff" stroke-width="4" stroke-linecap="round"/>`};
+  return `<g><path d="${B}" fill="#0c3440" fill-opacity=".82" stroke="#6ff0ff" stroke-width="2.4"/>
+   <g fill="#0c3440" stroke="#6ff0ff" stroke-width="2"><rect x="27" y="108" width="17" height="30" rx="8"/><rect x="60" y="109" width="17" height="30" rx="8"/><rect x="104" y="105" width="17" height="30" rx="8"/></g>
+   <g stroke="#dffcff" stroke-linecap="round" fill="none"><path d="M62 52Q100 40 138 56" stroke-width="5"/>${[0,1,2,3,4].map(rib).join('')}<path d="M35.5 112V134M68.5 112V134M112 108V130" stroke-width="4.4"/><path d="M128 72q10 6 12 18" stroke-width="4"/></g>
+   <g><circle cx="42" cy="74" r="24" fill="none" stroke="#dffcff" stroke-width="4"/><circle cx="33" cy="70" r="5.5" fill="#dffcff"/><circle cx="56" cy="74" r="5.5" fill="#dffcff"/><path d="M28 92q12 6 26 0" fill="none" stroke="#dffcff" stroke-width="3" stroke-dasharray="3 3"/></g>
+   <g><ellipse cx="98" cy="88" rx="26" ry="17" fill="#6ff0ff" fill-opacity=".22" stroke="#9ff6ff" stroke-width="2" stroke-dasharray="4 4"/><g font-weight="900" font-size="15" fill="#e8fdff" text-anchor="middle"><text x="86" y="93">?</text><text x="99" y="86">?</text><text x="111" y="95">?</text></g></g></g>`},
+ bowl:()=>`<g><path d="M-30-4h60l-7 18q-23 7-46 0Z" fill="#c95b4b" stroke="#7b2c22" stroke-width="2.4" stroke-linejoin="round"/><ellipse cy="-4" rx="30" ry="6.5" fill="#e8806e" stroke="#7b2c22" stroke-width="2"/><g fill="#f2c25a" stroke="#b98a2a" stroke-width=".8"><circle cx="-14" cy="-7" r="3.6"/><circle cx="-5" cy="-9" r="3.6"/><circle cx="5" cy="-8" r="3.6"/><circle cx="14" cy="-6" r="3.4"/><circle cx="0" cy="-12" r="3.4"/><circle cx="-9" cy="-12" r="3"/><circle cx="9" cy="-12" r="3"/></g><path d="M-18 6h36" stroke="#fff" stroke-opacity=".35" stroke-width="2.4" stroke-linecap="round"/></g>`,
+ kibble:()=>`<circle r="3.6" fill="#f2c25a" stroke="#b98a2a" stroke-width=".9"/>`,
+ // 猪王的王冠（舞蹈结尾从天而降）
+ crown:()=>`<g><path d="M-30 6L-35-26-15-10 0-34 15-10 35-26 30 6Z" fill="#ffd34d" stroke="#b9821f" stroke-width="3" stroke-linejoin="round"/><rect x="-31" y="0" width="62" height="11" rx="4" fill="#f2b730" stroke="#b9821f" stroke-width="2.4"/><circle cy="-15" r="5" fill="#ff5d8f"/><circle cx="-17" cy="5.5" r="3.2" fill="#6fd0ff"/><circle cx="17" cy="5.5" r="3.2" fill="#6fd0ff"/><circle cx="-35" cy="-26" r="3.6" fill="#fff6c8"/><circle cx="35" cy="-26" r="3.6" fill="#fff6c8"/><circle cy="-34" r="4" fill="#fff6c8"/><path d="M-22-4h12" stroke="#fff6c8" stroke-width="2.4" stroke-linecap="round"/></g>`,
+ // 迪斯科：旋转灯球、彩色光束、地板光斑
+ discoBall:()=>{let tiles='';for(let y=-24;y<=24;y+=8)for(let x=-24;x<=24;x+=8){if(x*x+y*y>26*26)continue;tiles+=`<rect x="${x-3.6}" y="${y-3.6}" width="7.2" height="7.2" fill="${(x+y)%16?'#d6dcf2':'#ffffff'}" opacity="${.65+((x*7+y*3)%5)/14}"/>`}
+  return `<g><path d="M0-60V-30" stroke="#8c86a3" stroke-width="2"/><circle r="28" fill="#9aa1c2"/>${tiles}<circle r="28" fill="none" stroke="#5c5878" stroke-width="2"/><circle cx="-9" cy="-10" r="6" fill="#fff" opacity=".8"/></g>`},
+ beam:(c)=>`<path d="M0 0L-60 520H60Z" fill="${c}" opacity=".22"/>`,
+ floorDot:(c)=>`<ellipse rx="54" ry="13" fill="${c}" opacity=".45"/>`,
+ fly:()=>`<g><ellipse rx="3.4" ry="2.6" fill="#2c2733"/><ellipse cx="-2.4" cy="-3.2" rx="3" ry="1.8" fill="#cfe9ff" opacity=".85"/><ellipse cx="2.4" cy="-3.2" rx="3" ry="1.8" fill="#cfe9ff" opacity=".85"/></g>`,
+ flame:()=>`<g><path d="M0-14C12-6 16 6 0 14C-16 6-12-6 0-14Z" fill="#ff7a2f" transform="rotate(90)"/><path d="M0-8C7-3 9 4 0 8C-9 4-7-3 0-8Z" fill="#ffd34d" transform="rotate(90)"/></g>`,
+ smoke:(c)=>`<g fill="${c||'#d9cfe6'}" opacity=".9"><circle r="12"/><circle cx="10" cy="-5" r="9"/><circle cx="-9" cy="-3" r="8"/></g>`,
+ sparkle:(c)=>`<path d="M0-12L2.6-2.6 12 0 2.6 2.6 0 12-2.6 2.6-12 0-2.6-2.6Z" fill="${c||'#fff6c8'}"/>`,
+ drop:(c)=>`<path d="M0-7c-4 6-5 10 0 10s4-4 0-10Z" fill="${c||'#a7e3ff'}"/>`,
+ // 地上冒出的魔法光柱（魔法书）
+ pillar:()=>`<g><path d="M-34 0L-22-180H22L34 0Z" fill="url(#rl-magic)" opacity=".7"/><ellipse rx="34" ry="8" fill="#e9d6ff" opacity=".6"/></g>`,
+ // 卡通王座光芒
+ rays:(c)=>{let d='';for(let i=0;i<12;i++){const a=i/12*Math.PI*2,b=a+.13;d+=`M0 0L${(Math.cos(a)*260).toFixed(1)} ${(Math.sin(a)*260).toFixed(1)}L${(Math.cos(b)*260).toFixed(1)} ${(Math.sin(b)*260).toFixed(1)}Z`}return `<path d="${d}" fill="${c||'#ffe9a8'}" opacity=".18"/>`}
 };
 
 const api={W,H,SHELL,PIGLET,stage,vignette,pigletBandana,chargeAura,badge,sack,shell,shellIcon,item,itemIcon,ITEM_ART,FX};

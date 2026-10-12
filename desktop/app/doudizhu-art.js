@@ -87,43 +87,46 @@ let uidN=0;
 function evilPig(o){o=o||{};const u='ev'+(++uidN);const wash=!!o.wash;const pal=wash?(PA.PALETTES[o.skin]||PA.PALETTES.peach):EVIL;
  return `<svg class="dz-art dz-evil${wash?' washed':''}" viewBox="-10 -2 178 160" aria-hidden="true">${PA.defs(pal,u)}${PA.markup({uid:u,palette:pal,role:wash?'bath':'devil',expr:o.expr||(wash?'cry':'sly')})}</svg>`}
 // 屠夫：kind = 'cleaver'（胡子刀哥）/ 'pin'（擀面杖花姐）；expr = normal / happy / angry / cry / shock
+// 4.4.1：noWeapon 不画手里的家伙（结算动画里单独飞出去）；charred 被雷劈成焦炭（黑脸、白眼、爆炸头、帽子没了）
 function butcher(o){
- o=o||{};const kind=o.kind==='pin'?'pin':'cleaver',expr=o.expr||'normal';
- const skin='#f9d9bd',skinD='#e2b08b',shirt=kind==='pin'?'#8fbf86':'#7fa7d9',shirtD=kind==='pin'?'#6d9c66':'#5d84b8',ink='#3a2a22';
+ o=o||{};const kind=o.kind==='pin'?'pin':'cleaver',charred=!!o.charred,expr=charred&&!o.expr?'shock':(o.expr||'normal');
+ const skin=charred?'#56545a':'#f9d9bd',skinD=charred?'#2a292d':'#e2b08b',shirt=charred?'#3a393e':kind==='pin'?'#8fbf86':'#7fa7d9',shirtD=charred?'#25232a':kind==='pin'?'#6d9c66':'#5d84b8',ink=charred?'#111013':'#3a2a22';
  const eye=(x,y)=>{switch(expr){
   case 'happy':return `<path d="M${x-4.4} ${y+1.4}Q${x} ${y-4.4} ${x+4.4} ${y+1.4}" fill="none" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/>`;
   case 'shock':return `<circle cx="${x}" cy="${y}" r="5.4" fill="#fff" stroke="${ink}" stroke-width="1.4"/><circle cx="${x}" cy="${y}" r="2.4" fill="${ink}"/>`;
+  case 'blink':return `<path d="M${x-4.4} ${y}H${x+4.4}" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`;
   case 'cry':return `<path d="M${x-4} ${y}H${x+4}" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/><path d="M${x} ${y+3}c-2.4 4-2.6 7 0 7.2 2.6-.2 2.4-3.2 0-7.2Z" fill="#8fd2f4" stroke="#5aa8d4" stroke-width=".8"/>`;
   default:return `<ellipse cx="${x}" cy="${y}" rx="3.4" ry="4.2" fill="${ink}"/><circle cx="${x-1.1}" cy="${y-1.5}" r="1.2" fill="#fff"/>`}};
  const brow=expr==='angry'?`<path d="M61 47.5L73 52.5M99 47.5L87 52.5" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>`:expr==='cry'?`<path d="M61 51L72 48M99 51L88 48" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/>`:`<path d="M62 49Q67 46 72 48.5M98 49Q93 46 88 48.5" fill="none" stroke="${kind==='pin'?'#6b3f26':ink}" stroke-width="2.4" stroke-linecap="round"/>`;
  const mouthY=kind==='cleaver'?83:78;
  const mouth={happy:`<path d="M72 ${mouthY-2}Q80 ${mouthY+9} 88 ${mouthY-2}Z" fill="#a8414f"/><path d="M75 ${mouthY+1.5}Q80 ${mouthY+5} 85 ${mouthY+1.5}" fill="#f28c9c"/>`,angry:`<path d="M73 ${mouthY+2}H87" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/>`,cry:`<path d="M73 ${mouthY+4}Q80 ${mouthY-3} 87 ${mouthY+4}" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linecap="round"/>`,shock:`<ellipse cx="80" cy="${mouthY+2}" rx="4" ry="5" fill="#8e3d52"/>`}[expr]||`<path d="M74 ${mouthY}Q80 ${mouthY+5} 86 ${mouthY}" fill="none" stroke="${ink}" stroke-width="2.4" stroke-linecap="round"/>`;
- const weapon=kind==='cleaver'
-  ?`<path d="M33 60V80" stroke="#8b5a36" stroke-width="7.5" stroke-linecap="round"/><path d="M18 26H45Q50 26 50 31V60H18Q13 60 13 55V31Q13 26 18 26Z" fill="#e3ebf0" stroke="#86a0ae" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 32V55" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><path d="M44 27V59" stroke="#9fb4c0" stroke-width="3"/>`+
-    // 刀面上镂空的小猪剪影（可爱一点）
-    `<g transform="translate(31 43)" fill="#9fb4c0"><ellipse rx="7" ry="5.4"/><path d="M-6-3l-3-5 5 2zM2-5l3-5 1 5z"/><ellipse cx="-6.6" cy="1" rx="2.4" ry="2" fill="#86a0ae"/></g>`
-  :`<g transform="rotate(-38 31 74)"><rect x="-6" y="68" width="74" height="13" rx="6.5" fill="#e9bf86" stroke="#b9824a" stroke-width="2"/><rect x="-16" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><rect x="66" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><path d="M4 71.5H58" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/></g>`;
- const hat=kind==='cleaver'
+ const weapon=o.noWeapon?'':weaponArt(kind);
+ const hat=charred?'':kind==='cleaver'
   ?`<path d="M47 41Q49 19 80 17Q111 19 113 41Q97 34 80 34Q63 34 47 41Z" fill="#fff" stroke="#d6cdc0" stroke-width="2" stroke-linejoin="round"/><path d="M47 41Q80 31 113 41L113.5 46Q80 36 46.5 46Z" fill="#e05a5a"/><path d="M60 23Q70 19 82 20" fill="none" stroke="#eee6da" stroke-width="2.4" stroke-linecap="round"/>`
   :`<circle cx="80" cy="16" r="10" fill="#7a4b2e"/><path d="M47 49Q45 21 80 19Q115 21 113 49Q98 39 80 39Q62 39 47 49Z" fill="#e4577a" stroke="#b83d5e" stroke-width="2" stroke-linejoin="round"/>`+
    [[58,30],[72,25],[88,25],[102,31],[64,40],[96,40],[80,33]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.2" fill="#fff" opacity=".85"/>`).join('')+`<path d="M111 42l11-6-3 10zM111 42l9 7-10 1z" fill="#e4577a" stroke="#b83d5e" stroke-width="1.6" stroke-linejoin="round"/>`;
- const apron=kind==='cleaver'
+ const apron=charred?`<path d="M60 96H100L104 148Q80 154 56 148Z" fill="#5a5258" stroke="#2c2830" stroke-width="1.6"/><path d="M62 97L70 83M98 97L90 83" stroke="#5a5258" stroke-width="4"/>`:kind==='cleaver'
   ?`<path d="M60 96H100L104 148Q80 154 56 148Z" fill="#fffaf3" stroke="#e1d6c8" stroke-width="1.6"/><g stroke="#e46a6a" stroke-width="3.4" opacity=".85"><path d="M68 97V151M80 97V153M92 97V151"/></g><path d="M62 97L70 83M98 97L90 83" stroke="#fffaf3" stroke-width="4"/>`
   :`<path d="M60 96H100L104 148Q80 154 56 148Z" fill="#f8bfd0" stroke="#e08aa6" stroke-width="1.6"/>${[[66,106],[94,108],[70,136],[92,138],[80,122]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6" fill="#fff" opacity=".8"/>`).join('')}<path d="M62 97L70 83M98 97L90 83" stroke="#f8bfd0" stroke-width="4"/>`+
    `<rect x="71" y="114" width="18" height="15" rx="4" fill="#fde3ec" stroke="#e08aa6" stroke-width="1.4"/><ellipse cx="80" cy="121.5" rx="4.4" ry="3.2" fill="#f29ab0"/><circle cx="78.4" cy="121.5" r=".9" fill="#8d3b57"/><circle cx="81.6" cy="121.5" r=".9" fill="#8d3b57"/>`;
- const hair=kind==='cleaver'?`<path d="M48 48Q46 62 52 70M112 48Q114 62 108 70" fill="none" stroke="#6b3f26" stroke-width="5" stroke-linecap="round"/>`:`<path d="M50 50Q47 64 54 72M110 50Q113 64 106 72" fill="none" stroke="#7a4b2e" stroke-width="6" stroke-linecap="round"/>`;
- const stache=kind==='cleaver'?`<path d="M80 72Q71 67 63 72Q59 76 54 72Q57 81 67 79Q75 78 80 74Q85 78 93 79Q103 81 106 72Q101 76 97 72Q89 67 80 72Z" fill="#6b3f26"/>`:`<path d="M66 82q-3 1-4 4M94 82q3 1 4 4" stroke="#f0a3a3" stroke-width="0" fill="none"/>`;
+ const afro=charred?`<g fill="#1b1a1d" stroke="#3a393e" stroke-width="1.6">${[[50,40,15],[64,24,16],[80,18,17],[96,24,16],[110,40,15],[42,56,11],[118,56,11],[72,30,12],[88,30,12]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g><path d="M60 22q4-6 8-1M88 14q5-5 9 0M104 30q5-3 7 3" fill="none" stroke="#77737c" stroke-width="1.6" stroke-linecap="round"/>`:'';
+ const hair=charred?'':kind==='cleaver'?`<path d="M48 48Q46 62 52 70M112 48Q114 62 108 70" fill="none" stroke="#6b3f26" stroke-width="5" stroke-linecap="round"/>`:`<path d="M50 50Q47 64 54 72M110 50Q113 64 106 72" fill="none" stroke="#7a4b2e" stroke-width="6" stroke-linecap="round"/>`;
+ const stache=charred&&kind==='cleaver'?`<path d="M80 72Q71 67 63 72Q59 76 54 72Q57 81 67 79Q75 78 80 74Q85 78 93 79Q103 81 106 72Q101 76 97 72Q89 67 80 72Z" fill="#120c0a"/>`:charred?'':kind==='cleaver'?`<path d="M80 72Q71 67 63 72Q59 76 54 72Q57 81 67 79Q75 78 80 74Q85 78 93 79Q103 81 106 72Q101 76 97 72Q89 67 80 72Z" fill="#6b3f26"/>`:`<path d="M66 82q-3 1-4 4M94 82q3 1 4 4" stroke="#f0a3a3" stroke-width="0" fill="none"/>`;
  const tears=expr==='cry'?`<path d="M58 66q-6 8-4 14M102 66q6 8 4 14" stroke="#8fd2f4" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>`:'';
  return `<svg class="dz-art dz-butcher ${kind}" viewBox="0 0 160 170" aria-hidden="true">`+
   `<ellipse cx="80" cy="164" rx="44" ry="5.5" fill="#3a2a22" opacity=".14"/>`+
   `<g data-part="body"><rect x="57" y="146" width="20" height="18" rx="7" fill="#5a4436"/><rect x="83" y="146" width="20" height="18" rx="7" fill="#5a4436"/>`+
   `<path d="M50 92Q80 82 110 92Q123 100 119 124Q117 143 104 148H56Q43 143 41 124Q37 100 50 92Z" fill="${shirt}" stroke="${shirtD}" stroke-width="2"/>${apron}`+
   `<g data-part="armR"><path d="M112 98Q128 108 122 126" fill="none" stroke="${shirt}" stroke-width="13" stroke-linecap="round"/><circle cx="118" cy="127" r="7" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/></g>`+
-  `<g data-part="head"><circle cx="47" cy="62" r="7.5" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/><circle cx="113" cy="62" r="7.5" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/>${hair}`+
+  `<g data-part="head">${afro}<circle cx="47" cy="62" r="7.5" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/><circle cx="113" cy="62" r="7.5" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/>${hair}`+
   `<circle cx="80" cy="60" r="33" fill="${skin}" stroke="${skinD}" stroke-width="1.6"/><ellipse cx="62" cy="71" rx="6.4" ry="4.2" fill="#f4a3a3" opacity=".6"/><ellipse cx="98" cy="71" rx="6.4" ry="4.2" fill="#f4a3a3" opacity=".6"/>`+
-  `${brow}${eye(68,59)}${eye(92,59)}<ellipse cx="80" cy="68" rx="4.6" ry="3.4" fill="#efb08f"/>${stache}${mouth}${tears}${hat}</g>`+
+  `${charred?'<g fill="#2a292d" opacity=".55"><ellipse cx="64" cy="76" rx="7" ry="4"/><ellipse cx="98" cy="46" rx="6" ry="3.4"/><ellipse cx="86" cy="82" rx="4" ry="2.6"/></g><g fill="#9b98a0" opacity=".5"><circle cx="70" cy="48" r="2.4"/><circle cx="95" cy="72" r="2"/></g>':''}${brow}${eye(68,59)}${eye(92,59)}<ellipse cx="80" cy="68" rx="4.6" ry="3.4" fill="#efb08f"/>${stache}${mouth}${tears}${hat}</g>`+
   `<g data-part="arm"><path d="M50 98Q36 92 33 78" fill="none" stroke="${shirt}" stroke-width="13" stroke-linecap="round"/>${weapon}<circle cx="33" cy="76" r="7.4" fill="${skin}" stroke="${skinD}" stroke-width="1.4"/></g></g></svg>`;
 }
+function weaponArt(kind){return kind==='cleaver'
+  ?`<path d="M33 60V80" stroke="#8b5a36" stroke-width="7.5" stroke-linecap="round"/><path d="M18 26H45Q50 26 50 31V60H18Q13 60 13 55V31Q13 26 18 26Z" fill="#e3ebf0" stroke="#86a0ae" stroke-width="2.2" stroke-linejoin="round"/><path d="M15 32V55" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".9"/><path d="M44 27V59" stroke="#9fb4c0" stroke-width="3"/>`+
+    `<g transform="translate(31 43)" fill="#9fb4c0"><ellipse rx="7" ry="5.4"/><path d="M-6-3l-3-5 5 2zM2-5l3-5 1 5z"/><ellipse cx="-6.6" cy="1" rx="2.4" ry="2" fill="#86a0ae"/></g>`
+  :`<g transform="rotate(-38 31 74)"><rect x="-6" y="68" width="74" height="13" rx="6.5" fill="#e9bf86" stroke="#b9824a" stroke-width="2"/><rect x="-16" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><rect x="66" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><path d="M4 71.5H58" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/></g>`}
 // 身份头像（叫分前和名牌上用）：玩家自己的猪猪造型
 function avatar(a){a=a||{};const u='av'+(++uidN);const pal=PA.PALETTES[a.skin]||PA.PALETTES.peach;return `<svg class="dz-avatar-svg" viewBox="4 22 120 120" aria-hidden="true">${PA.defs(pal,u)}${PA.markup({uid:u,skin:a.skin,role:a.role||'pig',expr:a.expr||'normal'})}</svg>`}
 // 神秘猪影：还没决定身份时
@@ -166,7 +169,7 @@ function siren(){return `<svg class="dz-siren" viewBox="0 0 48 48" aria-hidden="
 function truffle(size){return `<svg class="dz-truffle" viewBox="0 0 24 24" width="${size||16}" height="${size||16}" aria-hidden="true"><path d="M12 5.6c2.6-.9 5 .4 5.8 2.2 2.4.2 4 2.4 3.6 4.8 1.2 2 .6 4.6-1.6 5.6-.6 2.2-3 3.4-5.2 2.6-1.6 1.6-4.2 1.6-5.6 0-2.2.8-4.6-.4-5.2-2.6-2.2-1-2.8-3.6-1.6-5.6-.4-2.4 1.2-4.6 3.6-4.8.8-1.8 3.2-3.1 6.2-2.2Z" fill="#7a5236"/><circle cx="9" cy="10.6" r="1.1" fill="#a07552"/><circle cx="14.6" cy="12" r="1.2" fill="#a07552"/><circle cx="11" cy="15.4" r="1" fill="#a07552"/><path d="M12.6 5.8C13.4 2.8 16 1.2 18.6 1.8 18 4.2 15.6 6 12.6 5.8Z" fill="#6f9e45"/></svg>`}
 function bolt(){return `<svg class="dz-bolt" viewBox="0 0 60 120" aria-hidden="true"><path d="M36 2L8 66H28L18 118 54 46H34Z" fill="#ffd34d" stroke="#e2a12f" stroke-width="3" stroke-linejoin="round"/></svg>`}
 
-const api={SUIT_COLOR,EVIL,face,back,suitIcon,evilPig,butcher,avatar,mystery,bomb,burst,rocket,flyingPig,train,net,siren,truffle,bolt,cacheSize:()=>Object.keys(cache).length};
+const api={SUIT_COLOR,EVIL,face,back,suitIcon,evilPig,butcher,weaponArt,avatar,mystery,bomb,burst,rocket,flyingPig,train,net,siren,truffle,bolt,cacheSize:()=>Object.keys(cache).length};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 root.PigDdzArt=api;
 })(typeof window!=='undefined'?window:globalThis);

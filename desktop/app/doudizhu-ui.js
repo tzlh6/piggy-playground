@@ -302,7 +302,7 @@ function create(ui){
  // ---- 小工具 ----
  function fxEl(t,cls,html,x,y){const el=document.createElement('div');el.className='dz-fxel '+cls;el.innerHTML=html||'';el.style.left=x+'px';el.style.top=y+'px';t.nodes.fx.appendChild(el);return el}
  function later(el,ms){setTimeout(()=>{if(el&&el.parentNode)el.remove()},ms)}
- function clearFx(t){if(t.nodes)t.nodes.fx.innerHTML=''}
+ function clearFx(t){if(t.nodes)t.nodes.fx.innerHTML='';if(t.finale){t.finale.destroy();t.finale=null}}
  function banner(t,text,kind){const el=t.nodes&&t.nodes.banner;if(!el)return;el.innerHTML=text;el.className='dz-banner';void el.offsetWidth;el.className='dz-banner show '+(kind||'')}
  function bubble(t,seat,text,kind){const el=$('dz-bub'+posOf(t,seat));if(!el)return;el.textContent=text;el.className='dz-bubble';void el.offsetWidth;el.className='dz-bubble show '+(kind||'');clearTimeout(el._t);el._t=setTimeout(()=>{el.className='dz-bubble'},1900)}
  function shake(t,big){if(reduced)return;const st=t.nodes.wrap;st.classList.remove('shake','shake-big');void st.offsetWidth;st.classList.add(big?'shake-big':'shake')}
@@ -418,19 +418,31 @@ function create(ui){
    return b;
   },
   end(t,e){
-   const b=beat(reduced?.8:3.1);const me=t.seat,won=(me===e.landlord)===e.landlordWin;
+   // 4.4.1：先摊牌、亮横幅（约 1 秒），再上演结算大戏（屠夫宰猪吃肉 / 邪恶猪猪大发神威），最后出结算面板
+   const me=t.seat,won=(me===e.landlord)===e.landlordWin,cine=!reduced&&!!root.PigDdzFinale;
+   const b=beat(reduced?.8:1.1);
    b.start=()=>{const d=t.disp;d.phase='end';d.turn=-1;d.result=e;renderActions(t);renderSeats(t);
-    // 摊开其他人剩下的牌
     for(let seat=0;seat<3;seat++){if(seat===me||!e.hands[seat].length)continue;renderPlayed(t,posOf(t,seat),{reveal:true,ids:e.hands[seat]},true)}
-    banner(t,e.landlordWin?'邪恶猪猪赢了！<small>哼哼哈哈哈～</small>':'屠夫胜利！<small>邪恶猪猪被抓回猪圈</small>',e.landlordWin?'evil':'farm');
+    banner(t,e.landlordWin?'邪恶猪猪赢了！<small>哼哼哈哈哈～</small>':'屠夫胜利！<small>邪恶猪猪被抓住了</small>',e.landlordWin?'evil':'farm');
     const L=e.landlord,F=[0,1,2].filter(x=>x!==L);
-    if(e.landlordWin){setMood(t,L,'happy',9);F.forEach(x=>setMood(t,x,'cry',9));Sound.pigLaugh({rate:.78});const p=seatPoint(t,L);const sm=fxEl(t,'dz-smoke purple','<i></i><i></i><i></i><i></i><i></i>',p.x,p.y);later(sm,1800)}
-    else{F.forEach(x=>setMood(t,x,'happy',9));setMood(t,L,'shock',9);if(!reduced){const p=seatPoint(t,L);const n=fxEl(t,'dz-netfx',A.net(),p.x,p.y);later(n,3200)}Sound.ddNet()}
-   };
-   if(!e.landlordWin)cue(b,1.25,()=>{t.washed=true;setMood(t,e.landlord,'cry',9);const p=seatPoint(t,e.landlord);if(!reduced){const bb=fxEl(t,'dz-bubbles','<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>',p.x,p.y);later(bb,2000)}Sound.ddBubble();bubble(t,e.landlord,'呜呜，洗白白了…','pass')});
-   cue(b,1.8,()=>{if(won)Sound.win();else Sound.lose()});
-   b.end=()=>{finishRound(t,e);showResult(t,e)};
-   return b;
+    if(e.landlordWin){setMood(t,L,'happy',12);F.forEach(x=>setMood(t,x,'cry',12));Sound.pigLaugh({rate:.78})}
+    else{F.forEach(x=>setMood(t,x,'happy',12));setMood(t,L,'shock',12);Sound.ddNet()}
+    if(!cine&&!e.landlordWin){t.washed=true;setMood(t,L,'cry',9)}};
+   cue(b,reduced?.4:.9,()=>{if(won)Sound.win();else Sound.lose()});
+   if(!cine){b.end=()=>{finishRound(t,e);showResult(t,e)};return b}
+   const SND={whoosh:()=>Sound.rlWhoosh(),oink:()=>Sound.pigOink({rate:.8}),throw:()=>Sound.rlThrow(),net:()=>Sound.ddNet(),squeal:()=>Sound.pigSqueal({rate:.85}),thud:()=>Sound.rlFlop(),splash:()=>Sound.ddSplash(),bubble:()=>Sound.ddBubble(),scrub:()=>Sound.ddScrub(),
+    fire:()=>Sound.ddFire(),plop:()=>Sound.rlPlop(),yelp:()=>Sound.pigYelp({rate:.85}),clang:()=>Sound.ddClang(),clang2:()=>{Sound.ddClang();Sound.ddBoil()},boil:()=>Sound.ddBoil(),ding:()=>Sound.ddDing(),poof:()=>Sound.rlPoof(),sparkle:()=>Sound.rlSparkle(),
+    bones:()=>Sound.rlPlop(),burp:()=>Sound.rlBurp(),ghost:()=>Sound.pigWhimper({rate:1.3}),tada:()=>Sound.rlDanceEnd(),
+    thunderLow:()=>Sound.ddThunder(false),rumble:()=>Sound.rlCharge(1),thunder:()=>Sound.ddThunder(false),evilLaugh:()=>Sound.pigLaugh({rate:.72}),roar:()=>Sound.ddRoar(),clatter:()=>Sound.ddClang(),zap:()=>Sound.ddZap(),
+    cough:()=>{Sound.pigSnort({rate:.7});Sound.pigSnort({rate:.8,delay:.25})},rain:()=>Sound.ddCoins(),throne:()=>Sound.rlCrown(),mercy:()=>Sound.pigWhimper({rate:.8}),fan:()=>Sound.rlWhoosh(),bossLaugh:()=>Sound.pigLaugh({rate:.75})};
+   const f=beat(1,{kind:'finale'});
+   f.start=()=>{if(t.finale)t.finale.destroy();const F=t.finale=root.PigDdzFinale.mount(t.nodes.stage,{landlordWin:e.landlordWin});f.dur=F.dur;
+    F.cues.forEach(([at,name])=>cue(f,at,()=>{const fn=SND[name]||(/^chomp(\d)/.test(name)?()=>Sound.ddChomp(+RegExp.$1):null);if(fn)fn()}));
+    F.skip.onclick=()=>{Sound.click();if(Sound.stop)Sound.stop();f.cues.forEach(c=>c.done=true);f.t=f.dur};F.update(0);
+    message(e.landlordWin?'邪恶猪猪大发神威！（可以点“跳过”）':'屠夫胜利：把邪恶猪猪抓去……（可以点“跳过”）')};
+   f.update=T=>{if(t.finale)t.finale.update(T)};
+   f.end=()=>{if(t.finale){t.finale.destroy();t.finale=null}if(!e.landlordWin){t.washed=true;setMood(t,e.landlord,'cry',9);bubble(t,e.landlord,'呜呜……','pass')}finishRound(t,e);showResult(t,e)};
+   return [b,f];
   }
  };
  // ---- 牌型特效 ----

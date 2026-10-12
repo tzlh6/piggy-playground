@@ -2,7 +2,7 @@
 
 完整操作、构建与许可说明见 [项目首页](../README.md)。
 
-在本目录运行 `npm test` 执行十组检查。运行 `npm ci` 安装锁定依赖，`npm run build:win` 生成 32 位 Windows 便携程序。`npm run build:web` 生成根目录 `build/猪猪游乐场v4.4.0.html`。
+在本目录运行 `npm test` 执行十组检查。运行 `npm ci` 安装锁定依赖，`npm run build:win` 生成 32 位 Windows 便携程序。`npm run build:web` 生成根目录 `build/猪猪游乐场v4.4.1.html`。
 
 便携程序将成绩、设置和在线更新内容放在 EXE 旁边的「猪猪游乐场存档」（在线更新内容在其中的「在线更新」子目录）。源码仓库不包含个人存档。
 

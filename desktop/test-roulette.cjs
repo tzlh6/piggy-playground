@@ -36,24 +36,24 @@ function winStage(g,w){g.turn=w;g._setMagazine(['real','real','real']);g.hp[1-w]
  ok(seen.size===7,'2 到 8 发都会出现');}
 
 // ---- 四种开枪结果 ----
-{let g=setup(['fake','real','real']);let r=g.act(0,{type:'shoot',target:'self'});ok(r.ok&&g.hp[0]===2&&g.turn===0,'自己假弹：不扣血、继续');
- g.act(0,{type:'shoot',target:'self'});ok(g.hp[0]===1&&g.turn===1,'自己真弹：受伤、结束回合');
- g=setup(['fake','real']);g.act(0,{type:'shoot',target:'opp'});ok(g.hp[1]===2&&g.turn===1,'对手假弹：结束回合');
- g=setup(['real','fake']);g.act(0,{type:'shoot',target:'opp'});ok(g.hp[1]===1&&g.turn===1,'对手真弹：受伤、结束回合');
- g=setup(['fake','fake','real'],['meat','book'],[],{stage:2});g.hp[0]=3;g.act(0,{type:'shoot',target:'self'});ok(g.act(0,{type:'item',item:'meat'}).ok&&g.hp[0]===4&&g.turn===0,'假弹后可继续用道具，道具不结束回合');}
+{let g=setup(['fake','real','real']);let r=g.act(0,{type:'shoot',target:'self'});ok(r.ok&&g.hp[0]===2&&g.turn===0,'自己假屎：不扣血、继续');
+ g.act(0,{type:'shoot',target:'self'});ok(g.hp[0]===1&&g.turn===1,'自己真屎：受伤、结束回合');
+ g=setup(['fake','real']);g.act(0,{type:'shoot',target:'opp'});ok(g.hp[1]===2&&g.turn===1,'对手假屎：结束回合');
+ g=setup(['real','fake']);g.act(0,{type:'shoot',target:'opp'});ok(g.hp[1]===1&&g.turn===1,'对手真屎：受伤、结束回合');
+ g=setup(['fake','fake','real'],['meat','book'],[],{stage:2});g.hp[0]=3;g.act(0,{type:'shoot',target:'self'});ok(g.act(0,{type:'item',item:'meat'}).ok&&g.hp[0]===4&&g.turn===0,'假屎后可继续用道具，道具不结束回合');}
 
 // ---- 饲料强化 ----
-{let g=setup(['real','fake'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});ok(g.boosted,'饲料强化');g.act(0,{type:'shoot',target:'self'});ok(g.hp[0]===2&&!g.boosted&&g.turn===1,'强化真弹自伤 2 并消耗');
- g=setup(['fake','real','real'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});g.act(0,{type:'shoot',target:'self'});ok(!g.boosted&&g.turn===0,'强化射出假弹：0 伤害，强化也消耗');
+{let g=setup(['real','fake'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});ok(g.boosted,'饲料强化');g.act(0,{type:'shoot',target:'self'});ok(g.hp[0]===2&&!g.boosted&&g.turn===1,'强化真屎自伤 2 并消耗');
+ g=setup(['fake','real','real'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});g.act(0,{type:'shoot',target:'self'});ok(!g.boosted&&g.turn===0,'强化射出假屎：0 伤害，强化也消耗');
  g=setup(['fake','fake','real','real'],['feed','plunger'],[],{stage:2});g.act(0,{type:'item',item:'feed'});g.act(0,{type:'item',item:'plunger'});ok(g.boosted&&g.mag.length===3,'退弹保留强化');
  g=setup(['fake'],['feed','plunger'],[],{stage:2});g.act(0,{type:'item',item:'feed'});const b=g.batch;g.act(0,{type:'item',item:'plunger'});ok(g.batch===b+1&&g.boosted&&g.turn===0,'退掉最后一颗：换弹，强化保留，不换手');
  g=setup(['real','real'],['feed','feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});const s=snap(g);const r=g.act(0,{type:'item',item:'feed'});ok(!r.ok&&snap(g)===s,'饲料不能叠加且无副作用');
- g=setup(['fake','real'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});g.act(0,{type:'shoot',target:'opp'});ok(g.turn===1&&!g.boosted,'对对手打出强化假弹：强化消耗');}
+ g=setup(['fake','real'],['feed'],[],{stage:2});g.act(0,{type:'item',item:'feed'});g.act(0,{type:'shoot',target:'opp'});ok(g.turn===1&&!g.boosted,'对对手打出强化假屎：强化消耗');}
 
 // ---- 泥巴：跳过一回合、允许连控、不能叠加、换弹清除 ----
 {let g=setup(['fake','real','fake','real','fake','real'],['mud','mud'],['mud'],{stage:2});g.act(0,{type:'item',item:'mud'});ok(g.mud[1],'泥巴必中');
  let s=snap(g),r=g.act(0,{type:'item',item:'mud'});ok(!r.ok&&snap(g)===s,'同一次控制未消耗时不能叠加');
- g.act(0,{type:'shoot',target:'self'});ok(g.mud[1]&&g.turn===0,'自己假弹继续，不提前消耗泥巴');
+ g.act(0,{type:'shoot',target:'self'});ok(g.mud[1]&&g.turn===0,'自己假屎继续，不提前消耗泥巴');
  r=g.act(0,{type:'shoot',target:'opp'});ok(g.turn===0&&!g.mud[1]&&r.events.some(e=>e.type==='skip'&&e.player===1),'对方回合被跳过，仍由自己行动');
  ok(g.act(0,{type:'item',item:'mud'}).ok&&g.mud[1],'上一次控制消耗后可以连控');
  g.act(0,{type:'shoot',target:'opp'});ok(g.turn===0,'连控：对方再次被跳过');

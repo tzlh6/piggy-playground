@@ -2,15 +2,15 @@
    4.3：三阶段积分赛。
    - 唯一的规则状态都在 Game 里；UI 只播放 act() 返回的事件。
    - 随机源可注入（测试用固定种子）；每批弹药装好后不再洗牌。
-   - 每次装填只公布一次“本批共几发、其中几发是假弹”。之后界面不再显示剩余数量。
+   - 每次装填只公布一次“本批共几发、其中几发是假屎”。之后界面不再显示剩余数量。
    - 魔法书、X 光的结果是使用者的私密线索；AI 只拿 publicView()：公开记录 + 自己的线索，拿不到隐藏队列与随机源。 */
 (function(root){
 'use strict';
 const ITEMS=['book','xray','feed','meat','rotten','mud','plunger','hoof'];
 const ITEM_INFO={
  book:{name:'魔法书',short:'随机验后面一颗',desc:'翻书念咒，随机查看后面某一颗（不含下一颗），结果只有自己知道。只剩一颗时道具照样用掉，但没有有效线索。'},
- xray:{name:'X 光',short:'验下一颗',desc:'扫描猪仔肚子，查看下一颗是真弹还是假弹，结果只有自己知道。'},
- feed:{name:'饲料',short:'下一枪真弹×2',desc:'喂给发射用的小猪仔：下一次射击若是真弹，伤害×2；打出假弹也会用掉强化。不能叠加，退弹和换弹都保留强化。'},
+ xray:{name:'X 光',short:'验下一颗',desc:'扫描猪仔肚子，查看下一颗是真屎还是假屎，结果只有自己知道。'},
+ feed:{name:'饲料',short:'下一枪真屎×2',desc:'喂给发射用的小猪仔：下一次射击若是真屎，伤害×2；打出假屎也会用掉强化。不能叠加，退弹和换弹都保留强化。'},
  meat:{name:'鲜肉',short:'回 1 血',desc:'回 1 滴血，不超过血量上限。满血或濒死时不能吃。'},
  rotten:{name:'腐肉',short:'50% +2 / 50% −1',desc:'一半机会回 2 滴血，一半机会扣 1 滴血（可能因此落败）。不超过血量上限；满血或濒死时不能吃。'},
  mud:{name:'泥巴',short:'跳过对方下一回合',desc:'必中，困住对方的蹄子，跳过对方下一回合。可以连控，但上一次泥巴还没生效时不能叠加；换弹会清掉还没生效的泥巴。'},
@@ -237,7 +237,7 @@ function chooseAction(v,rng,tier){
   if(has('book')&&a.unknownLater>0)return item('book');
   if(has('plunger')&&p0>.3&&p0<.7)return item('plunger');
  }
- if(p0===0&&v.boosted&&has('plunger'))return item('plunger'); // 已知假弹：退掉它，强化留给真弹
+ if(p0===0&&v.boosted&&has('plunger'))return item('plunger'); // 已知假屎：退掉它，强化留给真屎
  const goOpp=p0===1||(p0>0&&p0>=.5);
  if(goOpp){
   const lethal=v.nearDeath[opp]||v.hp[opp]<=dmg;

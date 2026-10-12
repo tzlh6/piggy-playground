@@ -2,7 +2,7 @@
 
 - 沟通与产品文字使用简体中文，代码及必要英文术语保留原文。
 - 本仓库维护 Windows 和安卓源码，不纳入 iOS 版本。
-- 当前游戏共用源在 `desktop/app`；安卓触屏与原生适配在 `android`。Windows / 网页为 4.4.0（新增斗地猪与局域网联机），安卓仍为 4.2.0（4.3 起只更新 Windows）；重建安卓前需先适配 4.3 的侧栏、说明区与“关于”弹窗结构，安卓也没有联机桥接（PiggyLan）。
+- 当前游戏共用源在 `desktop/app`；安卓触屏与原生适配在 `android`。Windows 与共用网页源码为 4.4.1（猪猪轮盘动画重做、说明文字改回真屎 / 假屎、斗地猪结算大戏），已交付的单文件网页与安卓仍为 4.2.0（4.3 起只更新 Windows）；重建安卓前需先适配 4.3 的侧栏、说明区与“关于”弹窗结构，安卓也没有联机桥接（PiggyLan）。本次未改主进程，`minShell` 保持 4.4.0。
 - 在线更新：Windows 便携版读取 `main` 上的 `desktop/update.json`，再按其中的 `ref`（提交号）下载 `desktop/app`。每次发布游戏内容更新：同步改 `app/version.js` 与 `package.json` 版本、写清更新说明（新规则要详细），运行 `npm test`，先提交 `desktop/app` 的改动，再运行 `npm run manifest` 并提交 `update.json`，推送 `main`。改动主进程文件（main / preload / updater / lan）时提高 `minShell` 并重建 exe；4.4.0 起 `minShell` 为 4.4.0。
 - 每次完成用户授权的更新后，运行适当检查，保持版本及文档一致，然后将更新提交并同步到 GitHub 默认分支；已有同步授权无需重复确认。
 - 同步目标是 `tzlh6/piggy-playground` 的 `main` 分支。同步前检查远端变化，发生并发修改时先合并；不得强制覆盖远端工作。完成后核对远端提交并向用户报告结果。

@@ -30,7 +30,7 @@ const games=['mine','memory','merge','whack','snake','runner','blocks','breakout
  await app.close();
  for(const r of res)console.log((r[1]?'PASS':'FAIL')+'  '+r[0]+(r[2]?'  '+r[2]:''));
  console.log(`在线更新面板：${upd}`);
- console.log(`轮盘（饲料 → X 光 → 强化真弹打对手）：对手血量 ${st.hp[1]} / 4，强化已消耗 ${!st.boosted}，玩家线索「${st.clue.replace('我的线索','')}」；平均帧间隔 ${st.avg.toFixed(1)} ms（约 ${Math.round(1000/st.avg)} fps），超过 34 ms 的帧 ${st.slow}/${st.n}`);
+ console.log(`轮盘（饲料 → X 光 → 强化真屎打对手）：对手血量 ${st.hp[1]} / 4，强化已消耗 ${!st.boosted}，玩家线索「${st.clue.replace('我的线索','')}」；平均帧间隔 ${st.avg.toFixed(1)} ms（约 ${Math.round(1000/st.avg)} fps），超过 34 ms 的帧 ${st.slow}/${st.n}`);
  console.log('page errors:',errors.length?errors.join(' | '):'none');
  process.exit(res.every(r=>r[1])&&!errors.length&&st.hp[1]===2&&!st.boosted?0:1);
 })();
