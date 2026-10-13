@@ -13,7 +13,7 @@ const configs={
   levels:[['easy','人机 · 悠闲'],['smart','人机 · 聪明'],['devil','人机 · 恶魔'],['duo','同屏双人']],labels:['积分','当前','累计胜场'],
   tips:[['三阶段积分赛','第一阶段 2 血、无道具，胜者 +1 分；第二阶段 4 血，胜者 +2 分；第三阶段 6 血，胜者 +3 分，最后 2 格是濒死格。三个阶段全部打完，3∶3 加赛。'],
    ['开枪与回合','对自己打出假屎继续行动，真屎受伤并结束回合；对对手开枪无论真假都结束回合。装填只公布一次“共几发、几发假屎”，之后靠自己记。'],
-   ['八件道具都不结束回合','魔法书、X 光验弹（只有自己知道）；饲料让下一枪真屎×2；鲜肉、腐肉回血；泥巴跳过对方一回合；马桶搋子退弹；猪蹄偷道具。Z / X 开枪，1–8 用道具。']]}
+   ['九件道具都不结束回合','魔法书、X 光验弹（只有自己知道）；饲料让下一枪真屎×2；鲜肉、腐肉回血；泥巴跳过对方一回合；马桶搋子退弹；猪蹄偷道具；魔术布让下一颗真假互换。Z / X 开枪，1–8 用道具。']]}
 };
 const PIG_S=1.55,LET_S=.74;
 const PARTS=['root','torso','head','earF','earN','tail','legA','legB','legC','legD','eyeF','eyeN','snout','prop'];
@@ -60,14 +60,15 @@ function create(ui){
  const {$,Sound,Store,icon,message,stats,record,result,confetti}=ui,get=ui.get,s=()=>get().state;
  const reduced=!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches);
  const has=id=>id==='roulette';
- let session=0,debugSpeed=1;
+ let session=0,debugSpeed=1,fartAt=null; // fartAt：测试用，强制饲料屁对着 'opp' / 'self'
 
  // ================= 初始化 =================
  function init(){
   session++;const level=get().level,mode=level==='duo'?'duo':'ai',tier=mode==='ai'?level:null;
   const seed=(Math.random()*4294967296)>>>0,first=lastFirst===null?undefined:1-lastFirst;
   const g=new Core.Game({rng:Core.createRng(seed),first});lastFirst=g.matchFirst;
-  const t={session,level,mode,tier,g,aiRng:Core.createRng(seed^0x5bd1e995),queue:[],beat:null,ambient:0,finished:false,modal:null,
+  // fxRng 只管演出花样（比如饲料屁对着谁），不碰对局与 AI 的随机源，也和真假屎无关
+  const t={session,level,mode,tier,g,aiRng:Core.createRng(seed^0x5bd1e995),fxRng:Core.createRng(seed^0x2c1b3c6d),queue:[],beat:null,ambient:0,finished:false,modal:null,
    speed:Store.get('roulette-speed','cinema')==='quick'?1.8:1,disp:null,actors:[],pig:null,nodes:{},spot:[1,.3],started:true,toastUntil:0,danceSeen:false};
   ui.setState(t);
   t.disp=blankDisp();
@@ -77,7 +78,7 @@ function create(ui){
   renderHUD();status();
   message(mode==='duo'?'同屏双人：轮到谁，谁就点自己的道具和大按钮。验弹时另一位先回避。':'你是左边的小猪。每批弹只公布一次数量，记住它。');
  }
- function blankDisp(){return {hp:[2,2],maxHp:2,nd:0,items:[[],[]],boosted:false,mud:[false,false],turn:0,points:[0,0],stage:1,phase:'play',clues:[{},{}],clueN:[0,0],down:[false,false]}}
+ function blankDisp(){return {hp:[2,2],maxHp:2,nd:0,items:[[],[]],boosted:false,flip:false,mud:[false,false],turn:0,points:[0,0],stage:1,phase:'play',clues:[{},{}],clueN:[0,0],down:[false,false]}}
  const human=p=>{const t=s();return t.mode==='duo'||p===0};
  const pname=p=>{const t=s();return t.mode==='duo'?(p===0?'1P':'2P'):(p===0?'你':TIER_NAME[t.tier])};
  const nearDeath=(d,p)=>!!d.nd&&d.hp[p]>0&&d.hp[p]<=d.nd;
@@ -142,13 +143,16 @@ function create(ui){
  function makePiglet(t){
   const layer=t.nodes.pigLayer,uid='rl'+session+'pg';
   const aura=svgEl('g',{class:'rl-aura',opacity:0},layer);aura.innerHTML=ART.chargeAura();
-  const el=svgEl('g',{class:'rl-piglet-body'},layer);el.innerHTML=PA.defs(ART.PIGLET,uid)+PA.markup({palette:ART.PIGLET,role:'pig',uid});
+  // id 供魔术布的透光影子 <use> 引用；不能用 uid+'-body'（那是身体渐变的 id，重名会让身体填色失效、变透明）
+  const el=svgEl('g',{class:'rl-piglet-body',id:uid+'-rig'},layer);el.innerHTML=PA.defs(ART.PIGLET,uid)+PA.markup({palette:ART.PIGLET,role:'pig',uid});
   const rig=new PA.Rig(el.querySelector('.pig-rig'));if(rig.parts['costume-torso'])rig.parts['costume-torso'].innerHTML=ART.pigletBandana();
   if(rig.parts.shadow)rig.parts.shadow.setAttribute('opacity','.0');
   const xray=svgEl('g',{class:'rl-xray-body',opacity:0},layer);xray.innerHTML=ART.FX.skeleton();
   const badge=svgEl('g',{class:'rl-badge',opacity:0},layer);badge.innerHTML=ART.badge();
   const zzz=svgEl('g',{class:'rl-zzz',opacity:0},layer);zzz.innerHTML=ART.FX.zzz();
-  return {el,rig,aura,xray,badge,zzz,pal:ART.PIGLET,lastT:'',flipCur:1};
+  // 4.4.3：下一颗盖过魔术布时，猪仔头上戴一顶小魔术帽（公开信息）
+  const hat=svgEl('g',{class:'rl-pighat',opacity:0},layer);hat.innerHTML=ART.FX.pigHat();
+  return {el,rig,aura,xray,badge,zzz,hat,id:uid+'-rig',pal:ART.PIGLET,lastT:'',flipCur:1};
  }
  // 角色局部坐标 → 舞台坐标（dir=-1 表示面朝右）
  function stagePt(a,lx,ly){return {x:a.x+a.dir*a.s*(lx-78),y:a.y+a.s*(ly-137)}}
@@ -170,6 +174,42 @@ function create(ui){
   const pos=stagePt(A,-20,60),flip=A.dir<0?-1:1;return {x:pos.x,y:pos.y,r:flip<0?-30:30,flip};
  }
  function focusOn(a,z){return {x:a.x-a.dir*30,y:330,z:z||1.25}}
+ // 4.4.3 小魔术帽：戴在猪仔头顶，随头部、身体转动微微前倾
+ function hatPose(pg){const o=pg.o,p=pigBone(pg,'head',48,41),r=(pg.r||0)+((o.head.r||0)+(o.torso.r||0)+(o.root.r||0)-12)*pg.flip;return {x:p.x,y:p.y,r,s:pg.s*1.35}}
+ // 前蹄够到舞台上的某一点（简易 IK）：转动这条腿让蹄尖指过去，并按距离稍微伸缩；amt 为 0~1 的混合量
+ const LEG={legA:{pv:[35.5,112],tip:[35.5,134]},legB:{pv:[68.5,113],tip:[68.5,134]}};
+ function reach(A,o,leg,target,amt){if(!amt)return;const L=LEG[leg],pv=bone(A,o,leg,L.pv[0],L.pv[1]),tp=bone(A,o,leg,L.tip[0],L.tip[1]);
+  let d=Math.atan2(target.y-pv.y,target.x-pv.x)-Math.atan2(tp.y-pv.y,tp.x-pv.x);d=Math.atan2(Math.sin(d),Math.cos(d))*180/Math.PI;
+  const m=Math.sign(A.dir*(o.flipX||1))||1,len=Math.hypot(target.x-pv.x,target.y-pv.y)/(Math.hypot(tp.x-pv.x,tp.y-pv.y)||1);
+  mv(o[leg],0,0,d*m*amt);o[leg].sy*=lerp(1,clamp(len,.55,1.25),amt)}
+ // 腿画在身体后面，抬到脸前会被挡住：在 fx 层叠一条同色的前腿，从肩膀转向目标（再加 add 度摆动），真腿压扁藏起来
+ function limbArt(A){const p=A.pal;return `<g><rect x="-8.5" y="-4" width="17" height="30" rx="8.2" fill="${p.body}" stroke="${p.line}" stroke-opacity=".3" stroke-width="1.4"/><path d="M-5.5 22.4h11" stroke="${p.shade}" stroke-width="2.2" stroke-linecap="round" opacity=".7"/></g>`}
+ function limb(n,A,o,leg,target,amt,add){if(!(amt>0)){hide(n);return}const L=LEG[leg],sh=bone(A,o,leg,L.pv[0],L.pv[1]);
+  let d=Math.atan2(target.y-sh.y,target.x-sh.x)*180/Math.PI-90;d=((d+540)%360)-180;const k=lerp(1,clamp(Math.hypot(target.x-sh.x,target.y-sh.y)/(26*A.s),.5,1.4),amt);
+  place(n,sh.x,sh.y,A.s,d*amt+(add||0)*amt,1);n.setAttribute('transform',n.getAttribute('transform')+` scale(1 ${k.toFixed(3)})`);o[leg].sy*=.001}
+ // ---- 魔术布的形状：上沿 CN 点（左→右）+ 下摆 CN 点（右→左）。抖开、飞行、罩住猪仔、扯走之间逐点插值 ----
+ const CN=9,f1=v=>v.toFixed(1);
+ function sheetShape(c,w,h,rot,ph,wv){const cs=Math.cos(rot),sn=Math.sin(rot),P=(x,y)=>({x:c.x+x*cs-y*sn,y:c.y+x*sn+y*cs}),top=[],hem=[];
+  for(let i=0;i<CN;i++){const u=i/(CN-1);top.push(P((u-.5)*w,-h/2+Math.sin(ph+u*6)*wv*.3))}
+  for(let i=0;i<CN;i++){const u=1-i/(CN-1);hem.push(P((u-.5)*w+Math.sin(ph*1.3+u*5)*wv*.5,h/2+Math.sin(ph+u*7)*wv))}
+  return {top,hem}}
+ // 罩在猪仔身上：取猪仔轮廓上沿的若干骨骼点，求上凸包、外扩一圈，再等距重采样；下摆铺在桌上
+ const HULL=[['head',10,84],['head',13,52],['head',22,42],['head',34,37],['head',48,36],['head',60,40],['torso',80,31],['torso',102,32],['torso',124,38],['torso',141,52],['torso',149,74],['torso',147,98],['tail',153,34]];
+ function drapeShape(pg,hemY,ph){
+  const pts=HULL.map(([k,x,y])=>pigBone(pg,k,x,y)).sort((a,b)=>a.x-b.x),up=[];
+  const cross=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
+  for(const p of pts){while(up.length>=2&&cross(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p)}
+  const pad=11,x0=up[0].x-pad,x1=up[up.length-1].x+pad,yAt=x=>{if(x<=up[0].x)return up[0].y;for(let i=1;i<up.length;i++)if(x<=up[i].x){const a=up[i-1],b=up[i];return lerp(a.y,b.y,(x-a.x)/((b.x-a.x)||1))}return up[up.length-1].y};
+  const top=[],hem=[];for(let i=0;i<CN;i++){const u=i/(CN-1),x=lerp(x0,x1,u),edge=Math.sin(u*Math.PI);top.push({x,y:Math.min(hemY-14,yAt(lerp(up[0].x,up[up.length-1].x,u))-pad*(.4+.6*edge))})}
+  for(let i=0;i<CN;i++){const u=1-i/(CN-1);hem.push({x:lerp(x0-22,x1+22,u)+Math.sin(ph*1.3+u*5)*2,y:hemY+Math.sin(ph+u*7)*1.5})}
+  return {top,hem}}
+ const lerpShape=(a,b,p)=>({top:a.top.map((q,i)=>({x:lerp(q.x,b.top[i].x,p),y:lerp(q.y,b.top[i].y,p)})),hem:a.hem.map((q,i)=>({x:lerp(q.x,b.hem[i].x,p),y:lerp(q.y,b.hem[i].y,p)}))});
+ function clothPaths(sh,ph,amp){const T=sh.top,H=sh.hem;let d=`M${f1(T[0].x)} ${f1(T[0].y)}`;
+  for(let i=1;i<T.length-1;i++){const m={x:(T[i].x+T[i+1].x)/2,y:(T[i].y+T[i+1].y)/2};d+=`Q${f1(T[i].x)} ${f1(T[i].y)} ${f1(m.x)} ${f1(m.y)}`}
+  d+=`L${f1(T[T.length-1].x)} ${f1(T[T.length-1].y)}`;let hem=`M${f1(H[0].x)} ${f1(H[0].y)}`;
+  for(let i=0;i<H.length-1;i++){const a=H[i],b=H[i+1],mx=(a.x+b.x)/2,my=(a.y+b.y)/2+amp*(i%2?1:-1)*(.6+.4*Math.sin(ph+i));hem+=`Q${f1(mx)} ${f1(my)} ${f1(b.x)} ${f1(b.y)}`}
+  return {body:d+'L'+hem.slice(1)+'Z',hem}}
+ const shapePt=(sh,i,v)=>({x:lerp(sh.top[i].x,sh.hem[CN-1-i].x,v),y:lerp(sh.top[i].y,sh.hem[CN-1-i].y,v)});
 
  // ================= 姿势：基础待机 =================
  function basePose(t){
@@ -188,7 +228,7 @@ function create(ui){
    if(a.down){mv(o.root,10,0,62);o.expr='dizzy'}
   }
   // 发射猪仔：趴在桌子中央，眨眼、甩耳朵、摇尾巴、打瞌睡；蓄力时挺肚子、翘尾巴、一脸嚣张
-  const q=rigPose(),pg={x:HOME.x,y:HOME.y,r:0,flip:1,s:LET_S,o:q,charge:d.boosted?1:0,zzz:0,lie:1};P.pig=pg;
+  const q=rigPose(),pg={x:HOME.x,y:HOME.y,r:0,flip:1,s:LET_S,o:q,charge:d.boosted?1:0,zzz:0,lie:1,hat:d.flip?1:0};P.pig=pg;
   const br=Math.sin(T*2.6);mv(q.torso,0,0,0,1-.012*br,1+.02*br);mv(q.tail,0,0,16*Math.sin(T*4.2));
   const ew=T%3.9;if(ew<.3)mv(q.earN,0,0,-16*Math.sin(ew/.3*Math.PI));const ew2=(T+1.3)%5.1;if(ew2<.28)mv(q.earF,0,0,13*Math.sin(ew2/.28*Math.PI));
   const doze=(T+4)%11;
@@ -221,7 +261,8 @@ function create(ui){
    PARTS.forEach(k=>PG.rig.set(k,o[k]));PG.rig.face(o.expr,PG.pal);
    const c=pigPt(pg,84,86);PG.aura.setAttribute('opacity',(pg.charge*.95).toFixed(2));PG.aura.setAttribute('transform',`translate(${c.x.toFixed(1)} ${c.y.toFixed(1)}) rotate(${(t.ambient*40%360).toFixed(1)}) scale(${(pg.s*(1+.06*Math.sin(t.ambient*5))).toFixed(3)})`);
    const top=pigPt(pg,96,22);PG.badge.setAttribute('opacity',(pg.charge*(pg.badge===undefined?1:pg.badge)).toFixed(2));PG.badge.setAttribute('transform',`translate(${top.x.toFixed(1)} ${(top.y-6+Math.sin(t.ambient*4)*3).toFixed(1)}) scale(${(.85+.08*Math.sin(t.ambient*6)).toFixed(3)})`);
-   const zp=pigPt(pg,30,40);PG.zzz.setAttribute('opacity',(pg.zzz||0).toFixed(2));PG.zzz.setAttribute('transform',`translate(${(zp.x-10).toFixed(1)} ${(zp.y-14-(t.ambient*8%10)).toFixed(1)})`)}
+   const zp=pigPt(pg,30,40);PG.zzz.setAttribute('opacity',(pg.zzz||0).toFixed(2));PG.zzz.setAttribute('transform',`translate(${(zp.x-10).toFixed(1)} ${(zp.y-14-(t.ambient*8%10)).toFixed(1)})`);
+   const ht=clamp(pg.hat||0);if(ht>0){const h=hatPose(pg);PG.hatAt=h;PG.hat.setAttribute('transform',`translate(${h.x.toFixed(1)} ${h.y.toFixed(1)}) rotate(${h.r.toFixed(1)}) scale(${(h.s*EASE.back(ht)).toFixed(3)})`)}PG.hat.setAttribute('opacity',ht>0?1:0)}
   // 镜头：位置、缩放、遮幅都用指数平滑跟随，段与段之间不会跳；震动与“冲击推镜”不平滑
   const c=P.cam,C=t.cam;C.x=follow(C.x,c.x,c.rate||6);C.y=follow(C.y,c.y,c.rate||6);C.z=follow(C.z,c.z,c.rate||6);C.box=follow(C.box,P.box||0,5);C.dim=follow(C.dim,P.dim||0,6);
   const z=(reduced?1:C.z*(1+(c.punch||0)))*1.1,cx=reduced?480:C.x,cy=(reduced?270:C.y)+22,shx=reduced?0:c.sx,shy=reduced?0:c.sy;
@@ -288,7 +329,7 @@ function create(ui){
  const BEATS={
   stage(t,e){
    const b=beat(2.2,{realtime:false});const cfg=Core.STAGES[e.stage];
-   b.start=()=>{b.up=t.actors.map(a=>a.down);t.actors.forEach(a=>a.down=false);const d=t.disp;Object.assign(d,{hp:[e.hp,e.hp],maxHp:e.hp,nd:e.nearDeath,items:[[],[]],boosted:false,mud:[false,false],turn:e.first,points:e.points.slice(),stage:e.stage,phase:'play',clues:[{},{}],clueN:[0,0]});
+   b.start=()=>{b.up=t.actors.map(a=>a.down);t.actors.forEach(a=>a.down=false);const d=t.disp;Object.assign(d,{hp:[e.hp,e.hp],maxHp:e.hp,nd:e.nearDeath,items:[[],[]],boosted:false,flip:false,mud:[false,false],turn:e.first,points:e.points.slice(),stage:e.stage,phase:'play',clues:[{},{}],clueN:[0,0]});
     t.actors.forEach(a=>{if(a.costume!==a.role)setCostume(a,a.role)});renderHUD();status();
     const open=cfg.open.length?'起手：'+cfg.open.map(k=>NAMES[k].name).join('＋')+(cfg.openRandom?'＋随机 '+cfg.openRandom+' 件':''):'没有道具，纯靠胆量';
     card(`<small>${e.tiebreak?'3∶3 平分 · 加赛决胜':'三阶段积分赛'}</small><b>${STAGE_LABEL[e.stage]}</b><p>双方 ${e.hp} 滴血 · ${open}</p><p>${e.tiebreak?'按第三阶段规则，只决定整场赢家':'胜者 +'+e.award+' 分'}${cfg.supply?' · 之后每次装填补给 '+cfg.supply+' 件':''}</p>${e.nearDeath?'<p class="nd">最后 2 格是濒死格：进入后无法回血，再受伤即落败</p>':''}<p class="first">${pname(e.first)}先手</p>`,'stage');
@@ -303,7 +344,7 @@ function create(ui){
   load(t,e){
    // 猪仔吃下一袋不透明弹料：吞咽、打嗝，看不出顺序。数量只在这里公布一次。
    const b=beat(3.4,{realtime:true,rate:t.speed>1?1.3:1}),tItems=2.5;
-   b.start=()=>{const d=t.disp;d.clues=[{},{}];d.clueN=[0,0];if(e.mudCleared&&e.mudCleared.length){e.mudCleared.forEach(p=>d.mud[p]=false);logLine('换弹冲掉了还没生效的泥巴','sys')}renderHUD();
+   b.start=()=>{const d=t.disp;d.clues=[{},{}];d.clueN=[0,0];d.flip=false;if(e.mudCleared&&e.mudCleared.length){e.mudCleared.forEach(p=>d.mud[p]=false);logLine('换弹冲掉了还没生效的泥巴','sys')}renderHUD();
     b.sack=node(b,ART.sack());b.burp=node(b,ART.FX.say('嗝～',{fill:'#fff6e8'}));b.crumbs=[0,1,2,3].map(()=>node(b,'<circle r="2.4" fill="#c9a26b"/>'));
     card(`<small>${e.opening?STAGE_LABEL[e.stage]+' · 第 1 批':'第 '+e.batch+' 批装填'}</small><b>本批共 ${e.total} 发</b><p class="fakes">其中 <em>${e.fake}</em> 发是假屎</p><p class="once">只公布这一次，请记住</p>`,'load');
     message(`装填：本批共 ${e.total} 发，其中 ${e.fake} 发是假屎。只公布这一次。${e.boosted?'猪仔的蓄力还在。':''}`);
@@ -404,7 +445,7 @@ function create(ui){
    b.ghosts=[0,1,2,3].map(()=>node(b,ART.shell(e.shell,{label:false})));b.flames=boosted&&real?[0,1,2].map(()=>node(b,ART.FX.flame())):[];
    b.shell=node(b,ART.shell(e.shell));b.splat=node(b,ART.FX.splat(shellC.fill,shellC.dark));
    b.sweat=node(b,ART.FX.sweat());b.sweat2=node(b,ART.FX.sweat());b.stars=[0,1,2].map(()=>node(b,ART.FX.star()));b.heart=node(b,ART.FX.brokenHeart());
-   b.rng=prng(e.by*7+(real?3:5)+(boosted?11:0));
+   b.rng=prng(e.by*7+(real?3:5)+(boosted?11:0));if(e.flipped)b.hatFly=node(b,ART.FX.pigHat());
    message(pname(e.by)+(self?'把猪仔抱在怀里，屁股对准了自己……':'抱起猪仔，屁股对准了'+pname(1-e.by)+'……'))};
   b.pose=(T,P)=>{
    const R=frozen(T,stops),a=P.a[e.by],o=P.a[1-e.by],v=P.a[e.victim],pg=P.pig,q=pg.o;
@@ -523,24 +564,25 @@ function create(ui){
    if(fp){const u=T-b.fireAt;P.flash=u<HS1?(boosted?.26:.16):Math.max(0,(boosted?.26:.16)-(u-HS1)*2.5);P.cam.punch=(u<HS1?.05:Math.max(0,.05-(u-HS1)*.15))*(boosted?1.6:1);
     const sh=Math.max(0,1-(u-HS1)/.35)*(boosted?10:5)*(u>=HS1?1:0);P.cam.sx=wave(T,24,sh);P.cam.sy=wave(T,19,sh*.6)}
    if(real&&R>=tHitR){const u=T-rt(tHitR);const sh=Math.max(0,1-(u-HS2)/.5)*(boosted?16:9);P.cam.sx+=wave(T,27,sh);P.cam.sy+=wave(T,22,sh*.7);if(u<HS2+.04)P.flash=Math.max(P.flash||0,boosted?.3:.16);P.cam.punch=(P.cam.punch||0)+Math.max(0,.07-u*.18)*(boosted?1.5:1)}
+   if(e.flipped)hatFly(b,R-tFire,-flip); // 盖过魔术布的那颗打出去：“噗”的同时小魔术帽飞掉（真假一样）
   };
   // ---------- 声音与结算（按真实时间）----------
   cue(b,.04,()=>Sound.pigSqueal({rate:1.35}));cue(b,tUp,()=>Sound.rlLift());cue(b,tCatch,()=>Sound.rlCatch());
   if(self)cue(b,tAim,()=>Sound.pigWhimper({rate:A.p===0?1.1:.95}));else cue(b,tAim+.1,()=>Sound.pigSqueal({rate:O.p===0?1.05:.9}));
   pats.forEach(at=>cue(b,at,()=>Sound.rlPat()));
   cue(b,tChg,()=>{Sound.rlCharge(tFire-tChg);Sound.rlHeartbeat()});cue(b,tChg+.25,()=>Sound.rlLock());
-  cue(b,tFire,()=>{if(fizzle)Sound.rlFizzle();else Sound.rlPfft(real,boosted);const d=t.disp;shiftClues(d);if(boosted)d.boosted=false;renderHUD()});
+  cue(b,tFire,()=>{if(fizzle)Sound.rlFizzle();else Sound.rlPfft(real,boosted);const d=t.disp;shiftClues(d);if(boosted)d.boosted=false;if(e.flipped)hatOff(b,d);renderHUD()});
   cue(b,rt(tHitR),()=>{const d=t.disp;d.hp=e.hp.slice();renderHUD(real?e.victim:-1);
-   const tag=self?'对自己':'对'+pname(1-e.by);
+   const tag=self?'对自己':'对'+pname(1-e.by),mb=e.flipped?' · 魔术布':'',mm=e.flipped?'魔术布把它变成了'+(real?'真屎':'假屎')+'！':'',ml=e.flipped?'（魔术布）':'';
    if(real){Sound.rlHit(boosted,V.p===0?0:3);if(e.finisher)Sound.rlFlop();
-    setBanner(e.finisher?'濒死中再受伤 · 落败':(boosted?'强化真屎！-'+e.damage:'真屎！-1'),'real');
-    message(`真屎！${pname(e.victim)}${e.finisher?'在濒死格里再次受伤，落败':'受伤 -'+e.lost}${e.entered?'，进入濒死格：无法回血，再受伤即落败':''}。${self&&!e.lethal?'回合结束。':''}`);
-    logLine(`${who(e.by)}${tag}开枪：${shellTxt('real')}${boosted?'（强化）':''}，${who(e.victim)} −${e.lost}${e.entered?' · 进入濒死':''}`,'hit')}
+    setBanner(e.finisher?'濒死中再受伤 · 落败':(boosted?'强化真屎！-'+e.damage:'真屎！-1')+mb,'real');
+    message(`${mm}真屎！${pname(e.victim)}${e.finisher?'在濒死格里再次受伤，落败':'受伤 -'+e.lost}${e.entered?'，进入濒死格：无法回血，再受伤即落败':''}。${self&&!e.lethal?'回合结束。':''}`);
+    logLine(`${who(e.by)}${tag}开枪：${shellTxt('real')}${ml}${boosted?'（强化）':''}，${who(e.victim)} −${e.lost}${e.entered?' · 进入濒死':''}`,'hit')}
    else{if(fizzle){Sound.rlPlop();Sound.pigWhimper({rate:1.4,delay:.2})}else{Sound.rlSqueak();Sound.rlRelief()}
     if(self)Sound.pigGiggle({delay:.4});else if(boosted)Sound.pigLaugh({delay:.5,rate:O.p===0?1.08:.92});else Sound.pigSmug({delay:.5});
-    setBanner(fizzle?'噗叽……强化落空，是假屎':'吱～是假屎','fake');
-    message(self?'假屎！不扣血，'+pname(e.by)+'继续行动。'+(boosted?'可惜强化被用掉了。':''):'假屎，没有伤害。'+(boosted?'强化也被用掉了。':'')+'回合结束。');
-    logLine(`${who(e.by)}${tag}开枪：${shellTxt('fake')}${boosted?'（强化落空）':''}${self?'，继续行动':''}`,'')}
+    setBanner((fizzle?'噗叽……强化落空，是假屎':'吱～是假屎')+mb,'fake');
+    message(mm+(self?'假屎！不扣血，'+pname(e.by)+'继续行动。'+(boosted?'可惜强化被用掉了。':''):'假屎，没有伤害。'+(boosted?'强化也被用掉了。':'')+'回合结束。'));
+    logLine(`${who(e.by)}${tag}开枪：${shellTxt('fake')}${ml}${boosted?'（强化落空）':''}${self?'，继续行动':''}`,'')}
    if(e.entered)Sound.rlNearDeath()});
   // 命中后的粒子与伤害数字（在命中那一帧生成，位置取当时的准星）
   cue(b,rt(tHitR),()=>{const f=b.lastTarget||{x:V.x,y:380};
@@ -575,7 +617,7 @@ function create(ui){
   if(!all.length)return '<p>本批还没有验弹线索。</p>';
   const live=all.filter(c=>!c.stale).sort((a,b)=>a.rel-b.rel),old=all.filter(c=>c.stale).sort((a,b)=>a.abs-b.abs);
   const src=c=>`<small class="src">${NAMES[c.item].name}</small>`,no=c=>`<small class="no">本批第 ${c.abs+1} 颗</small>`;
-  const li=live.map(c=>`<li>${src(c)}${clueName(c.rel)}${no(c)}：${c.shell==='real'?'<em class="real">真屎</em>':'<em class="fake">假屎</em>'}</li>`)
+  const li=live.map(c=>`<li>${src(c)}${clueName(c.rel)}${no(c)}：${c.flipped?'魔术布互换后 ':''}${c.shell==='real'?'<em class="real">真屎</em>':'<em class="fake">假屎</em>'}</li>`)
    .concat(old.map(c=>`<li class="stale">${src(c)}本批第 ${c.abs+1} 颗${c.gone==='pop'?'已被退出':'已经打出'}：<em class="stale">已过时</em></li>`));
   return `<ul class="rl-clue-list">${li.join('')}</ul>${live.length?'':'<p>本批的线索都已过时。</p>'}`;
  }
@@ -592,12 +634,17 @@ function create(ui){
  function hopTo(pg,from,to,p,h){const e=EASE.inOut(p);pg.x=lerp(from.x,to.x,e);pg.y=lerp(from.y,to.y,e)-Math.sin(p*Math.PI)*(h||40)}
  const ITEM_BEATS={
   book(t,e){
-   // 翻开魔法书念咒：光柱托起猪仔、符文环绕，光束从书页照向猪仔。公共表现与真假、位置无关。
-   const A=t.actors[e.by],b=beat(3.05),fwd=-A.dir;
+   // 翻开魔法书：使用者先变身“魔法猪”（脚下魔法阵、星光螺旋、原地转一圈，紫烟里换上巫师帽和星点披风），
+   // 再念咒——光柱托起猪仔、符文环绕，光束从书页照向猪仔；念完“噗”一声变回原装扮。公共表现与真假、位置无关。
+   const A=t.actors[e.by],SH=.3,b=beat(3.05+SH),fwd=-A.dir,tMorph=.72,tBack=2.5+SH+.06;
+   const RT=T=>T<.55?T:T<.55+SH?.55:T-SH,at=x=>x<.55?x:x+SH; // 原时间轴从 0.55 秒起整体后移 0.3 秒，空出变身段
    b.start=()=>{itemStart(t,e);b.pillar=node(b,ART.FX.pillar(),t.nodes.under);b.circle=node(b,ART.FX.circle(),t.nodes.under);b.beam=svgEl('polygon',{fill:'url(#rl-beam)',opacity:0},t.nodes.fx);b.nodes.push(b.beam);
+    b.mcircle=node(b,ART.FX.circle(),t.nodes.under);b.mpuff=node(b,ART.FX.puff('#c9a7ff'));b.mpuff2=node(b,ART.FX.puff('#d9c2ff'));b.spiral=[0,1,2,3,4,5,6,7].map(k=>node(b,ART.FX.sparkle(k%2?'#fff1a8':'#d9b8ff')));
     b.book=node(b,ART.item('book'));b.open=node(b,ART.ITEM_ART.bookOpen());b.runes=[0,1,2,3,4].map(k=>node(b,ART.FX.rune(k)));b.flash=node(b,'<circle r="70" fill="url(#rl-magic)"/>');b.puff=node(b,ART.FX.puff('#e7dcff'));
     logLine(`${who(e.by)}用了<span class="it">魔法书</span>`,'item')};
-   b.pose=(T,P)=>{const a=P.a[e.by],pg=P.pig,q=pg.o;
+   b.end=()=>{if(A.costume!==A.role)setCostume(A,A.role)};
+   b.pose=(T0,P)=>{const T=RT(T0),a=P.a[e.by],pg=P.pig,q=pg.o;
+    if(T0>.58&&T0<.74)a.flipX=-1; // 变身时原地转一圈（压扁再展开）
     const rise=kf(T,[[0,0],[.42,1,'back'],[2.45,1],[2.85,0,'inOut']]);stand(a,30*rise);mv(a.legA,0,0,58*rise);mv(a.legB,0,0,44*rise);
     const hold=paws(A,a),hp={x:hold.x+fwd*14,y:hold.y-22},ang=rootAng(A,a);
     if(fetchItem(A,a,b.book,T,.05,.42,hp,1.2)){if(T<.62){place(b.book,hp.x,hp.y,1.2*(1-clamp((T-.52)/.1)),ang*.5,1)}else hide(b.book)}
@@ -613,12 +660,26 @@ function create(ui){
     b.runes.forEach((n,k)=>{const an=k/5*Math.PI*2+T*3.4,r0=60+8*Math.sin(T*4+k),sc=.9+.2*Math.sin(T*6+k);place(n,belly.x+Math.cos(an)*r0,belly.y+Math.sin(an)*r0*.42,sc,an*30,env(T,.95+k*.05,2.2,.15))});
     place(b.flash,belly.x,belly.y,kf(T,[[1.85,.2],[2.0,1.3,'out'],[2.2,1.6]]),0,env(T,1.85,2.25,.08));
     const pp=hp;place(b.puff,pp.x,pp.y,.6+clamp((T-2.5)/.35)*1.4,0,env(T,2.48,2.95,.1)*.85);
-    camFocus(P,T,3.05,A,1.12,{x:lerp(A.x,HOME.x,.55),y:322});P.dim=env(T,.8,2.4,.3)*.45;
+    camFocus(P,T0,3.05+SH,A,1.12,{x:lerp(A.x,HOME.x,.55),y:322});P.dim=env(T,.8,2.4,.3)*.45;
+    // ---- 变身魔法猪（0.55–0.95）：魔法阵、星光螺旋、转一圈，紫烟最浓时换装，烟散后“啵”地弹一下 ----
+    if(T0>=.55&&T0<.55+SH+.1)a.expr=T0<tMorph?'shock':'sly';
+    const pop=env(T0,tMorph+.02,tMorph+.22,.06);if(pop>0)mv(a.root,0,0,0,1-.07*pop,1+.09*pop);
+    const aFeet={x:A.x,y:A.y-2},body=bone(A,a,'torso',78,78),head=bone(A,a,'head',44,40);
+    place(b.mcircle,aFeet.x,aFeet.y,kf(T0,[[.5,.2],[.62,.75,'back'],[.9,.75],[1.0,0]])*(1+.05*Math.sin(T0*14)),0,env(T0,.5,1.0,.08));
+    b.spiral.forEach((n,k)=>{const u=clamp((T0-.55-k*.03)/.36),an=u*Math.PI*4+k*.8,rad=52*(1-.35*u);place(n,body.x+Math.cos(an)*rad,lerp(aFeet.y,head.y-24,u)+Math.sin(an)*rad*.18,.8+.4*Math.sin(an*2),an*60,u>0&&u<1?1:0)});
+    // 两团紫烟（头和身子）：变身时罩住全身、帽子换上的那一刻正好被盖住；念完咒再罩一次、变回原装扮
+    const hc=bone(A,a,'head',44,52),pu=T0<1.2?kf(T0,[[.6,.5],[tMorph,2.5,'out'],[.98,2.9]]):kf(T0,[[tBack-.2,.6],[tBack,2.4,'out'],[tBack+.3,2.8]]),po=T0<1.2?env(T0,.62,.98,.08)*.95:env(T0,tBack-.2,tBack+.32,.08)*.92;
+    place(b.mpuff,body.x,body.y,pu*.85,T0*40,po);place(b.mpuff2,hc.x,hc.y-14,pu,-T0*50,po);
    };
-   cue(b,.05,()=>{Sound.rlWhoosh();fetchSparkle(b,A,b.t)});cue(b,.55,()=>Sound.rlPage());[.62,.7].forEach(at=>cue(b,at,()=>Sound.rlPage()));
-   cue(b,.62,()=>{const p=stagePt(A,0,40);spray(b,'<rect x="-5" y="-3.5" width="10" height="7" rx="1" fill="#fff8e6" stroke="#b9a57e" stroke-width=".8"/>',8,{at:b.t,x:p.x-A.dir*-40,y:p.y,ang:[-Math.PI*.9,-Math.PI*.1],speed:[60,150],g:160,life:[.9,1.4],drag:1.5})});
-   cue(b,.9,()=>Sound.rlChant());[1.05,1.35,1.65].forEach((at,k)=>cue(b,at,()=>Sound.rlRune(k)));
-   cue(b,1.9,()=>{Sound.rlMagic();const p={x:HOME.x,y:HOME.y-60};spray(b,(i)=>ART.FX.sparkle(i%2?'#fff1a8':'#d9b8ff'),12,{at:b.t,x:p.x,y:p.y,speed:[100,240],g:140,life:[.5,.9]})});cue(b,2.05,()=>revealPrivate(t,e));cue(b,2.5,()=>Sound.rlPoof());
+   cue(b,.05,()=>{Sound.rlWhoosh();fetchSparkle(b,A,b.t)});
+   cue(b,.55,()=>{Sound.rlTransform();message(pname(e.by)+'翻开魔法书，摇身一变成了魔法猪……')});cue(b,.64,()=>Sound.rlPoof());
+   cue(b,tMorph,()=>{setCostume(A,'wizard-magic');Sound.rlSparkle()});cue(b,tMorph+.04,()=>Sound.rlBoing());
+   cue(b,at(.55),()=>Sound.rlPage());[.62,.7].forEach(x=>cue(b,at(x),()=>Sound.rlPage()));
+   cue(b,at(.62),()=>{const p=stagePt(A,0,40);spray(b,'<rect x="-5" y="-3.5" width="10" height="7" rx="1" fill="#fff8e6" stroke="#b9a57e" stroke-width=".8"/>',8,{at:b.t,x:p.x-A.dir*-40,y:p.y,ang:[-Math.PI*.9,-Math.PI*.1],speed:[60,150],g:160,life:[.9,1.4],drag:1.5})});
+   cue(b,at(.9),()=>Sound.rlChant());[1.05,1.35,1.65].forEach((x,k)=>cue(b,at(x),()=>Sound.rlRune(k)));
+   cue(b,at(1.9),()=>{Sound.rlMagic();const p={x:HOME.x,y:HOME.y-60};spray(b,(i)=>ART.FX.sparkle(i%2?'#fff1a8':'#d9b8ff'),12,{at:b.t,x:p.x,y:p.y,speed:[100,240],g:140,life:[.5,.9]})});cue(b,at(2.05),()=>revealPrivate(t,e));
+   cue(b,tBack-.18,()=>Sound.rlPoof());
+   cue(b,tBack,()=>{setCostume(A,A.role);const p=stagePt(A,60,40);spray(b,(i)=>ART.FX.sparkle(i%2?'#fff1a8':'#d9b8ff'),10,{at:b.t,x:p.x,y:p.y,speed:[40,120],g:260,life:[.5,.9],jx:30})});
    return b;
   },
   xray(t,e){
@@ -648,42 +709,92 @@ function create(ui){
    return b;
   },
   feed(t,e){
-   // 喂饲料：猪仔一路小跳过来，埋头猛吃、越吃越鼓，最后站起来秀肌肉、点燃蓄力光环
-   const A=t.actors[e.by],b=beat(3.6),fwd=-A.dir;
+   // 喂饲料：猪仔一路小跳过来，埋头猛吃、越吃越鼓 → 憋一下，“噗～”放个屁（多数对着对手；偶尔回头给喂食者来一发“回马屁”）
+   // → 屁云晃晃悠悠飘到那只猪鼻子底下：嗅嗅、捏鼻子、扇手，另一只哈哈大笑；猪仔秀肌肉、点燃蓄力光环，跳回盘子。
+   // 放屁对象只用演出随机源 fxRng 决定，不碰对局与 AI 的随机源。
+   const A=t.actors[e.by],b=beat(4.9),fwd=-A.dir;
+   const back=fartAt?fartAt==='self':t.fxRng()<.25,V=back?A:t.actors[1-e.by],W=back?t.actors[1-e.by]:A,vi=V.p,wi=W.p;
    const spot=stagePt(A,-30,140),bowlAt={x:spot.x+fwd*40,y:452},eatAt={x:bowlAt.x+fwd*60,y:HOME.y};
+   const eatFlip=fwd>0?1:-1,fartFlip=back?-eatFlip:eatFlip;
+   const tBrew=2.45,tFart=2.9,tBoost=3.12,tArrive=3.55,tPinch=3.72,tFree=4.62,tHome=4.3;
    b.start=()=>{itemStart(t,e);b.bag=node(b,ART.item('feed'));b.bowl=node(b,ART.FX.bowl());b.pow=node(b,ART.FX.say('哼！',{fill:'#ffe9cf',stroke:'#ff9b4a',ink:'#b4541f'}));b.ring=node(b,ART.FX.ring('#ffb347',8));
+    b.rumble=node(b,'<g stroke="#e3ecb4" stroke-width="2.6" stroke-linecap="round" fill="none" opacity=".9"><path d="M-30-5q-5 5 0 10M-38-10q-8 10 0 20M30-5q5 5 0 10M38-10q8 10 0 20"/></g>');
+    b.cloud=node(b,ART.FX.fart());b.flies=[0,1].map(()=>node(b,ART.FX.fly()));b.stink=node(b,ART.FX.stink());b.pinch=node(b,limbArt(V));b.fan=node(b,limbArt(V));
+    b.ugh=node(b,ART.FX.say('好臭！',{fill:'#eef7e0',stroke:'#9fc46a',ink:'#4f6b2a'}));
     logLine(`${who(e.by)}喂猪仔吃了<span class="it">饲料</span>：下一枪强化`,'item')};
-   b.pose=(T,P)=>{const a=P.a[e.by],pg=P.pig,q=pg.o;
+   b.pose=(T,P)=>{const a=P.a[e.by],v=P.a[vi],w=P.a[wi],pg=P.pig,q=pg.o;
+    // ---- 喂食者：后腿站起、倒饲料 ----
     const rise=kf(T,[[0,0],[.4,1,'back'],[1.25,1],[1.55,0,'inOut']]);stand(a,26*rise);mv(a.legA,0,0,56*rise);mv(a.legB,0,0,40*rise);
     const pour=env(T,.7,1.3,.15);a.dx=fwd*34*pour;mv(a.head,0,4*pour,10*pour);
     const hold=paws(A,a),hp={x:hold.x+fwd*12,y:hold.y-16};
     if(fetchItem(A,a,b.bag,T,.05,.4,hp,1.15)){place(b.bag,lerp(hp.x,bowlAt.x-fwd*8,.6*pour),lerp(hp.y,bowlAt.y-74,.6*pour),1.15*(T>1.3?1-clamp((T-1.3)/.2):1),fwd*110*pour,1)}
-    const bin=EASE.back(clamp((T-.45)/.25));place(b.bowl,bowlAt.x,bowlAt.y-(1-clamp((T-.45)/.18))*60,.95*bin,0,T>.45?(T>3.2?1-clamp((T-3.2)/.25):1):0);
-    a.expr=T<1.4?'happy':T<2.7?'normal':'smug';if(T>2.6)mv(a.head,0,-2,-8);
-    // 猪仔跳过来（三小跳）→ 埋头吃 → 鼓肚子 → 站起来秀肌肉 → 跳回去
-    pg.flip=fwd>0?1:-1;
+    const bin=EASE.back(clamp((T-.45)/.25));place(b.bowl,bowlAt.x,bowlAt.y-(1-clamp((T-.45)/.18))*60,.95*bin,0,T>.45?(T>tHome?1-clamp((T-tHome)/.25):1):0);
+    a.expr=T<1.4?'happy':'normal';
+    // ---- 猪仔：三小跳过来 → 埋头吃 → 打嗝 → 憋屁、“噗～” → 秀肌肉 → 跳回去 ----
+    pg.flip=eatFlip;
     if(T<.4){pg.lie=1-env(T,.1,.5,.1);pg.flip=1}
     else if(T<1.0){const p=(T-.4)/.6,k=Math.min(2,Math.floor(p*3)),f=p*3-k,a0={x:lerp(HOME.x,eatAt.x,k/3),y:HOME.y},a1={x:lerp(HOME.x,eatAt.x,(k+1)/3),y:HOME.y};hopTo(pg,a0,a1,f,22);pg.lie=0;q.expr='happy';dangle(q,T,.6)}
-    else if(T<3.0){pg.x=eatAt.x;pg.y=eatAt.y;pg.lie=T<2.3?.2:0}
-    else{const p=clamp((T-3.0)/.5);hopTo(pg,eatAt,HOME,p,60);pg.lie=p>.9?1:0;pg.flip=1}
-    const fat=clamp((T-1.25)/1.0);
+    else if(T<tHome){pg.x=eatAt.x;pg.y=eatAt.y;pg.lie=T<2.3?.2:0;if(back&&T>tBrew+.05)pg.flip=fartFlip}
+    else{const p=clamp((T-tHome)/.5);hopTo(pg,eatAt,HOME,p,60);pg.lie=p>.9?1:0;pg.flip=1}
+    const fat=clamp((T-1.25)/1.0)*(1-.3*clamp((T-tFart)/.3)); // 放完屁肚子小一圈
     if(T>=1.2&&T<2.25){const bob=Math.abs(wave(T,3.4,1));mv(q.head,0,6+4*bob,22+8*bob);q.expr='chew';mv(q.snout,0,0,0,1,1+wave(T,6.8,.12));mv(q.earN,0,0,wave(T,3.4,12));mv(q.tail,0,0,wave(T,5,20))}
     mv(q.torso,0,0,0,1+.12*fat,1+.1*fat);
-    if(T>=2.25&&T<2.45){q.expr='burp';mv(q.head,0,-3,-10)}
-    const flex=env(T,2.45,3.05,.12);if(T>=2.45&&T<3.05){stand(q,46*flex);mv(q.legA,0,0,-80*flex+wave(T,4,10)*flex);mv(q.legB,0,0,-100*flex);q.expr=T<2.6?'shock':'sly';mv(q.tail,0,0,-40*flex)}
-    pg.charge=T<2.55?0:clamp((T-2.55)/.25);pg.badge=EASE.back(clamp((T-2.65)/.3));
-    const ce=pigPt(pg,84,86);place(b.ring,ce.x,ce.y,.4+clamp((T-2.55)/.4)*2.2,0,clamp(1-(T-2.55)/.4)*(T>2.55?1:0));
-    const hd=pigPt(pg,30,40);place(b.pow,hd.x,hd.y-46,EASE.back(clamp((T-2.6)/.2)),0,env(T,2.6,3.15,.1));
-    camFocus(P,T,3.6,A,1.2,{x:lerp(A.x,HOME.x,.55),y:350});
-    if(T>2.55&&T<2.9)P.cam.sy=wave(T,22,(1-(T-2.55)/.35)*4);
+    if(T>=2.25&&T<tBrew){q.expr='burp';mv(q.head,0,-3,-10)}
+    // 憋屁：尾巴翘起、屁股扭；回马屁先压扁转身、回头坏笑
+    const brew=T>=tBrew&&T<tFart+.05?env(T,tBrew,tFart+.05,.08):0;
+    if(brew>0){mv(q.tail,0,0,-38*brew);mv(q.root,wave(T,7,2.6*brew),0,wave(T,7,3*brew));mv(q.torso,0,0,0,1+.05*brew,1-.04*brew);q.expr=back&&T<tBrew+.32?'sly':'tight'}
+    // 噗：被反冲往脸的方向一拱，然后一脸舒坦
+    if(T>=tFart&&T<tBoost-.05){const sq=kf(T,[[tFart,0],[tFart+.04,1,'out'],[tFart+.4,0,'elastic']]);pg.x-=pg.flip*10*sq;mv(q.torso,0,0,0,1-.12*sq,1+.1*sq);mv(q.tail,0,0,-30+wave(T,6,14));q.expr=T<tFart+.12?'tight':'happy'}
+    const flex=env(T,tBoost-.07,tBoost+.55,.12);if(flex>0&&T<tBoost+.55){stand(q,46*flex);mv(q.legA,0,0,-80*flex+wave(T,4,10)*flex);mv(q.legB,0,0,-100*flex);q.expr=T<tBoost+.08?'shock':'sly';mv(q.tail,0,0,-40*flex)}
+    if(T>=tBoost+.55&&T<tHome){q.expr='grin';mv(q.tail,0,0,wave(T,5,26))}
+    pg.charge=T<tBoost?0:clamp((T-tBoost)/.25);pg.badge=EASE.back(clamp((T-tBoost-.1)/.3));
+    const ce=pigPt(pg,84,86);place(b.ring,ce.x,ce.y,.4+clamp((T-tBoost)/.4)*2.2,0,clamp(1-(T-tBoost)/.4)*(T>tBoost?1:0));
+    const hd=pigPt(pg,30,40);place(b.pow,hd.x,hd.y-46,EASE.back(clamp((T-tBoost-.05)/.2)),0,env(T,tBoost+.05,tBoost+.6,.1));
+    const bc=pigPt(pg,96,84);place(b.rumble,bc.x,bc.y,pg.s*1.2*(1+.08*Math.sin(T*40)),0,brew*.9);
+    if(T>=tFart&&!b.fartFrom)b.fartFrom=pigBone(pg,'torso',BUTT[0],BUTT[1]);
+    // ---- 被熏的一方：竖耳 → 嗅嗅 → 捏鼻子、扇手 ----
+    if(T>=tBrew+.1&&T<tArrive-.08&&T>1.6){mv(v.earN,0,0,-8);mv(v.earF,0,0,6);v.expr='worry'}
+    const sniff=env(T,tArrive-.08,tPinch,.05);
+    if(sniff>0){const s1=env(T,tArrive-.08,tArrive+.05,.03),s2=env(T,tArrive+.09,tArrive+.2,.03);mv(v.snout,0,0,0,1+.16*(s1+s2),1+.16*(s1+s2));mv(v.head,0,-2*sniff,-6*sniff);v.expr='shock'}
+    const pin=env(T,tPinch,tFree,.14);
+    if(pin>0){stand(v,14*pin);mv(v.root,wave(T,2.6,2*pin));mv(v.head,0,2*pin,wave(T,2.6,5)*pin);mv(v.snout,0,0,0,1-.2*pin,1-.26*pin);v.expr='stinky'}
+    // 远侧前蹄捏住鼻子，近侧前蹄在鼻子前面来回扇（都画在脸前面）
+    limb(b.pinch,V,v,'legB',bone(V,v,'snout',37,97),pin);limb(b.fan,V,v,'legA',bone(V,v,'head',-12,88),pin,wave(T,5,30));
+    // 旁观的一方哈哈大笑
+    const lol=env(T,tPinch-.05,tFree+.1,.15);if(lol>0){w.expr='laugh';mv(w.root,0,-Math.abs(wave(T,3.2,7))*lol);mv(w.head,0,0,-8*lol);mv(w.tail,0,0,wave(T,6,30)*lol);mv(w.legA,0,0,(30+wave(T,3.2,10))*lol)}
+    // ---- 屁云：从屁股晃悠悠飘到鼻子底下，被扇得往外散 ----
+    if(b.fartFrom&&T<tFree+.1){const nose=bone(V,v,'snout',30,93),fr=b.fartFrom,p=clamp((T-tFart)/(tArrive-tFart)),e2=EASE.inOut(p);
+     let cx=lerp(fr.x,nose.x,e2)+wave(T,2.2,6)*(1-p),cy=lerp(fr.y,nose.y,e2)-Math.sin(p*Math.PI)*46,sc=.75+.65*EASE.out(p),op=1;
+     if(T>tPinch){const u=clamp((T-tPinch)/(tFree-tPinch-.08));cx=nose.x-V.dir*80*EASE.out(u);cy=nose.y-30*u+wave(T,3,4);sc=1.4+.6*u;op=1-clamp((u-.35)/.65)}
+     else if(T>tArrive){cx=nose.x+wave(T,1.6,4);cy=nose.y+wave(T,2.1,3)}
+     place(b.cloud,cx,cy,sc,wave(T,.8,12),op);b.cloudP={x:cx,y:cy};
+     b.flies.forEach((n,k)=>{const an=T*(6+k*1.5)+k*2.4;place(n,cx+Math.cos(an)*(30*sc+6),cy-6+Math.sin(an*1.4)*14*sc,1.1,0,op*env(T,tFart+.15,tFree,.1))});
+     place(b.stink,cx,cy-36*sc,.9+.3*sc,0,op*env(T,tFart+.2,tFree,.15))}
+    else{hide(b.cloud);b.flies.forEach(hide);hide(b.stink)}
+    const vb=bone(V,v,'torso',118,40);place(b.ugh,vb.x,vb.y-22,EASE.back(clamp((T-tPinch-.05)/.2)),0,env(T,tPinch+.05,tFree,.1)); // 气泡放在背上方，不被顶部横幅挡住
+    // ---- 镜头：喂食 → 跟着屁云 → 推近被熏的那只 → 回中 ----
+    const m1=lerp(A.x,HOME.x,.55),m2=lerp(eatAt.x,V.x,.5),vx=lerp(V.x-V.dir*40,W.x,.3); // 推近被熏的那只，同时带上大笑的那只
+    P.cam.x=kf(T,[[0,480],[.45,m1],[tBrew,m1],[tFart+.15,m2],[tArrive,vx],[tFree,vx],[4.9,480]]);
+    P.cam.y=kf(T,[[0,270],[.45,350],[tBrew,350],[tFart+.15,332],[tArrive,326],[tFree,326],[4.9,280]]);
+    P.cam.z=kf(T,[[0,1],[.45,1.2],[tBrew,1.2],[tFart+.15,1.04],[tArrive,1.1],[tFree,1.1],[4.9,1]]);P.box=env(T,0,4.9,.35);
+    if(T>tFart&&T<tFart+.25)P.cam.sx=wave(T,22,(1-(T-tFart)/.25)*3);
+    if(T>tBoost&&T<tBoost+.35)P.cam.sy=wave(T,22,(1-(T-tBoost)/.35)*4);
    };
    cue(b,.05,()=>{Sound.rlWhoosh();fetchSparkle(b,A,b.t)});cue(b,.5,()=>Sound.rlPlop());[.45,.65,.85].forEach(at=>cue(b,at,()=>Sound.rlPlop()));
    cue(b,.8,()=>{Sound.rlPour();spray(b,ART.FX.kibble(),14,{at:b.t,x:bowlAt.x-fwd*4,y:bowlAt.y-64,ang:[Math.PI*.35,Math.PI*.65],speed:[40,90],g:700,life:[.4,.55],stagger:.4,spin:[0,0],scale:[.9,1.1],shrink:false})});
-   [1.3,1.48,1.66,1.84,2.02].forEach((at,k)=>cue(b,at,()=>{Sound.rlChew(k);const m={x:eatAt.x-fwd*-10,y:HOME.y+2};spray(b,ART.FX.kibble(),3,{at:b.t,x:bowlAt.x,y:bowlAt.y-8,ang:[-Math.PI*.85,-Math.PI*.15],speed:[60,140],g:700,life:[.4,.6]})}));
+   [1.3,1.48,1.66,1.84,2.02].forEach((at,k)=>cue(b,at,()=>{Sound.rlChew(k);spray(b,ART.FX.kibble(),3,{at:b.t,x:bowlAt.x,y:bowlAt.y-8,ang:[-Math.PI*.85,-Math.PI*.15],speed:[60,140],g:700,life:[.4,.6]})}));
    cue(b,2.25,()=>{Sound.rlGulp();Sound.rlBurp()});
-   cue(b,2.55,()=>{Sound.rlCompress();t.disp.boosted=true;renderHUD();Sound.rlPower();Sound.pigSmug({rate:1.3});message('猪仔吃饱饲料、秀了秀肌肉：下一次射击若是真屎，伤害×2；打出假屎也会用掉强化。');
+   cue(b,tBrew+.05,()=>{Sound.rlCharge(.4);if(back){Sound.rlWhoosh();Sound.pigGiggle({rate:1.4,delay:.1})}});
+   cue(b,tFart,()=>{Sound.rlFart();message(back?'猪仔吃撑了，回头冲着'+pname(e.by)+'来了一发“回马屁”……':'猪仔吃撑了，冲着'+pname(vi)+'“噗～”地放了个屁……')});
+   cue(b,tFart+.02,()=>{const f=b.fartFrom;if(!f)return;pop(b,ART.FX.word('噗～',{fill:'#eef5cf',stroke:'#5f6b1f',size:26,rot:-8}),{at:b.t,x:f.x,y:f.y-34,rise:36,life:1,scale:1});
+    spray(b,ART.FX.smoke('#c9d77a'),5,{at:b.t,x:f.x,y:f.y,speed:[20,70],g:-50,life:[.5,.9],scale:[.5,1.1],drag:2.5})});
+   cue(b,tFart+.2,()=>Sound.pigSmug({rate:1.35}));cue(b,3.0,()=>Sound.rlStink());
+   [3.2,3.4].forEach(at=>cue(b,at,()=>{const c=b.cloudP;if(c)spray(b,ART.FX.smoke('#c9d77a'),2,{at:b.t,x:c.x,y:c.y,speed:[10,40],g:-30,life:[.5,.8],scale:[.4,.8],drag:2})}));
+   cue(b,tBoost,()=>{Sound.rlCompress();t.disp.boosted=true;renderHUD();Sound.rlPower();Sound.pigSmug({rate:1.3});
     const c=pigPt(P0(t),84,86);spray(b,ART.FX.sparkle('#ffd27a'),10,{at:b.t,x:c.x,y:c.y,speed:[120,240],g:100,life:[.4,.7]})});
-   cue(b,3.0,()=>Sound.rlWhoosh());
+   cue(b,tArrive-.08,()=>Sound.rlSniff());cue(b,tPinch,()=>{Sound.pigWhimper({rate:vi===0?1.15:.95});message('猪仔吃饱饲料、放完屁又秀了秀肌肉：下一次射击若是真屎，伤害×2；打出假屎也会用掉强化。')});
+   cue(b,tPinch+.05,()=>Sound.pigLaugh({rate:wi===0?1.1:.92,delay:.15}));[0,1,2,3].forEach(k=>cue(b,tPinch+.12+k*.2,()=>Sound.rlFan(k)));
+   cue(b,tHome,()=>Sound.rlWhoosh());
    return b;
   },
   meat(t,e){
@@ -775,7 +886,8 @@ function create(ui){
    // 马桶搋子：猪仔跳到跟前、屁股朝自己；“啵”地吸住，使劲往后拽，猪仔被拉得老长——“啵！”一颗屎高高飞起落在桌上；退出前真假动作一致
    const A=t.actors[e.by],b=beat(3.2),real=e.shell==='real',fwd=-A.dir,tStick=.7,tPop=1.7;
    const spot={x:A.x+fwd*150,y:HOME.y};
-   b.start=()=>{itemStart(t,e);b.plunger=node(b,ART.item('plunger'));b.shell=node(b,ART.shell(e.shell));b.tag=node(b,ART.FX.tag('退出：'+(real?'真屎':'假屎'),e.shell));b.puff=node(b,ART.FX.puff('#efe7d8'));b.pop=node(b,ART.FX.boom('啵！','#fff1b8'))};
+   b.start=()=>{itemStart(t,e);b.plunger=node(b,ART.item('plunger'));b.shell=node(b,ART.shell(e.shell));b.tag=node(b,ART.FX.tag('退出：'+(real?'真屎':'假屎'),e.shell));b.puff=node(b,ART.FX.puff('#efe7d8'));b.pop=node(b,ART.FX.boom('啵！','#fff1b8'));
+    if(e.flipped)b.hatFly=node(b,ART.FX.pigHat())};
    b.pose=(T,P)=>{const a=P.a[e.by],pg=P.pig,q=pg.o;
     // 猪仔跳过来，屁股朝向使用者
     const come=clamp((T-.15)/.4),goB=clamp((T-2.65)/.5);
@@ -802,10 +914,11 @@ function create(ui){
     const tp=clamp((T-tPop-.85)/.25);place(b.tag,land.x,land.y-70,EASE.back(tp)*.95,0,T>tPop+.85?1-clamp((T-2.95)/.2):0);
     camFocus(P,T,3.2,A,1.18,{x:lerp(A.x,spot.x,.5),y:350});
     if(T>tPop&&T<tPop+.3){P.cam.sx=wave(T,24,(1-(T-tPop)/.3)*5);P.flash=.12*(1-(T-tPop)/.3)}
+    if(e.flipped)hatFly(b,T-tPop,fwd); // 盖过魔术布的那颗被退出：小魔术帽跟着飞掉（真假一样）
    };
    cue(b,.05,()=>{Sound.rlWhoosh();fetchSparkle(b,A,b.t)});cue(b,.2,()=>Sound.rlLift());cue(b,.58,()=>Sound.rlCatch());cue(b,tStick,()=>Sound.rlSuction());cue(b,tStick+.08,()=>Sound.rlStretch(tPop-tStick-.1));
-   cue(b,tPop,()=>{Sound.rlPop();const d=t.disp;shiftClues(d);renderHUD()});
-   cue(b,tPop+.75,()=>{Sound.rlPlop();Sound.rlReveal(real);if(real)Sound.rlRelief();message('马桶搋子“啵”地退出一颗：'+(real?'真屎':'假屎')+'。继续行动'+(e.boosted?'，猪仔的蓄力还在。':'。'));logLine(`${who(e.by)}用<span class="it">马桶搋子</span>退出一颗：${shellTxt(e.shell)}`,'item')});
+   cue(b,tPop,()=>{Sound.rlPop();const d=t.disp;shiftClues(d);if(e.flipped)hatOff(b,d);renderHUD()});
+   cue(b,tPop+.75,()=>{Sound.rlPlop();Sound.rlReveal(real);if(real)Sound.rlRelief();const mb=e.flipped?'（魔术布变的）':'';message('马桶搋子“啵”地退出一颗：'+(real?'真屎':'假屎')+mb+'。继续行动'+(e.boosted?'，猪仔的蓄力还在。':'。'));logLine(`${who(e.by)}用<span class="it">马桶搋子</span>退出一颗：${shellTxt(e.shell)}${e.flipped?'（魔术布）':''}`,'item')});
    cue(b,tPop+.85,()=>Sound.rlBoing());cue(b,2.65,()=>Sound.rlWhoosh());
    return b;
   },
@@ -838,10 +951,106 @@ function create(ui){
    cue(b,tGrab+.25,()=>Sound.pigYelp({rate:O.p===0?1.1:.95}));cue(b,tHome-.35,()=>Sound.rlWhoosh());
    cue(b,tHome+.35,()=>{t.disp.items[e.by].push(e.stolen);renderHUD();bagPulse(e.by);Sound.rlItemGet(3);Sound.pigGiggle({rate:1.1,delay:.1});message(`${pname(e.by)}用猪蹄偷走了${pname(e.target)}的${NAMES[e.stolen].name}，马上就能用。`,'ok');logLine(`${who(e.by)}用<span class="it">猪蹄</span>偷走${who(e.target)}的${NAMES[e.stolen].name}`,'item')});
    return b;
+  },
+  cloth(t,e){
+   // 魔术布（4.4.3）：使用者“噗”地换上魔术师礼帽和红领结，从背后变出叠好的红丝绒布 → 双蹄一抖“唰”地展开、点头致意 → 甩手一抛，罩住猪仔 →
+   // 双蹄画圈念“变变变～”、鼓点滚奏；台灯从后面照着布，看得见猪仔的影子在里面转圈、站起来扒布、缩成一团 →
+   // 一指，紫烟和 ⇄ 一闪 → 一把扯走布，猪仔头上“啵”地弹出小魔术帽 → 戴着礼帽鞠躬谢幕（对手一头雾水），再“噗”地变回原装扮。
+   // 下一颗是真是假、谁验过它，都不影响这段演出的任何一帧（结算只改 HUD 与私密线索）。
+   const A=t.actors[e.by],O=t.actors[1-e.by],b=beat(3.4),fwd=-A.dir;
+   const tUnfurl=.4,tThrow=.8,tLand=1.2,tSnap=2.0,tWhisk=2.12,tGone=2.5,hemY=HOME.y+32,tSuit=.16,tUnsuit=3.12;
+   b.end=()=>{if(A.costume!==A.role)setCostume(A,A.role)};
+   const STARS=[[1,.45],[2,.78],[3,.28],[4,.6],[5,.3],[6,.8],[7,.5]];
+   b.start=()=>{itemStart(t,e);const uid='rlcl'+t.session+'n'+(t.clothN=(t.clothN||0)+1);
+    b.folded=node(b,ART.item('cloth'));b.glow=node(b,'<ellipse rx="120" ry="76" fill="url(#rl-glow)"/>',t.nodes.under);
+    b.cl=svgEl('g',{opacity:0},t.nodes.fx);b.cl.innerHTML=ART.FX.cloth(uid,t.pig.id);b.nodes.push(b.cl);
+    ['body','hem','clip','shadow'].forEach(k=>b[k]=b.cl.querySelector(`[data-c="${k}"]`));
+    b.stars=STARS.map(()=>node(b,ART.FX.clothStar()));b.swap=node(b,ART.FX.swap());b.puff=node(b,ART.FX.puff('#c9a7ff'));
+    b.say=node(b,ART.FX.say('变变变～',{fill:'#fff1f4',stroke:'#c22a45',ink:'#8e1a30'}));b.huh=node(b,ART.FX.say('？',{}));
+    b.suit=node(b,ART.FX.puff('#e9d9ff'));
+    logLine(`${who(e.by)}用了<span class="it">魔术布</span>：下一颗真假互换`,'item')};
+   b.pose=(T,P)=>{const a=P.a[e.by],o=P.a[1-e.by],pg=P.pig,q=pg.o;
+    // ---- 使用者：站起 → 抖布 → 后仰甩出 → 双蹄画圈 → 一指 → 扯布 → 鞠躬 ----
+    const rise=kf(T,[[0,0],[.35,1,'back'],[2.6,1],[3.2,0,'inOut']]);
+    const wind=kf(T,[[.55,0],[tThrow-.06,1,'out'],[tThrow+.06,-.7,'in'],[1.1,0,'out']]);
+    stand(a,24*rise+10*Math.max(0,wind)-6*Math.max(0,-wind));
+    let la=60*rise,lb=44*rise;const spread=env(T,tUnfurl,tThrow+.1,.1);la=lerp(la,96,spread);lb=lerp(lb,20,spread);
+    la+=-50*Math.max(0,wind)+60*Math.max(0,-wind);lb+=-40*Math.max(0,wind)+50*Math.max(0,-wind);
+    const circ=env(T,tLand,tSnap,.15),sp=T*Math.PI*2*1.6;if(circ>0){la=lerp(la,80+34*Math.sin(sp),circ);lb=lerp(lb,60+34*Math.cos(sp),circ)}
+    const point=env(T,tSnap-.08,tSnap+.2,.05);la=lerp(la,104,point);
+    const yank=env(T,tWhisk-.04,tWhisk+.3,.06);la=lerp(la,-20,yank);lb=lerp(lb,-10,yank);a.dx=-fwd*12*yank+fwd*10*point;
+    mv(a.legA,0,0,la);mv(a.legB,0,0,lb);
+    const nod=env(T,.5,.75,.08);mv(a.head,0,3*nod,8*nod);
+    if(circ>0){mv(a.head,0,0,wave(T,1.6,6)*circ);mv(a.root,0,-Math.abs(wave(T,1.6,3))*circ)}
+    const bow=env(T,2.55,3.3,.18);mv(a.head,0,6*bow,20*bow);mv(a.torso,0,0,8*bow);
+    a.expr=T<tLand?'sly':T<tSnap?(Math.floor(T*4)%2?'grin':'sly'):T<2.55?'grin':T<3.0?'wink':'happy';
+    // ---- 对手：盯着看、被一闪吓一跳、一头雾水 ----
+    o.expr=T<tLand?'normal':T<tSnap?'worry':T<tSnap+.3?'shock':'worry';if(T>2.5)mv(o.head,0,0,wave(T,1.2,8));
+    // ---- 猪仔：看见布飞来 → 布下面转圈、站起来扒布、缩成一团 → 露出来晕乎乎，戴上小魔术帽 ----
+    let L=1;
+    if(T>=tThrow&&T<tLand){q.expr='shock';mv(q.head,0,-3,-14*env(T,tThrow,tLand+.1,.1));L=.6}
+    if(T>=tLand&&T<tWhisk){q.expr='shock';
+     const s1=env(T,1.3,1.62,.06);if(s1>0){pg.flip=T>1.38&&T<1.56?-1:1;pg.x+=wave(T,3,9)*s1;L=1-.8*s1;dangle(q,T,s1*.8);mv(q.earN,0,0,wave(T,6,14)*s1)}
+     const s2=env(T,1.6,1.86,.06);if(s2>0){stand(q,40*s2);mv(q.legA,0,0,(-70+wave(T,7,30))*s2);mv(q.legB,0,0,(-90-wave(T,7,30))*s2);mv(q.earN,0,0,wave(T,9,18)*s2);mv(q.earF,0,0,-wave(T,9,14)*s2);mv(q.tail,0,0,-50*s2);L=Math.min(L,1-s2)}
+     const s3=env(T,1.86,2.12,.05);if(s3>0){mv(q.torso,0,0,0,1+.1*s3,1-.16*s3);mv(q.head,0,4*s3,10*s3);mv(q.root,wave(T,14,1.6*s3))}}
+    if(T>=tWhisk){q.expr=T<2.55?'dizzy':T<3.0?'wink':'happy';if(T<2.55)mv(q.head,0,0,wave(T,2,8))}
+    lie(q,L);pg.lie=0; // 先自己趴好，罩布才能按真实轮廓贴合
+    pg.hat=T<2.22?0:clamp((T-2.22)/.25);
+    // ---- 布：叠好 → 展开垂在身前 → 飞过去、贴合成罩布 → 扯走缩小消失 ----
+    const ph=T*7,hold=paws(A,a),top={x:hold.x+fwd*14,y:hold.y-6};
+    if(fetchItem(A,a,b.folded,T,.05,.36,{x:hold.x+fwd*12,y:hold.y-12},1.15)){if(T<tUnfurl+.06)place(b.folded,hold.x+fwd*12,hold.y-12,1.15*(1-clamp((T-tUnfurl)/.06)),0,1);else hide(b.folded)}
+    const drape=drapeShape(pg,hemY,ph),dc={x:(drape.top[0].x+drape.top[CN-1].x)/2,y:drape.top[4].y+34};
+    let sh=null,amp=3,op=1;
+    if(T>=tUnfurl&&T<tThrow){const u=EASE.back(clamp((T-tUnfurl)/.3));sh=sheetShape({x:top.x,y:top.y+lerp(16,48,u)},lerp(30,150,u),lerp(32,96,u),0,ph,lerp(10,4,clamp((T-tUnfurl)/.4)));amp=4}
+    else if(T>=tThrow&&T<tWhisk){const p=clamp((T-tThrow)/(tLand-tThrow)),ep=EASE.inOut(p);
+     const fly=sheetShape({x:lerp(top.x,dc.x,ep),y:lerp(top.y+48,dc.y,ep)-Math.sin(p*Math.PI)*90},150,lerp(96,80,p),fwd*.25*Math.sin(p*Math.PI),ph,8);
+     const m=EASE.inOut(clamp((p-.55)/.45));sh=m<=0?fly:m>=1?drape:lerpShape(fly,drape,m);amp=lerp(5,2.5,m)}
+    else if(T>=tWhisk&&T<tGone){const p=EASE.in(clamp((T-tWhisk)/(tGone-tWhisk)));
+     const up=sheetShape({x:lerp(dc.x,hold.x+fwd*20,p),y:lerp(dc.y-50,hold.y-90,p)},lerp(150,16,p),lerp(90,12,p),-fwd*.6*p,ph,10);
+     sh=lerpShape(drape,up,EASE.out(clamp((T-tWhisk)/.14)));amp=5;op=1-clamp((T-tGone+.1)/.1)}
+    if(sh){const ps=clothPaths(sh,ph,amp);b.body.setAttribute('d',ps.body);b.hem.setAttribute('d',ps.hem);b.clip.setAttribute('d',ps.body);b.cl.setAttribute('opacity',op.toFixed(2));
+     b.stars.forEach((n,k)=>{const [i,v]=STARS[k],p=shapePt(sh,i,v);place(n,p.x,p.y,1,0,op)});b.lastC=shapePt(sh,4,.5)}
+    else{hide(b.cl);b.stars.forEach(hide)}
+    // 台灯从后面照着布：布上透出猪仔的影子
+    const shade=env(T,tLand-.02,tWhisk,.12);b.shadow.setAttribute('opacity',(shade*.66).toFixed(2));place(b.glow,HOME.x,HOME.y-14,1+.04*Math.sin(T*9),0,shade*.9);
+    place(b.puff,dc.x,dc.y-10,kf(T,[[tSnap-.04,.6],[tSnap+.12,2.2,'out'],[tSnap+.45,2.6]]),T*30,env(T,tSnap-.04,tSnap+.45,.06)*.9);
+    const dt=drape.top[4];place(b.swap,dt.x,dt.y-36,EASE.back(clamp((T-tSnap)/.16))*(1-clamp((T-tSnap-.35)/.15)),(T-tSnap)*720,env(T,tSnap,tSnap+.5,.05));
+    // 换上 / 脱下魔术师礼帽：一团烟盖住头的那一帧换装
+    const hc=bone(A,a,'head',46,44),su=T<1.5?env(T,tSuit-.12,tSuit+.2,.06):env(T,tUnsuit-.12,tUnsuit+.22,.06),sk=T<1.5?kf(T,[[tSuit-.12,.6],[tSuit,2.1,'out'],[tSuit+.2,2.5]]):kf(T,[[tUnsuit-.12,.6],[tUnsuit,2.1,'out'],[tUnsuit+.22,2.5]]);
+    place(b.suit,hc.x,hc.y-16,sk,T*50,su*.95);
+    const hd=bone(A,a,'head',40,20);place(b.say,hd.x+fwd*78,hd.y+8,EASE.back(clamp((T-tLand-.05)/.2)),0,env(T,tLand+.05,tSnap,.1));
+    const oh=bone(O,o,'head',40,20);place(b.huh,oh.x,oh.y-26,EASE.back(clamp((T-2.5)/.2)),0,env(T,2.5,3.3,.1));
+    // ---- 镜头 ----
+    const cx=lerp(A.x,HOME.x,.6);
+    P.cam.x=kf(T,[[0,480],[.35,cx],[tWhisk,cx],[2.55,480]]);P.cam.y=kf(T,[[0,270],[.35,345],[tWhisk,345],[2.55,300],[3.4,280]]);
+    P.cam.z=kf(T,[[0,1],[.35,1.12],[tLand,1.12],[1.4,1.18],[tSnap,1.18],[tWhisk,1.14],[2.55,1.04],[3.4,1]]);P.box=env(T,0,3.4,.35);
+    P.dim=env(T,tLand-.1,tWhisk+.05,.2)*.45;
+    if(T>tSnap&&T<tSnap+.25){P.flash=.14*(1-(T-tSnap)/.25);P.cam.sx=wave(T,24,(1-(T-tSnap)/.25)*4)}
+   };
+   cue(b,.05,()=>{Sound.rlWhoosh();fetchSparkle(b,A,b.t)});cue(b,tSuit-.1,()=>Sound.rlPoof());
+   cue(b,tSuit,()=>{setCostume(A,'magician');Sound.rlSparkle();const h=stagePt(A,46,30);spray(b,ART.FX.sparkle('#f2c04a'),6,{at:b.t,x:h.x,y:h.y,speed:[60,140],g:120,life:[.35,.6]})});
+   cue(b,tUnsuit-.1,()=>Sound.rlPoof());cue(b,tUnsuit,()=>setCostume(A,A.role));
+   cue(b,tUnfurl,()=>Sound.rlCloth());cue(b,tThrow,()=>Sound.rlThrow());
+   cue(b,tLand-.02,()=>{Sound.rlCatch();Sound.pigYelp({rate:1.5})});cue(b,tLand+.06,()=>Sound.rlDrumroll(tSnap-tLand-.1));
+   [1.35,1.62,1.9].forEach((x,k)=>cue(b,x,()=>Sound.rlStruggle(k)));
+   cue(b,tSnap,()=>{const d=t.disp,had=[0,1].map(p=>d.clues[p]&&d.clues[p][0]);d.flip=true;[0,1].forEach(p=>{if(had[p])d.clues[p][0]=had[p]==='real'?'fake':'real'});renderHUD();
+    Sound.rlMagic();Sound.rlPoof();message(pname(e.by)+'用魔术布变了个戏法：下一颗真屎变假屎、假屎变真屎。谁也不知道原来是什么——除非事先验过。');
+    spray(b,(i)=>ART.FX.sparkle(i%2?'#fff1a8':'#ffb3c1'),12,{at:b.t,x:HOME.x,y:HOME.y-40,speed:[100,240],g:140,life:[.5,.9]});
+    // 人机模式：玩家自己验过这一颗时，私下告诉他翻成了什么（电脑的线索不显示；同屏双人不弹，免得暴露谁验过）
+    if(t.mode==='ai'&&had[0]){Sound.rlPrivate();toast(`<small>仅你可见</small><b>魔术布：你验过的下一颗现在是 ${d.clues[0][0]==='real'?'<em class="real">真屎</em>':'<em class="fake">假屎</em>'}</b><p>真假已经互换，线索也跟着翻了。</p>`,3.6,'private')}});
+   cue(b,tWhisk,()=>{Sound.rlCloth();Sound.rlWhoosh()});cue(b,2.24,()=>{Sound.rlBoing();Sound.rlTada()});
+   cue(b,tGone-.08,()=>{const c=b.lastC;if(c)spray(b,ART.FX.sparkle('#f2c04a'),8,{at:b.t,x:c.x,y:c.y,speed:[60,150],g:120,life:[.4,.7]})});
+   cue(b,2.5,()=>Sound.pigSnort({rate:O.p===0?1.1:.95}));cue(b,2.62,()=>Sound.pigSmug({rate:A.p===0?1.1:.92}));
+   return b;
   }
  };
  // 当前帧猪仔的姿势（粒子生成时取位置用）
  function P0(t){const pg=t.pig;return {x:pg.lastX||HOME.x,y:pg.lastY||HOME.y,r:0,flip:1,s:LET_S}}
+ // 盖过魔术布的那一颗离开（打出 / 退出）：摘掉小魔术帽，让它旋转着飞走；真假两种情况完全一样
+ function hatOff(b,d){const t=s();d.flip=false;b.hatAt=t.pig.hatAt||hatPose(Object.assign(P0(t),{o:rigPose()}));Sound.rlSparkle();
+  spray(b,ART.FX.sparkle('#f2c04a'),8,{at:b.t,x:b.hatAt.x,y:b.hatAt.y-10,speed:[60,160],g:160,life:[.4,.7]})}
+ function hatFly(b,u,dx){if(!b.hatFly)return;const h=b.hatAt;if(!h||u<0||u>1.1){hide(b.hatFly);return}
+  place(b.hatFly,h.x+dx*120*u,h.y-300*u+520*u*u,h.s,h.r+dx*620*u,1-clamp((u-.8)/.3))}
 
  // ================= 猪王嘚瑟舞 =================
  // 4.4.1 重做（电影感约 7 秒，轻快约 4 秒）：熄灯、灯球降下 → 昂首阔步走到台中央 → 扭胯 + 迪斯科指天 → 原地转两圈、背身甩屁股 →
@@ -935,7 +1144,7 @@ function create(ui){
   const h=$('rl-hint');if(h){h.classList.remove('bad');h.textContent=hintText(t)}
   if(t.mode==='duo')message('轮到 '+pname(g.turn)+'：先用道具，或者直接选择开枪方向。');
  }
- function syncDisp(t){const g=t.g,d=t.disp;Object.assign(d,{hp:g.hp.slice(),maxHp:g.maxHp,nd:g.cfg.nearDeath,items:g.items.map(x=>x.slice()),boosted:g.boosted,mud:g.mud.slice(),turn:g.turn,points:g.points.slice(),stage:g.stage,phase:g.phase,clues:[g.cluesOf(0),g.cluesOf(1)],clueN:[g.clueCount(0),g.clueCount(1)]})}
+ function syncDisp(t){const g=t.g,d=t.disp;Object.assign(d,{hp:g.hp.slice(),maxHp:g.maxHp,nd:g.cfg.nearDeath,items:g.items.map(x=>x.slice()),boosted:g.boosted,flip:g.flipNext,mud:g.mud.slice(),turn:g.turn,points:g.points.slice(),stage:g.stage,phase:g.phase,clues:[g.cluesOf(0),g.cluesOf(1)],clueN:[g.clueCount(0),g.clueCount(1)]})}
  function finishMatch(t){
   if(t.finished)return;t.finished=true;syncDisp(t);renderHUD();status();
   const g=t.g,w=g.winner,ai=t.mode==='ai',win=!ai||w===0,score=g.points[0]+'∶'+g.points[1]+(g.history.length===4?'，加赛获胜':'');
@@ -961,8 +1170,8 @@ function create(ui){
  function fmtEntry(e){
   const n=p=>pname(p);
   switch(e.k){
-   case 'shoot':return `${n(e.by)}${e.target==='self'?'对自己':'对'+n(1-e.by)}开枪：${e.shell==='real'?'真屎':'假屎'}${e.boosted?'（强化）':''}${e.lost?'，'+n(e.victim)+' −'+e.lost:''}`;
-   case 'item':return e.item==='hoof'?`${n(e.by)}用猪蹄偷走 ${NAMES[e.stolen].name}`:e.item==='plunger'?`${n(e.by)}用马桶搋子退出${e.shell==='real'?'真屎':'假屎'}`:e.item==='rotten'?`${n(e.by)}吃腐肉：${e.delta>0?'+'+e.delta:e.delta} 血`:e.item==='meat'?`${n(e.by)}吃鲜肉 +1 血`:e.item==='mud'?`${n(e.by)}扔泥巴困住${n(e.target)}`:`${n(e.by)}用了${NAMES[e.item].name}`;
+   case 'shoot':return `${n(e.by)}${e.target==='self'?'对自己':'对'+n(1-e.by)}开枪：${e.shell==='real'?'真屎':'假屎'}${e.flipped?'（魔术布）':''}${e.boosted?'（强化）':''}${e.lost?'，'+n(e.victim)+' −'+e.lost:''}`;
+   case 'item':return e.item==='hoof'?`${n(e.by)}用猪蹄偷走 ${NAMES[e.stolen].name}`:e.item==='plunger'?`${n(e.by)}用马桶搋子退出${e.shell==='real'?'真屎':'假屎'}${e.flipped?'（魔术布）':''}`:e.item==='cloth'?`${n(e.by)}用魔术布把下一颗真假互换`:e.item==='rotten'?`${n(e.by)}吃腐肉：${e.delta>0?'+'+e.delta:e.delta} 血`:e.item==='meat'?`${n(e.by)}吃鲜肉 +1 血`:e.item==='mud'?`${n(e.by)}扔泥巴困住${n(e.target)}`:`${n(e.by)}用了${NAMES[e.item].name}`;
    case 'skip':return `${n(e.p)}被跳过一回合`;
    case 'nearDeath':return `${n(e.p)}进入濒死格`;
    case 'load':return '';
@@ -972,11 +1181,12 @@ function create(ui){
  function openReview(){
   const t=s();if(!t||!t.finished){deny('整场结束后才能查看装填顺序。');return}
   const d=ensureReviewDialog(),g=t.g;
-  const ico=k=>`<i class="rl-rv-shell ${k}">${k==='real'?'真':'假'}</i>`;
+  const ico=(k,i,bt)=>{if(!(bt.flips||[]).includes(i))return `<i class="rl-rv-shell ${k}">${k==='real'?'真':'假'}</i>`;const to=k==='real'?'fake':'real';
+   return `<i class="rl-rv-shell ${to} flip" title="原来是${k==='real'?'真屎':'假屎'}，魔术布换成了${to==='real'?'真屎':'假屎'}">${k==='real'?'真':'假'}→${to==='real'?'真':'假'}</i>`};
   $('rl-review-body').innerHTML=`<p class="muted">比分 ${g.points[0]}∶${g.points[1]}${g.history.length===4?'，加赛决出胜负':''}。下面按阶段列出每批的真实装填顺序与关键行动。</p>`+g.history.map(h=>{
    const acts=(h.actions||[]).map(fmtEntry).filter(Boolean);
    return `<section class="rl-rv-stage"><header><b>${STAGE_LABEL[h.stage]}</b><span>${h.points?'+'+h.points+' 分 · ':''}先手 ${pname(h.first)} · 胜者 ${h.winner>=0?pname(h.winner):'—'}</span></header>
-    <ol class="rl-rv-batches">${h.batches.map((bt,i)=>`<li><small>第 ${i+1} 批 · ${bt.total} 发 / ${bt.fake} 假</small><span>${bt.order.map(ico).join('')}</span></li>`).join('')}</ol>
+    <ol class="rl-rv-batches">${h.batches.map((bt,i)=>`<li><small>第 ${i+1} 批 · ${bt.total} 发 / ${bt.fake} 假</small><span>${bt.order.map((k,i)=>ico(k,i,bt)).join('')}</span></li>`).join('')}</ol>
     <details><summary>关键行动（${acts.length}）</summary><ol class="rl-rv-acts">${acts.map(a=>`<li>${a}</li>`).join('')}</ol></details></section>`}).join('');
   d.showModal();
  }
@@ -1013,6 +1223,7 @@ function create(ui){
   const g=t.g,who=t.mode==='duo'?pname(g.turn)+'：':'',d=t.disp;
   const tips=[];
   if(d.boosted)tips.push('猪仔正在蓄力，下一枪若是真屎伤害×2，假屎也会用掉强化');
+  if(d.flip)tips.push('下一颗盖过魔术布：真假已经互换，验过它的线索也跟着翻了');
   if(nearDeath(d,g.turn))tips.push('你在濒死格：无法回血，再受伤即落败');
   if(!tips.length)tips.push('回想本批公布的数量和已经打出的真假，再决定方向');
   return who+tips.join('；')+'。';
@@ -1035,13 +1246,14 @@ function create(ui){
    // 线索：人机模式给玩家直接列出；双人模式只显示条数，查看要回避
    // 条数 n 是本批验弹次数：只在换弹 / 新阶段归零，打出那一颗也不减少
    const cl=d.clues[p]||{},keys=Object.keys(cl).map(Number).sort((a,b)=>a-b),box=$('rl-clues'+p),n=(d.clueN&&d.clueN[p])||0;
-   if(t.mode==='ai'&&p===0)box.innerHTML=`<b>我的线索</b>${keys.length?keys.map(k=>`<span class="rl-clue ${cl[k]}">${clueName(k)} · ${cl[k]==='real'?'真屎':'假屎'}</span>`).join(''):`<small>${n?'本批线索都已过时':'用魔法书或 X 光获得，只有你看得到'}</small>`}`;
+   if(t.mode==='ai'&&p===0)box.innerHTML=`<b>我的线索</b>${keys.length?keys.map(k=>`<span class="rl-clue ${cl[k]}">${clueName(k)} · ${cl[k]==='real'?'真屎':'假屎'}${k===0&&d.flip?'（盖布后）':''}</span>`).join(''):`<small>${n?'本批线索都已过时':'用魔法书或 X 光获得，只有你看得到'}</small>`}`;
    else if(t.mode==='ai')box.innerHTML=n?`<small class="secret">本批私密线索 ${n} 条（不公开）</small>`:'';
    else{const can=idleNow&&g.phase==='play'&&actor===p&&n>0;box.innerHTML=`<button class="rl-view-clues" data-p="${p}" ${can?'':'disabled'} title="本批验弹次数，换弹后归零">查看我的线索（${n}）</button>`;box.querySelector('button').onclick=()=>viewClues(p)}
    $('rl-pts'+p).textContent=d.points[p];
   });
   $('rl-stages').innerHTML=[1,2,3].concat(g.history.length>=4||d.stage===4?[4]:[]).map(n=>{const h=g.history[n-1],done=h&&h.winner>=0&&(d.stage>n||d.phase!=='play'),cur=d.stage===n;return `<span class="rl-stage-chip ${cur?'cur':''} ${done?'won p'+h.winner:''}"><b>${n===4?'加赛':STAGE_LABEL[n].slice(1,2)}</b><small>${n===4?'决胜':'+'+Core.STAGES[n].points}</small></span>`}).join('');
-  $('rl-gunchip').innerHTML=d.boosted?'<span class="rl-chip boost">猪仔蓄力中 · 下一枪真屎 ×2</span>':'<span class="rl-chip calm">发射猪仔 · 普通状态</span>';
+  const gc=[];if(d.boosted)gc.push('<span class="rl-chip boost">猪仔蓄力中 · 下一枪真屎 ×2</span>');if(d.flip)gc.push('<span class="rl-chip cloth">魔术布盖过 · 下一颗真假已互换</span>');
+  $('rl-gunchip').innerHTML=gc.length?gc.join(''):'<span class="rl-chip calm">发射猪仔 · 普通状态</span>';
   ['self','opp'].forEach(k=>{const b=$('rl-'+k);b.disabled=!canAct;b.classList.toggle('p1',actor===1&&t.mode==='duo')});
   $('rl-opp').querySelector('small').textContent=d.boosted?'强化中：真屎 −2 · 都结束回合':'无论真假都结束回合';
   $('rl-self').querySelector('small').textContent=d.boosted?'强化中：真屎自伤 −2':'假屎继续 · 真屎受伤换手';
@@ -1099,7 +1311,7 @@ function create(ui){
  function resize(){}
  function clearKeys(){}
  // 测试辅助：只读访问当前对局；fast() 只用于自动化测试加速演出
- root.PigRouletteDebug={state:()=>s(),busy,human,refresh:()=>renderHUD(),fast:v=>{debugSpeed=v===undefined?1:v},skipDance,
+ root.PigRouletteDebug={state:()=>s(),busy,human,refresh:()=>renderHUD(),fast:v=>{debugSpeed=v===undefined?1:v},skipDance,fartAt:v=>{fartAt=v==='opp'||v==='self'?v:null},
   seek:(v,snap)=>{const t=s();if(t&&snap!==false)t.snap=true;if(t&&t.beat){if(!t.beat.started){t.beat.started=true;if(t.beat.start)t.beat.start(t.beat)}t.beat.t=v}},beat:()=>{const t=s();return t&&t.beat?{kind:t.beat.kind,t:t.beat.t,dur:t.beat.dur}:null},
   next:()=>{const t=s();if(t&&t.beat){t.beat.t=t.beat.dur}},
   apply:(fn,sync)=>{const t=s();if(sync!==false){if(t.beat)t.beat.nodes.forEach(n=>n.remove());t.queue=[];t.beat=null;hideCard()}const ev=fn(t.g,t);if(sync!==false)syncDisp(t);if(ev)enqueueEvents(t,ev);renderHUD()}};

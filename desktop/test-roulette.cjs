@@ -2,7 +2,7 @@
 const assert=require('assert');
 const R=require('./app/roulette-core.js');
 const {Game,createRng,chooseAction,STAGES,BAG_RECIPE}=R;
-const snap=g=>JSON.stringify({hp:g.hp,items:g.items,order:g.order,pos:g.pos,clues:g.clues,boosted:g.boosted,mud:g.mud,turn:g.turn,points:g.points,phase:g.phase,stage:g.stage,batch:g.batch,bags:g.bags});
+const snap=g=>JSON.stringify({hp:g.hp,items:g.items,order:g.order,pos:g.pos,clues:g.clues,flips:g.flips,boosted:g.boosted,mud:g.mud,turn:g.turn,points:g.points,phase:g.phase,stage:g.stage,batch:g.batch,bags:g.bags});
 let checks=0;const ok=(c,m)=>{assert.ok(c,m);checks++};
 // 摆一个局面：指定阶段、当前玩家 p0、弹药与背包
 function setup(mag,items0,items1,o){o=o||{};const g=new Game({rng:createRng(o.seed||7),first:0});
@@ -105,14 +105,38 @@ function winStage(g,w){g.turn=w;g._setMagazine(['real','real','real']);g.hp[1-w]
  ok(cnt.xray>1350&&cnt.xray<1650&&cnt.mud>620&&cnt.mud<880&&cnt.hoof>620&&cnt.hoof<880,'按件等概率偷，可能偷到另一只猪蹄 '+JSON.stringify(cnt));
  ok(g.log.some(e=>e.item==='hoof'&&e.stolen==='feed'),'公共记录写明偷走的道具');}
 
+// ---- 魔术布（4.4.3）----
+{let g=setup(['fake','real'],['cloth'],[],{stage:2});let r=g.act(0,{type:'item',item:'cloth'});
+ ok(r.ok&&g.order[0]==='real'&&g.flipNext&&g.turn===0&&!g.items[0].length,'魔术布：下一颗假屎变真屎，不结束回合');
+ ok(r.events.length===1&&!('shell' in r.events[0])&&!('private' in r.events[0])&&g.log.filter(e=>e.item==='cloth').every(e=>!('shell' in e)),'公共事件与记录不带真假');
+ let v=g.publicView(0);ok(v.flipNext&&v.realLeft===1&&v.fakeLeft===1,'公开计数仍按原始装填，另标 flipNext');
+ let e=g.act(0,{type:'shoot',target:'opp'}).events.find(x=>x.type==='shoot');ok(e.shell==='real'&&e.flipped&&g.hp[1]===3&&g.log.some(x=>x.k==='shoot'&&x.flipped),'盖过布的假屎变真屎，打中对手；记录标明魔术布');
+ v=g.publicView(1);ok(!v.flipNext&&v.realLeft===1&&v.fakeLeft===0,'打出后按原值扣：剩下的是原来那颗真屎');
+ g=setup(['real','fake'],['cloth'],[],{stage:2});g.act(0,{type:'item',item:'cloth'});e=g.act(0,{type:'shoot',target:'self'}).events.find(x=>x.type==='shoot');ok(e.shell==='fake'&&e.flipped&&g.hp[0]===4&&g.turn===0,'真屎变假屎：对自己开枪不扣血、继续');
+ g=setup(['real','fake','fake'],['cloth','cloth'],[],{stage:2});g.act(0,{type:'item',item:'cloth'});let s=snap(g);r=g.act(0,{type:'item',item:'cloth'});ok(!r.ok&&/不能叠加/.test(r.reason)&&snap(g)===s,'不能叠加且无副作用');
+ g.act(0,{type:'shoot',target:'self'});ok(g.act(0,{type:'item',item:'cloth'}).ok&&g.order[1]==='real'&&g.flips.join()==='0,1','下一颗离开后可以盖新的一颗');
+ g=setup(['fake','real','fake'],['xray','cloth'],['xray'],{stage:2});g.act(0,{type:'item',item:'xray'});g.turn=1;g.act(1,{type:'item',item:'xray'});g.turn=0;g.act(0,{type:'item',item:'cloth'});
+ ok(g.cluesOf(0)[0]==='real'&&g.cluesOf(1)[0]==='real'&&g.clueList(0)[0].flipped&&g.clueList(1)[0].shell==='real'&&g.clueCount(0)===1&&g.clueCount(1)===1,'双方验过的这颗线索一起翻，条数不变');
+ ok(R.analyze(g.publicView(0)).p0===1&&R.analyze(g.publicView(1)).p0===1,'AI：验过假屎再盖布，确定是真屎');
+ g=setup(['fake','fake','fake','real'],['cloth','cloth'],[],{stage:2});const p=R.analyze(g.publicView(0)).p0;g.act(0,{type:'item',item:'cloth'});const q=R.analyze(g.publicView(1)).p0,pl=R.analyze(g.publicView(1)).p(1);
+ ok(Math.abs(p-.25)<1e-9&&Math.abs(q-.75)<1e-9&&Math.abs(pl-.25)<1e-9,'盖布后下一颗概率取反，后面几颗不变 '+p+'→'+q);
+ ok(!R.legal(g.publicView(0),'cloth')&&R.legal(Object.assign(g.publicView(0),{flipNext:false}),'cloth'),'legal：盖过就不能再盖');
+ g=setup(['fake','real','fake'],['cloth','plunger'],[],{stage:2});g.act(0,{type:'item',item:'cloth'});e=g.act(0,{type:'item',item:'plunger'}).events[0];
+ ok(e.shell==='real'&&e.flipped&&!g.flipNext&&g.publicView(0).realLeft===1&&g.publicView(0).fakeLeft===1,'马桶搋子退出盖过的那颗：公开实际真假，计数按原值');
+ g=setup(['fake'],['cloth'],[],{stage:2});g.act(0,{type:'item',item:'cloth'});const b0=g.batch;g.act(0,{type:'shoot',target:'opp'});ok(g.batch===b0+1&&!g.flips.length&&!g.flipNext&&g.hp[1]===3,'换弹后盖布记录清零');
+ g=new Game({rng:createRng(4),first:0});g.points=[0,0];g.startStage(2);g.turn=0;g.items=[['cloth'],[]];const before=g.order[0];g.act(0,{type:'item',item:'cloth'});const hb=g.history[1].batches[0];
+ ok(hb.flips.join()==='0'&&hb.order[0]===before&&g.order[0]!==before,'赛后回顾：保留原始顺序并记下盖布位置');
+ winStage(g,0);g.nextStage();ok(!g.flips.length,'新阶段清零');
+ // AI：已知假屎、对手只剩 1 血 → 盖布变真屎
+ for(const tier of ['smart','devil']){g=setup(['fake'],['cloth'],[],{stage:2});g.hp[1]=1;ok(JSON.stringify(chooseAction(g.publicView(0),createRng(3),tier))==='{"type":"item","item":"cloth"}',tier+'：已知假屎会盖布')}}
+
 // ---- 补给洗牌袋与背包上限 ----
-{ok(BAG_RECIPE.length===15&&BAG_RECIPE.filter(x=>x==='mud').length===1&&R.ITEMS.filter(x=>x!=='mud').every(it=>BAG_RECIPE.filter(x=>x===it).length===2),'洗牌袋 15 件：泥巴 1，其余各 2');
- const g=new Game({rng:createRng(21),first:0});g.points=[0,0];g.startStage(3);const seq=[];for(let k=0;k<15;k++)seq.push(g.draw(0));
- const counts={};const h=new Game({rng:createRng(5),first:0});h.startStage(3);h.bags=[[],[]];for(let k=0;k<1500;k++){const it=h.draw(0);counts[it]=(counts[it]||0)+1}
- ok(counts.mud===100&&R.ITEMS.filter(x=>x!=='mud').every(it=>counts[it]===200),'抽完再洗：每 15 件严格按配方 '+JSON.stringify(counts));
+{ok(BAG_RECIPE.length===16&&['mud','cloth'].every(it=>BAG_RECIPE.filter(x=>x===it).length===1)&&R.ITEMS.filter(x=>x!=='mud'&&x!=='cloth').every(it=>BAG_RECIPE.filter(x=>x===it).length===2),'洗牌袋 16 件：泥巴、魔术布各 1，其余各 2');
+ const counts={};const h=new Game({rng:createRng(5),first:0});h.startStage(3);h.bags=[[],[]];for(let k=0;k<1600;k++){const it=h.draw(0);counts[it]=(counts[it]||0)+1}
+ ok(counts.mud===100&&counts.cloth===100&&R.ITEMS.filter(x=>x!=='mud'&&x!=='cloth').every(it=>counts[it]===200),'抽完再洗：每 16 件严格按配方 '+JSON.stringify(counts));
  const a=new Game({rng:createRng(8),first:0});a.startStage(3);ok(a.bags[0]!==a.bags[1],'双方洗牌袋独立');
  const f=setup(['fake'],['book','book','book','book','book','book','book'],['meat','meat','meat','meat','meat','meat','meat','meat'],{stage:3});const bag0=f.bags[0].length,bag1=f.bags[1].length;f.act(0,{type:'shoot',target:'self'});
- ok(f.items[0].length===8&&f.items[1].length===8,'背包上限 8 件');ok((bag0-f.bags[0].length+15)%15===1&&f.bags[1].length===bag1,'补给只填空位，不多抽');}
+ ok(f.items[0].length===8&&f.items[1].length===8,'背包上限 8 件');ok((bag0-f.bags[0].length+16)%16===1&&f.bags[1].length===bag1,'补给只填空位，不多抽');}
 
 // ---- 每阶段重置、先手轮换、3∶3 加赛、只结算一次 ----
 {const g=new Game({rng:createRng(5),first:1});ok(g.first===1&&g.turn===1,'整场先手可指定（连续再战交换）');
@@ -155,5 +179,5 @@ for(let s=1;s<=N;s++)for(const A of tiers)for(const B of tiers){const g=new Game
 checks+=games;
 const rate=(a,b)=>tally[a+'>'+b]/N;
 ok(rate('smart','easy')>.55,'聪明档胜过悠闲档 '+rate('smart','easy'));ok(rate('devil','easy')>.6,'恶魔档胜过悠闲档 '+rate('devil','easy'));const ds=(rate('devil','smart')+1-rate('smart','devil'))/2;ok(ds>.5,'恶魔档不弱于聪明档 '+ds);
-console.log('PASS: roulette 4.3 rules —',checks,'checks; 3-stage points (1/2/3), fixed opening batches, 15-item shuffle bag, 8 items, private clues, near-death cells, 3:3 tiebreak, mud chain/clear, boost consumed by any shot, scored once, public-only AI.');
+console.log('PASS: roulette 4.4.3 rules —',checks,'checks; 3-stage points (1/2/3), fixed opening batches, 16-item shuffle bag, 9 items (magic cloth flips the next shell), private clues, near-death cells, 3:3 tiebreak, mud chain/clear, boost consumed by any shot, scored once, public-only AI.');
 console.log('AI matches:',games,'complete ('+ties+' tiebreaks),',actions,'actions; win rates P0 vs P1:',Object.entries(tally).map(([k,v])=>k+' '+(v/N).toFixed(2)).join(', '));

@@ -222,6 +222,13 @@ function createSound(opts){
   rlRune(k){this.tone(note(880,(k||0)*2),{dur:.14,gain:.05,type:'sine'});this.noise({freq:6000,dur:.1,gain:.025,filter:'highpass'})},
   rlPour(){this.noise({freq:3200,to:1800,q:1.6,dur:.55,gain:.05});for(let k=0;k<5;k++)this.tone(1200+k*90,{dur:.03,gain:.03,type:'triangle',delay:.08+k*.1})},
   rlStink(){this.noise({freq:300,to:200,q:2,dur:.5,gain:.05,filter:'lowpass'});this.tone(180,{dur:.5,gain:.04,to:150,type:'triangle'})},
+  // 4.4.3：嗅嗅、扇手、魔术布（抖布、鼓点滚奏、嗒哒）、魔法猪变身
+  rlSniff(){[0,.17].forEach(d=>{this.noise({freq:2400,to:4200,q:2.2,dur:.09,gain:.07,delay:d});this.tone(900,{dur:.06,gain:.015,to:1300,type:'sine',delay:d})})},
+  rlFan(k){this.noise({freq:800+((k||0)%2)*260,to:1900,q:1.1,dur:.12,gain:.045})},
+  rlCloth(){this.noise({freq:1600,to:5200,q:.7,dur:.18,gain:.09});this.noise({freq:3600,q:2,dur:.04,gain:.08,delay:.17});this.tone(220,{dur:.06,gain:.04,to:160,delay:.17})},
+  rlDrumroll(dur){const d=dur||.8,n=16;for(let k=0;k<n;k++)this.noise({freq:1700+(k%2)*300,q:1.2,dur:.04,gain:.025+.05*k/n,delay:k*d/n});this.tone(110,{dur:d,gain:.04,type:'sine',to:130})},
+  rlTada(){[0,4,7].forEach((st,k)=>this.tone(note(523,st),{dur:.12,gain:.06,type:'triangle',delay:k*.05}));[0,4,7,12].forEach(st=>this.tone(note(523,st),{dur:.55,gain:.04,type:'triangle',delay:.2}));this.noise({freq:6000,dur:.4,gain:.03,filter:'highpass',delay:.2})},
+  rlTransform(){[0,2,4,7,9,12,14,16].forEach((st,k)=>this.tone(note(784,st),{dur:.1,gain:.04,type:'sine',delay:k*.035}));this.noise({freq:5000,to:9000,dur:.35,gain:.03,filter:'highpass'})},
   rlRetch(){this.pigSynth({pts:[[0,240],[.12,180],[.3,130]],dur:.34,gain:.5,am:[22,.6],noise:.4,noiseFreq:700,nasal:1.6,formant:.8});this.tone(110,{dur:.25,gain:.08,to:70,delay:.2})},
   rlSneak(k){const f=k?659:587;this.tone(f,{dur:.06,gain:.05,type:'triangle'});this.tone(f*1.19,{dur:.06,gain:.04,type:'triangle',delay:.18})},
   rlSteal(){this.noise({freq:900,to:3800,q:1,dur:.16,gain:.08});this.tone(880,{dur:.08,gain:.06,to:1320,type:'triangle',delay:.06})},

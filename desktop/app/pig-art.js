@@ -59,7 +59,7 @@ function eyeExpr(name,pal,scale){
   default:return `<ellipse rx="4.1" ry="4.7" fill="${EYE}"/><circle cx="-1.3" cy="-1.7" r="1.35" fill="#fff"/>`;
  }
 }
-const EXPRS=['normal','happy','shock','dizzy','sleep','smug','star','cry','angry','chew','worry','tense','wink','sick','sly','grin','burp','guilty','pain','weak','laugh'];
+const EXPRS=['normal','happy','shock','dizzy','sleep','smug','star','cry','angry','chew','worry','tense','wink','sick','sly','grin','burp','guilty','pain','weak','laugh','stinky'];
 function exprParts(expr){ // eye 形状、眉毛、嘴、眼泪
  return {
   normal:{eye:'normal',mouth:'smile'},happy:{eye:'happy',mouth:'grin'},shock:{eye:'shock',mouth:'o'},dizzy:{eye:'dizzy',mouth:'wavy'},
@@ -67,7 +67,8 @@ function exprParts(expr){ // eye 形状、眉毛、嘴、眼泪
   angry:{eye:'normal',mouth:'flat',brow:'angry'},chew:{eye:'happy',mouth:'chew'},worry:{eye:'normal',mouth:'frown',brow:'worry'},
   tense:{eye:'tight',mouth:'flat',brow:'worry'},wink:{eye:'normal',eyeF:'sleep',mouth:'o',brow:'raise'},sick:{eye:'droop',mouth:'wavy',brow:'worry',sick:true},
   sly:{eye:'smug',mouth:'smirk',brow:'raise'},grin:{eye:'squint',mouth:'grin'},burp:{eye:'tight',mouth:'o'},guilty:{eye:'side',mouth:'frown',brow:'worry'},
-  pain:{eye:'tight',mouth:'o',brow:'worry',tear:true},weak:{eye:'droop',mouth:'wavy',brow:'worry'},laugh:{eye:'happy',mouth:'grin',brow:'raise'}
+  pain:{eye:'tight',mouth:'o',brow:'worry',tear:true},weak:{eye:'droop',mouth:'wavy',brow:'worry'},laugh:{eye:'happy',mouth:'grin',brow:'raise'},
+  stinky:{eye:'tight',mouth:'wavy',brow:'worry',sick:true} // 4.4.3 闻到屁臭：挤眼、嘴扭、脸发绿
  }[expr]||{eye:'normal',mouth:'smile'};
 }
 function mouthPath(kind,pal){
@@ -131,6 +132,9 @@ function costume(role,pal,uid){
     `<path d="M50 42C49 30 52 19 61 11C61 23 62 33 62 41Z" fill="#3d2147" stroke="#1f0f26" stroke-width="2" stroke-linejoin="round"/><path d="M58 17Q56 28 57 38" fill="none" stroke="#8b5fa3" stroke-width="2" stroke-linecap="round" opacity=".7"/>`+
     `<circle cx="${fx+1.4}" cy="${fy-1.6}" r="1.5" fill="#ff3b5c"/><circle cx="${nx+1.4}" cy="${ny-1.6}" r="1.6" fill="#ff3b5c"/>`;
    L.front=`<path d="M10 134L20 66" stroke="#4a2b52" stroke-width="3.6" stroke-linecap="round"/><path d="M12 70Q20 76 28 62M20 66L22 52M12 70L8 58M28 62L32 52" fill="none" stroke="#4a2b52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 52l-2-4 4 0zM8 58l-1-4 3 1zM32 52l0-4 3 3z" fill="#f2c14e"/>`;break}
+  // 猪猪轮盘 4.4.3 魔术布：表演时临时换上的魔术师礼帽 + 红领结
+  case 'magician':L.head=hat('<ellipse rx="25" ry="5.5" fill="#1d1426" stroke="#0b0710" stroke-width="2"/><path d="M-14-2V-30q0-4 4-4h20q4 0 4 4V-2Z" fill="#251a33" stroke="#0b0710" stroke-width="2.2" stroke-linejoin="round"/><rect x="-14" y="-11" width="28" height="7" fill="#c22a45"/><path d="M0-28l2 4.3 4.7.5-3.5 3.1 1 4.6L0-17.9l-4.2 2.4 1-4.6-3.5-3.1 4.7-.5Z" fill="#f2c04a"/><path d="M-9-30v16" stroke="#fff" stroke-width="2" opacity=".22" stroke-linecap="round"/>');
+   L.torso=`<g transform="translate(73 101)"><path d="M0 0L-11-7v14ZM0 0l11-7v14Z" fill="#c22a45" stroke="#7d1428" stroke-width="1.4" stroke-linejoin="round"/><circle r="3.2" fill="#e5484d" stroke="#7d1428" stroke-width="1.2"/></g>`;break;
   case 'bath':L.head=hat('<path d="M-27 2Q-30-24 0-27Q30-24 27 2Q0-6-27 2Z" fill="#bfe6f5" stroke="#7fbcd6" stroke-width="2" stroke-linejoin="round"/>'+[-24,-15,-6,3,12,21].map(x=>`<circle cx="${x}" cy="1" r="4.6" fill="#d9f1fa" stroke="#7fbcd6" stroke-width="1.4"/>`).join('')+'<path d="M-14-18Q-4-24 8-20" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>');
    L.front=[[18,118,7],[30,128,5],[118,112,8],[132,124,5.5],[104,126,4.5],[6,104,4]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#eaf8ff" fill-opacity=".75" stroke="#9fd2e8" stroke-width="1.3"/><circle cx="${x-r*.35}" cy="${y-r*.35}" r="${r*.28}" fill="#fff"/>`).join('');break;
   // 消消乐专用：颜色更饱和、轮廓更醒目的六种棋子服饰

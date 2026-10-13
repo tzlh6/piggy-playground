@@ -33,7 +33,7 @@ public final class UpdaterTests extends Instrumentation {
                 .setClassName("local.piggy.playground", "local.piggy.playground.MainActivity").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             web = find(activity.getWindow().getDecorView());
             await("document.body.dataset.androidReady==='true'", 60000);
-            await("Store.get('seen-android-version',null)==='4.4.2' || document.getElementById('notes-dialog').open", 60000);
+            await("Store.get('seen-android-version',null)==='4.4.3' || document.getElementById('notes-dialog').open", 60000);
             js("document.getElementById('notes-dialog').close(); document.getElementById('android-update').click()");
             check("document.getElementById('android-updates').open", "update dialog opens");
             check("JSON.parse(PiggyAndroidBridge.info()).status==='idle'", "automatic check disabled for manual regression");
@@ -61,7 +61,7 @@ public final class UpdaterTests extends Instrumentation {
                 if (!"https://github.com/tzlh6/piggy-playground/releases".equals(browser.get()))
                     throw new AssertionError("Browser ACTION_VIEW intent did not reach native code");
                 pass("download-page button launches correct native browser intent");
-                check("document.querySelector('.android-current').textContent.includes('4.4.2') && PigAndroid.version==='4.4.2'", "independent Android version displayed");
+                check("document.querySelector('.android-current').textContent.includes('4.4.3') && PigAndroid.version==='4.4.3'", "independent Android version displayed");
                 if (preserved) check("localStorage.getItem('piggy-qa-preserve')==='stored-in-4.4.1'", "same-signature upgrade preserves WebView storage");
                 js("document.getElementById('android-check').click()");
                 await("JSON.parse(PiggyAndroidBridge.info()).status!=='idle'", 10000);

@@ -452,6 +452,8 @@ body[data-game="roulette"] .score-strip{display:none}
 .rl-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:#3a2d52;color:#e4d8f6;border:1px solid #57467a}
 .rl-chip.mud{background:#4a321d;border-color:#9b7048;color:#ffe2c0}.rl-chip.turn{background:#4b3a20;border-color:#c49a4c;color:#ffe2a6}.rl-chip.nd{background:#5a1a2c;border-color:#ff6f91;color:#ffd6df}
 .rl-chip.boost{background:#5a3112;border-color:#ff9b4a;color:#ffe0c2;animation:rlGlow 1.4s ease-in-out infinite}.rl-chip.calm{opacity:.75}
+/* 4.4.3 魔术布：下一颗盖过布 */
+.rl-chip.cloth{background:#4a1530;border-color:#f2c04a;color:#ffe7c2}
 @keyframes rlGlow{50%{box-shadow:0 0 12px #ff9b4a88}}
 .rl-bag{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .rl-bag.gain{animation:rlBagGain .5s ease-out}
@@ -514,7 +516,7 @@ body[data-game="roulette"] .score-strip{display:none}
 .rl-rv-stage{border:1px solid var(--line,#efe4dc);border-radius:16px;padding:10px 14px;margin:10px 0}
 .rl-rv-stage header{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;height:auto;border:0;padding:0;margin-bottom:6px}.rl-rv-stage header span{font-size:12px;color:#9a8f96}
 .rl-rv-batches{list-style:none;padding:0;margin:0;display:grid;gap:6px}.rl-rv-batches li{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rl-rv-batches small{min-width:120px;color:#9a8f96}
-.rl-rv-shell{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin:0 2px;border-radius:50%;font-style:normal;font-size:12px;font-weight:900}.rl-rv-shell.real{background:#8a5427;color:#ffe9c9}.rl-rv-shell.fake{background:#a49bc0;color:#fff}
+.rl-rv-shell{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin:0 2px;border-radius:50%;font-style:normal;font-size:12px;font-weight:900}.rl-rv-shell.real{background:#8a5427;color:#ffe9c9}.rl-rv-shell.fake{background:#a49bc0;color:#fff}.rl-rv-shell.flip{width:auto;padding:0 7px;border-radius:12px;box-shadow:0 0 0 2px #f2c04a}
 .rl-rv-acts{margin:6px 0 0;padding-left:20px;font-size:13px;line-height:1.7;color:#6f6470}
 .arena.paused .rl-wrap *{animation-play-state:paused!important}
 .rl-wrap button:focus-visible{outline:3px solid #ffcf7a;outline-offset:2px}

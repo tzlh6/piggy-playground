@@ -1,12 +1,12 @@
-# 猪猪游乐场 · 安卓 4.4.2
+# 猪猪游乐场 · 安卓 4.4.3
 
-4.4.2 修复「检查更新」「下载新版」「安装新版」「GitHub 下载页」点了没有反应的问题，增加独立更新线路和中文连接提示。共用游戏保持 4.4.1：19 款小游戏、轮盘新版动画、斗地猪结算大戏、三档人机对战和放大的触屏手牌。游戏全部内置，可离线游玩；大厅支持搜索、分类和排序。局域网联机目前仅适用于 Windows。
+4.4.3 同步共用游戏 4.4.3：新增魔术布、饲料屁与魔法猪变身。保留 4.4.2 的原生更新修复；4.4.2 修复「检查更新」「下载新版」「安装新版」「GitHub 下载页」点了没有反应的问题，增加独立更新线路和中文连接提示。共用游戏当前为 4.4.3：19 款小游戏、轮盘新版动画、斗地猪结算大戏、三档人机对战和放大的触屏手牌。游戏全部内置，可离线游玩；大厅支持搜索、分类和排序。局域网联机目前仅适用于 Windows。
 
 ## 安装与更新
 
-官方 APK：[安卓 4.4.2 发行页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.2-android)，附件为 `PiggyPlayground-4.4.2-Android.apk`。Android 8.0（API 26）及以上，需启用 Android System WebView，建议 WebView 109 或更新版本。
+官方 APK：[安卓 4.4.3 发行页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3-android)，附件为 `PiggyPlayground-4.4.3-Android.apk`。Android 8.0（API 26）及以上，需启用 Android System WebView，建议 WebView 109 或更新版本。
 
-4.4.1 的手动更新按钮存在接口参数错误，4.2 没有更新功能，均需先下载 4.4.2 APK，直接覆盖安装一次。包名 `local.piggy.playground`、版本编号 `40402`，沿用原发行签名与存储来源；保留应用数据，覆盖安装继续使用成绩、造型、难度和声音设置。
+4.4.1 的手动更新按钮存在接口参数错误，4.2 没有更新功能，均需先下载最新 4.4.3 APK，直接覆盖安装一次；已装 4.4.2 可通过应用内更新。包名 `local.piggy.playground`、版本编号 `40403`，沿用原发行签名与存储来源；保留应用数据，覆盖安装继续使用成绩、造型、难度和声音设置。
 
 安装后在「游戏大厅 → 版本与更新」检查更新。默认启动自动检查一次，可关闭；发现新版后由玩家点选下载，校验通过后交给安卓系统确认覆盖安装。首次从应用内安装更新时，系统会要求允许本应用「安装未知应用」，返回后继续安装确认。连接失败不影响离线游玩。
 
@@ -37,7 +37,7 @@ tools/
 使用 `--tools` 或 `PIGGY_ANDROID_TOOLS` 指定工具目录，默认 `.android-tools/`。每个目录只保留一个对应版本，建议 ASCII 路径。密钥别名为 `piggy`，口令通过当前进程的 `PIGGY_ANDROID_STOREPASS` 传入。
 
 ```text
-python android/build.py --tools <工具目录> --keystore <仓库外密钥> --output build/PiggyPlayground-4.4.2-Android.apk --tests
+python android/build.py --tools <工具目录> --keystore <仓库外密钥> --output build/PiggyPlayground-4.4.3-Android.apk --tests
 ```
 
 也可使用 `android/build-release.ps1 -ToolsPath <工具目录> -KeystorePath <密钥路径> -WithTests`。源码不含原发行密钥或口令，自行签名的分支不能覆盖作者签名的 APK，应配置自己的更新通道。
@@ -45,13 +45,17 @@ python android/build.py --tools <工具目录> --keystore <仓库外密钥> --ou
 正式发行顺序：提高 Manifest 版本及 versionCode → 同签名构建与检查 → 提交对应源码 → 在独立 `v<version>-android` Release 上传实际 APK → 从此 APK 生成并提交清单 → 刷新并逐一核对全部更新地址。
 
 ```text
-python android/tools/make-update-manifest.py <已核验 APK> --tag v4.4.2-android
+python android/tools/make-update-manifest.py <已核验 APK> --tag v4.4.3-android --notes <更新说明文本路径>
 python android/tools/check-update-channel.py --purge --report build/android-channel-check.json
 ```
 
 清单生成器核对 APK 内网页与准备源逐字节相同。地址核验要求每条线路的实际 JSON 与本地发行清单一致；缓存刷新被限流、404 或旧内容时检查失败。电脑通道检查不代表用户手机网络的实测结果。
 
-## 本轮检查（2026-10-13）
+## 4.4.3 检查（2026-10-13）
+
+APK 459,794 字节，版本编号 40403；内置网页与准备源逐字节一致，发行证书与 4.4.2 相同，v2/v3 签名与资源对齐已核验。共用游戏的新道具、动画与 19 款入口见项目首页的 4.4.3 本机检查；未在安卓手机实际安装或运行。
+
+## 4.4.2 原生修复检查（2026-10-13，历史记录）
 
 已通过 JDK / 官方 SDK 构建、v2/v3 签名、资源对齐、版本与启动入口检查；发行证书与 4.2 / 4.4.1 一致。35 项更新边界检查与 12 项网络回归检查通过，包括原线路断连、过期清单、总体超时、取消请求和中文错误。电脑上使用生产 `HttpsURLConnection` 代码请求五条真实更新线路均成功。
 
