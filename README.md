@@ -1,5 +1,7 @@
 # 猪猪游乐场 🐷
 
+开发中：第 20 款《猪猪夺宝：机关乱斗》的本地规则后端已提供，支持 2～4 人、机关连锁、电脑策略和回放。[Claude 前端接入任务](desktop/docs/heist/交给Claude.md)与[规则接口](desktop/docs/heist/玩法与接口.md)。前端和动画尚待接入，当前正式版本仍为下述 19 款；此后端原型不是新的安装包发行。
+
 19 款小游戏（全部可离线玩，斗地猪另有局域网联机），提供 Windows 便携版、单文件网页和安卓 App 的完整可编辑源码。Windows 与共用游戏当前为 **4.4.1**，安卓 App 为 **4.4.2**（已交付的单文件网页仍为 4.2.0）。安装包见 [Windows 4.4.1](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.1) 与 [安卓 4.4.2](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.2-android)。项目新增代码与原创美术采用 MIT 许可证；第三方材料保留各自权利。
 
 ![斗地猪 4.4：邪恶猪猪（地主）对两位屠夫（农民），顺子触发“猪猪小火车”](docs/images/desktop-doudizhu-4.4.jpg)
@@ -38,7 +40,7 @@
 | `desktop/lan.cjs` | 局域网联机中继：UDP 找房间、TCP 按行转发 JSON（4.4） |
 | `desktop/app/doudizhu-*.js` | 斗地猪：规则与 AI（core）、房间与联机（net）、扑克与角色美术（art）、牌桌界面（ui） |
 | `desktop/update.json` | 在线更新清单：版本、标签与每个文件的 SHA-256 |
-| `desktop/test*.cjs` | 九组游戏规则、音效、单击操作与斗地猪房间测试（`npm test` 另含联机中继测试） |
+| `desktop/test*.cjs` | 十组游戏规则、音效、单击操作、斗地猪房间与夺宝后端测试（`npm test` 另含联机中继测试，共十一组） |
 | `desktop/build-single.py` | 生成单文件离线网页 |
 | `android/` | Android 原生容器、触屏适配、图标与构建入口 |
 | `docs/images/` | 历史界面预览（各图片标注实际版本） |
@@ -100,4 +102,4 @@ Windows 4.4.1：本版云端已通过十组规则与音效测试、25 项单击�
 
 ## 许可证与来源
 
-项目新增代码和原创美术按 [MIT](LICENSE) 开放。既有第三方代码及改编部分保留原版权和 MIT 许可，来源见 [第三方说明](THIRD_PARTY_NOTICES.md) 与 `desktop/app/assets/` 中的许可证。四段录音来自原视频，版权归原权利人，不在项目 MIT 授权范围内；项目的 MIT 许可证不授予这些录音的再利用权。重新分发时应一同保留来源及权利声明。
+项目原创代码和美术按 [MIT](LICENSE) 开放。第三方代码及改编部分保留各自版权与许可：开发中的 `desktop/app/heist-search.js` 改编自 OpenSpiel，采用 Apache-2.0；原有 MIT 来源继续保留 MIT。详情见 [第三方说明](THIRD_PARTY_NOTICES.md)、[夺宝开源借鉴记录](desktop/docs/heist/开源借鉴.md) 与 `desktop/app/assets/` 中的完整许可证。四段录音来自原视频，版权归原权利人，不在项目 MIT 授权范围内；项目的 MIT 许可证不授予这些录音的再利用权。重新分发时应一同保留来源及权利声明。
