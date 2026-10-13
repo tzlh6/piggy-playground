@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.2",
-  "versionCode": 40402,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.2-android/PiggyPlayground-4.4.2-Android.apk",
-  "bytes": 447506,
-  "sha256": "cc5e818d2bfd159f14b2f31f4384803b8d7b726e321aba5dcbf484961b4c7450",
-  "notes": "修复检查更新、下载、安装和 GitHub 下载页点了没有反应；增加多条更新线路、GitHub 官方备用下载和中文连接提示。游戏内容仍为 4.4.1，保留 19 款游戏、动画及触屏操作。请保留应用数据，直接覆盖安装；4.4.1 / 4.2 用户需先手动安装一次此修正版。"
+  "version": "4.4.3",
+  "versionCode": 40403,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.3-android/PiggyPlayground-4.4.3-Android.apk",
+  "bytes": 459794,
+  "sha256": "44c41137899216a973469ead07e39d2b65dafb64853843d7466f75ff304c3f0d",
+  "notes": "猪猪轮盘新增第 9 件道具「魔术布」：下一颗真屎变假屎、假屎变真屎（不能叠加）。喂饲料时猪仔会放屁，闻到的猪猪捏鼻子扇手；用魔法书时变身魔法猪；用魔术布时戴礼帽表演。保留 4.4.2 的更新修复。请保留应用数据，直接覆盖安装。"
 }
