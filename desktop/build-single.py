@@ -9,10 +9,10 @@ html=open(A+'index.html',encoding='utf8').read()
 SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','challenge-core.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
 for n in SCRIPTS:assert f'<script src="{n}"></script>' in html, n+' 未在 index.html 中引用'
 html=re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>','',html)
-license_details='<details class="github-licenses"><summary>GitHub 参考项目许可证（MIT / Apache-2.0）</summary>'
+license_details='<details class="github-licenses"><summary>GitHub 参考项目 MIT 许可证（4.1 起）</summary>'
 for f in sorted(os.listdir(A+'assets/licenses')):
-    if f.endswith(('-MIT.txt', '-Apache-2.0.txt')):
-        name=re.sub(r'-(?:MIT|Apache-2\.0)\.txt$', '', f).replace('_','/',1)
+    if f.endswith('-MIT.txt'):
+        name=f[:-8].replace('_','/',1)
         license_details+='<h4>'+escape(name)+'</h4><pre>'+escape(open(A+'assets/licenses/'+f,encoding='utf8').read())+'</pre>'
 license_details+='</details>'
 assert html.count('<pre id="license"></pre>')==1

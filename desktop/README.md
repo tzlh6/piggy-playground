@@ -2,9 +2,7 @@
 
 完整操作、构建与许可说明见 [项目首页](../README.md)。
 
-在本目录运行 `npm test` 执行十一组检查。运行 `npm ci` 安装锁定依赖，`npm run build:win` 生成 32 位 Windows 便携程序。`npm run build:web` 生成根目录 `build/猪猪游乐场v4.4.1.html`。
-
-开发中的第 20 款《猪猪夺宝：机关乱斗》已提供离线规则引擎、多人搜索 AI、Worker 接口及动画事件样例；尚未注册大厅或生成新发行包。[交给 Claude 的前端任务](docs/heist/交给Claude.md)、[玩法与接口](docs/heist/玩法与接口.md)、[开源借鉴](docs/heist/开源借鉴.md)。运行 `npm run test:heist` 检查后端，`node tools/demo-heist.cjs 4 smart` 演示无界面对局。
+在本目录运行 `npm test` 执行十组检查。运行 `npm ci` 安装锁定依赖，`npm run build:win` 生成 32 位 Windows 便携程序。`npm run build:web` 生成根目录 `build/猪猪游乐场v4.4.1.html`。
 
 便携程序将成绩、设置和在线更新内容放在 EXE 旁边的「猪猪游乐场存档」（在线更新内容在其中的「在线更新」子目录）。源码仓库不包含个人存档。
 

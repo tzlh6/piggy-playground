@@ -1,7 +1,5 @@
 # 第三方来源与许可
 
-开发中的猪猪夺宝搜索模块 `desktop/app/heist-search.js` 改编自 [Google DeepMind OpenSpiel 的 MaxN](https://github.com/google-deepmind/open_spiel/blob/48401890ee9857e611678302371378175a8e4c6b/open_spiel/algorithms/maxn.cc)，Copyright 2021 DeepMind Technologies Limited，采用 Apache-2.0；完整许可位于 `desktop/app/assets/licenses/google-deepmind_open_spiel-Apache-2.0.txt`。本项目改为 JavaScript 确定性搜索适配器，增加节点预算与未完成结果，未移植概率分支；文件头保留来源和修改说明。其他设计参考与许可核查见 [夺宝开源借鉴记录](desktop/docs/heist/开源借鉴.md)。该文件不适用项目默认 MIT 许可。
-
 扫猪机制改编自 [kubowania/minesweeper](https://github.com/kubowania/minesweeper)，作者 Ania Kubow，MIT；完整许可位于 `desktop/app/assets/LICENSE-MIT.txt`。
 
 猪猪造型参考 PigHub 的比例与气质重新绘制，未使用站内图片或表情包。统一可编辑来源是 `desktop/app/pig-art.js`。
