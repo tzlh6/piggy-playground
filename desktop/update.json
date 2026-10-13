@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.4.1",
- "date": "2026-10-12",
- "ref": "b92ed5a8920390abbcde15cf12795e3dcb26a8a5",
+ "version": "4.4.3",
+ "date": "2026-10-13",
+ "ref": "052691e0f0c72135bb9ad2d69791b057fb6564b2",
  "minShell": "4.4.0",
- "notes": "猪猪轮盘的开枪、八件道具、装填和猪王嘚瑟舞全部重新做了动画：更大的动作、更顺的镜头、打击停顿和粒子特效。 说明文字改回“真屎 / 假屎”。 斗地猪一局结束先演一段结算大戏：屠夫赢了就把邪恶猪猪做成烤乳猪吃掉；邪恶猪猪赢了就大发神威，把屠夫劈成焦炭。可以点“跳过”。 规则、积分和联机都没有变。",
+ "notes": "猪猪轮盘新增第 9 件道具「魔术布」：盖住发射猪仔变个戏法，下一颗真屎变假屎、假屎变真屎。 喂饲料时猪仔吃撑了会放个屁：多半冲着对手，偶尔回头给喂食者来一发“回马屁”；闻到的那只会捏鼻子、扇手，另一只在旁边哈哈大笑。 用魔法书时，使用者先变身成戴巫师帽、披星点披风的“魔法猪”，念完咒再变回来。 电脑三档都会用魔术布。其余规则、积分和联机都没有变。",
  "files": {
   "app.js": {
    "sha256": "8d423bd5f3a7213c44558ee9b9f41100b12e7e37204a0ab21af07a7c329b717a",
@@ -352,8 +352,8 @@
    "size": 15720
   },
   "audio.js": {
-   "sha256": "0139fc6d567efb68215d79ff3d21d4a38e681fa04bb3fca68ca08dc8530f0adb",
-   "size": 38766
+   "sha256": "83549d45f1936b617a3ba8c3afe3495d9fe93d6447a616e2626d91a3db5d4225",
+   "size": 39928
   },
   "catalog.js": {
    "sha256": "953375b65bac159f0aef1adb23a4691ea7d5e33821464f069b629da070b8463f",
@@ -392,8 +392,8 @@
    "size": 58584
   },
   "help.js": {
-   "sha256": "0fbd47b90486fb4ac810371898aadc3bdecf3fb707520d9ab961ae7967a83440",
-   "size": 12864
+   "sha256": "aa53eaf857d04355f69a2655b1f6608393d7a735ffc75af4349d0198ef9b8466",
+   "size": 13153
   },
   "index.html": {
    "sha256": "90c4298547f02fde3f98d84f57f407d565d8ab5770a4bfe60d1fc4997f581dff",
@@ -412,32 +412,32 @@
    "size": 8230
   },
   "pig-art.js": {
-   "sha256": "c6f6de21317f81061a260b9b7b3e0368bd69998f77939003bdcc204a7a92d8c7",
-   "size": 28627
+   "sha256": "53d72f7e043dde1dd76165db6897fe4748f0a2f14358863c76066a903913d455",
+   "size": 29551
   },
   "roulette-art.js": {
-   "sha256": "a238401eeef9e73a7a84973539b6b65beb35a5a62cb02dab4ab3aa5674b1b67c",
-   "size": 26892
+   "sha256": "a1ae8ab466a3d42d4ba1f795db7c4b55122e72f206a78b74acc3c166a2ec51af",
+   "size": 29895
   },
   "roulette-core.js": {
-   "sha256": "f852be67e79b8ed9788f623a8063438aa4494a3e9ce10d66a20c6adf58502d28",
-   "size": 21754
+   "sha256": "025b5b984f7e8da27b48d4fb2a5af6b7e816d6128e5b7d166edcf3f2e60e62d2",
+   "size": 23987
   },
   "roulette-ui.js": {
-   "sha256": "d119b36ce0085dbada8f61f6331839dd849420e854b1070d2479269a11358605",
-   "size": 111323
+   "sha256": "eb446cccf67d9d5820b8c3ad0609612381b0a707561d8e827d24217559f2360c",
+   "size": 136666
   },
   "sounds.js": {
    "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
    "size": 42904
   },
   "style.css": {
-   "sha256": "d8ebc56f680be7b94b8e280dc93e4398dc041e3e06d4007bdfc32555a3ca8aa9",
-   "size": 110849
+   "sha256": "eef70835f12b65e3ae80cfe90226d08a59358803af134e0f5cb5bdda782f9396",
+   "size": 111053
   },
   "version.js": {
-   "sha256": "c3189960d16e976ba1f1d72b9e49f6ba43b00d2c357e657c0acead3f7a39350d",
-   "size": 12031
+   "sha256": "32f425119a00d153f1135bf93d595c4546442c1fa3756e0c52df6fc2318300e0",
+   "size": 14937
   }
  }
 }
