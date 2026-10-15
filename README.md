@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-20 款小游戏，可离线游玩。共用游戏及 Windows 在线内容更新为 **4.5.1**，新增“猪猪跳一跳”。安卓 4.5.1 源码与触屏网页已同步；最近正式发行的安装包仍见 [Windows 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3) 与 [安卓 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3-android)。Windows 4.4.0 及以上可通过在线内容更新取得新游戏；新版安卓 APK 尚未发行。项目新增代码采用 MIT，第三方材料保留各自权利。
+20 款小游戏，可离线游玩。共用游戏及 Windows 在线内容更新为 **4.5.1**，新增“猪猪跳一跳”。安卓 4.5.1 源码与触屏网页已同步；最近正式发行的安装包仍见 [Windows 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3) 与 [安卓 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3-android)。Windows 4.4.0 及以上可通过在线内容更新取得新游戏；4.5.1 APK 已在本地使用原证书构建，尚未公开发行。项目新增代码采用 MIT，第三方材料保留各自权利。
 
 ![猪猪轮盘 4.4.3：新道具魔术布，盖布变身演出](docs/images/desktop-magic-cloth-4.4.3.png)
 
