@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.4.3",
- "date": "2026-10-13",
- "ref": "052691e0f0c72135bb9ad2d69791b057fb6564b2",
+ "version": "4.5.1",
+ "date": "2026-10-15",
+ "ref": "6678d9b069ecc24e5667fcebe5c153837a46160c",
  "minShell": "4.4.0",
- "notes": "猪猪轮盘新增第 9 件道具「魔术布」：盖住发射猪仔变个戏法，下一颗真屎变假屎、假屎变真屎。 喂饲料时猪仔吃撑了会放个屁：多半冲着对手，偶尔回头给喂食者来一发“回马屁”；闻到的那只会捏鼻子、扇手，另一只在旁边哈哈大笑。 用魔法书时，使用者先变身成戴巫师帽、披星点披风的“魔法猪”，念完咒再变回来。 电脑三档都会用魔术布。其余规则、积分和联机都没有变。",
+ "notes": "新增第 20 款小游戏“猪猪跳一跳”：用现有猪猪造型，在空中的方台与圆台之间跳跃。 鼠标、触屏或空格 / Enter 按住蓄力，松开起跳；连续落在中心会递增加分。 经典挑战与带预估落点的轻松练习分别保存最高分，接入原有换装、音效与暂停。",
  "files": {
   "app.js": {
-   "sha256": "8d423bd5f3a7213c44558ee9b9f41100b12e7e37204a0ab21af07a7c329b717a",
-   "size": 64326
+   "sha256": "bed6c48cccf0c404ec58a87e4e8f5462d776040f41c8d2de37e98a6ea1b69619",
+   "size": 64388
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -90,6 +90,10 @@
   "assets/licenses/selenebun_bullethell-MIT.txt": {
    "sha256": "5bd073fd7b09727d0fd7b880dc21860b86deb63254edea1ba036cfe167086747",
    "size": 1070
+  },
+  "assets/licenses/shenmaxg_web-jump-MIT.txt": {
+   "sha256": "30812d9d54174485c75c356123d270ed325c6cb7baad152aaf82a087b3d62b95",
+   "size": 1078
   },
   "assets/match/crown.svg": {
    "sha256": "9afccbaec9e1f4a7dc4578543a0f76c603367e24b299b0b734f5dc9de018ab06",
@@ -356,8 +360,8 @@
    "size": 39928
   },
   "catalog.js": {
-   "sha256": "953375b65bac159f0aef1adb23a4691ea7d5e33821464f069b629da070b8463f",
-   "size": 2986
+   "sha256": "a81429b9968e274537712c9b14834110bb0a919b69b47e62cb5bfbde13a8dda2",
+   "size": 3180
   },
   "challenge-core.js": {
    "sha256": "8764c38b8d5b1ec3eec510c8ddcf30d2554810c19d539562dcec26086b55f550",
@@ -392,12 +396,20 @@
    "size": 58584
   },
   "help.js": {
-   "sha256": "aa53eaf857d04355f69a2655b1f6608393d7a735ffc75af4349d0198ef9b8466",
-   "size": 13153
+   "sha256": "5fd049147b8cf37c47d022b07dc526833c0dc639d4ab6c08749099684246708a",
+   "size": 14665
   },
   "index.html": {
-   "sha256": "90c4298547f02fde3f98d84f57f407d565d8ab5770a4bfe60d1fc4997f581dff",
-   "size": 23117
+   "sha256": "f14042cbe15857e539c0d5e09e264de8a9a2946ffdb393b61d41982d67dd0338",
+   "size": 23367
+  },
+  "jump-core.js": {
+   "sha256": "332af31254f8d3a3ad03c7c88b808db54b441b394631f5d378928a01d4b53c2a",
+   "size": 5950
+  },
+  "jump-ui.js": {
+   "sha256": "4304c6b8ee65728b10664a3b58997004690a869678dfeb31b633490b8652a2c3",
+   "size": 15023
   },
   "look.js": {
    "sha256": "fd7df14e0ca7b968b170bc9d7885cabf5969e1b5c79a30680359ea6d6992a3da",
@@ -432,12 +444,13 @@
    "size": 42904
   },
   "style.css": {
-   "sha256": "eef70835f12b65e3ae80cfe90226d08a59358803af134e0f5cb5bdda782f9396",
-   "size": 111053
+   "sha256": "3b63ff62f7402fda1737a60e67e5041cf81897d404f9156558934790eed75c1b",
+   "size": 112843
   },
   "version.js": {
-   "sha256": "32f425119a00d153f1135bf93d595c4546442c1fa3756e0c52df6fc2318300e0",
-   "size": 14937
+   "sha256": "2759353c09ce9e74e81b9ee753cdc2746d60c620426e95f394245bf3d8818eee",
+   "size": 16914
   }
  }
 }
+
