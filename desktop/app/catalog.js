@@ -21,7 +21,8 @@ const GAMES=[
  {id:'shooter',no:16,name:'猪猪星际守卫',desc:'穿过弹幕，挑战首领',icon:'i-ship',cat:'arcade',keys:'射击 弹幕'},
  {id:'rhythm',no:17,name:'猪猪节奏派对',desc:'小蹄子，踩准每一拍',icon:'i-rhythm',cat:'action',keys:'音游 节奏'},
  {id:'roulette',no:18,name:'猪猪轮盘',desc:'三阶段积分赛',icon:'i-roulette',cat:'versus',keys:'轮盘 双人 对战 道具'},
- {id:'doudizhu',no:19,name:'斗地猪',desc:'屠夫大战邪恶猪猪',icon:'i-ddz',cat:'versus',keys:'斗地主 扑克 纸牌 地主 农民 联机 局域网 三人 对战',badge:'新游戏',badgeVer:'4.4.0'}
+ {id:'doudizhu',no:19,name:'斗地猪',desc:'屠夫大战邪恶猪猪',icon:'i-ddz',cat:'versus',keys:'斗地主 扑克 纸牌 地主 农民 联机 局域网 三人 对战',badge:'新游戏',badgeVer:'4.4.0'},
+ {id:'jump',no:20,name:'猪猪跳一跳',desc:'按住蓄力，松开向前跳',icon:'i-run',cat:'action',keys:'跳一跳 蓄力 跳跃 平台 中心 连跳',badge:'新游戏',badgeVer:'4.5.1'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
 root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};

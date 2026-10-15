@@ -952,3 +952,15 @@ kbd{display:inline-block;min-width:22px;padding:2px 7px;border-radius:7px;border
 .dz-finale-svg{display:block;width:100%;height:100%}
 .dz-finale-skip{position:absolute;right:20px;bottom:18px;pointer-events:auto;padding:8px 16px;border-radius:999px;border:2px solid #ffe2a6;background:#2a1a10cc;color:#fff6e2;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
 .dz-finale-skip:hover{background:#4a2e18ee}
+/* 4.5.1 猪猪跳一跳：现有角色素材 + 几何台面，独立于其他游戏。 */
+body[data-game="jump"] .jump-stage{overflow:hidden;border-radius:18px;margin:4px auto 0;max-width:100%}
+body[data-game="jump"] .jump-stage canvas{box-shadow:none;border-radius:18px;touch-action:none;outline-offset:-4px}
+.jump-welcome{position:absolute;left:12px;right:12px;bottom:24px;display:flex;align-items:center;flex-direction:column;gap:7px;padding:18px 12px;border:1px solid #fff9;border-radius:18px;background:#fff8f2ed;box-shadow:0 8px 24px #a28a9a15;backdrop-filter:blur(8px)}
+.jump-welcome[hidden]{display:none}
+.jump-welcome b{font-size:17px;color:#806877}.jump-welcome span{font-size:13px;color:#9a8190}.jump-welcome small{font-size:11px;color:#ab95a1}.jump-welcome button{margin-top:5px;min-height:42px}
+.jump-controls{display:flex;align-items:center;gap:20px;max-width:660px;margin:16px auto 6px;padding:0 8px}
+.jump-meter{flex:1;min-width:0}.jump-meter>span{display:block;font-size:12px;font-weight:700;color:#947889;margin-bottom:7px}.jump-meter small{font-size:11px;color:#a18d98;display:block;margin-top:6px}
+.jump-meter-track{height:8px;border-radius:10px;background:#f1e7e5;overflow:hidden}.jump-meter-track i{display:block;height:100%;width:0;border-radius:10px;background:linear-gradient(90deg,#b8d9c8,#e8bbbd,#c6aed8)}
+.jump-hold{min-height:54px;min-width:180px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.jump-hold.holding{transform:translateY(2px);box-shadow:0 1px 0 #c69bac;background:#cba1b7}.jump-hold:disabled{opacity:.62;cursor:default}
+@media(max-width:560px){.jump-controls{gap:12px;margin-top:12px;padding:0 3px}.jump-hold{min-width:146px;font-size:13px}.jump-meter small{font-size:10px}.jump-welcome b{font-size:15px}}

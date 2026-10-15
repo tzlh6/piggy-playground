@@ -64,7 +64,7 @@
   updates.querySelector('#android-auto').onchange = event => action('setAuto', event.target.checked);
   function mobileAbout() {
     const panel = document.getElementById('update-panel');
-    panel.innerHTML = `<p>安卓 ${version} · 19 款游戏可离线玩。</p><button class="secondary" id="android-about-update">检查版本与更新</button>`;
+    panel.innerHTML = `<p>安卓 ${version} · 20 款游戏可离线玩。</p><button class="secondary" id="android-about-update">检查版本与更新</button>`;
     panel.querySelector('button').onclick = () => { document.getElementById('about-dialog').close(); open(); };
   }
   document.getElementById('about').onclick = () => { mobileAbout(); openDialog('about-dialog'); };
@@ -74,7 +74,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = '<p class="note-meta">安卓 4.4.3 · 2026-10-13</p><h3>猪猪轮盘：新道具魔术布</h3><ul><li>游戏内容同步到 4.4.3：猪猪轮盘新增第 9 件道具「魔术布」，让下一颗真屎变假屎、假屎变真屎（规则见下方 4.4.3 说明）。</li><li>喂饲料时猪仔会放屁、闻到的猪猪捏鼻子扇手；用魔法书时变身魔法猪；用魔术布时戴上魔术师礼帽表演。</li><li>保留 4.4.2 的更新修复与多条更新线路；覆盖安装保留成绩和设置。</li></ul><p class="muted small">下方是共用游戏 4.4.3 及历史更新说明，其中局域网联机仅适用于 Windows 版；本安卓版提供离线人机对战。</p>';
+    note.innerHTML = '<p class="note-meta">安卓 4.5.1 · 2026-10-15</p><h3>新游戏：猪猪跳一跳</h3><ul><li>新增第 20 款离线小游戏。按住画面或按钮蓄力，松手起跳；连续落在中心递增加分。</li><li>经典挑战与轻松练习独立保存最高分，练习模式显示预估落点。复用现有猪猪造型、表情和声音。</li><li>保留既有原生更新与数据保存方式，局域网联机仅适用于 Windows。</li></ul><p class="muted small">下方是共用游戏 4.5.1 及历史更新说明。</p>';
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };
