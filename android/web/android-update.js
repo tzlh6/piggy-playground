@@ -74,7 +74,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = '<p class="note-meta">安卓 4.5.1 · 2026-10-15</p><h3>新游戏：猪猪跳一跳</h3><ul><li>新增第 20 款离线小游戏。按住画面或按钮蓄力，松手起跳；连续落在中心递增加分。</li><li>经典挑战与轻松练习独立保存最高分，练习模式显示预估落点。复用现有猪猪造型、表情和声音。</li><li>保留既有原生更新与数据保存方式，局域网联机仅适用于 Windows。</li></ul><p class="muted small">下方是共用游戏 4.5.1 及历史更新说明。</p>';
+    note.innerHTML = '<p class="note-meta">安卓 4.4.4 · 2026-10-16</p><h3>新游戏：猪猪跳一跳</h3><ul><li>新增第 20 款离线小游戏。按住画面或按钮蓄力，松手起跳；连续落在中心递增加分。</li><li>经典挑战与轻松练习独立保存最高分，练习模式显示预估落点。复用现有猪猪造型、表情和声音。</li><li>保留既有原生更新与数据保存方式，局域网联机仅适用于 Windows。</li></ul><p class="muted small">下方是共用游戏 4.4.4 及历史更新说明。</p>';
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };

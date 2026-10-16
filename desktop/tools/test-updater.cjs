@@ -5,8 +5,8 @@
 // 3. 再发布一个启动即出错的版本：程序在 20 秒内收不到“已就绪”，标记为坏版本并退回内置版本。
 const fs=require('fs'),path=require('path'),os=require('os'),http=require('http'),{spawn}=require('child_process'),assert=require('assert');
 const {buildManifest,readVersion}=require('./make-update-manifest.cjs');
-const ROOT=path.join(__dirname,'..'),APP=path.join(ROOT,'app'),ELECTRON=require(path.join(ROOT,'node_modules','electron'));
-const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'piggy-upd-')),remote=path.join(tmp,'remote'),user=path.join(tmp,'user');
+const ROOT=path.join(__dirname,'..'),APP=path.join(ROOT,'app'),ELECTRON=process.env.PIGGY_ELECTRON_PATH||require(path.join(ROOT,'node_modules','electron'));
+const tmp=fs.mkdtempSync(path.join(process.env.PIGGY_QA_ROOT||os.tmpdir(),'piggy-upd-')),remote=path.join(tmp,'remote'),user=path.join(tmp,'user');
 const base=readVersion(APP).version,[a,b,c]=base.split('.').map(Number),next=`${a}.${b}.${c+1}`,broken=`${a}.${b}.${c+2}`;
 function publish(version,mutate){const dir=path.join(remote,'desktop','app');fs.rmSync(path.join(remote,'desktop'),{recursive:true,force:true});fs.cpSync(APP,dir,{recursive:true});
  const vf=path.join(dir,'version.js');fs.writeFileSync(vf,fs.readFileSync(vf,'utf8').replace(`version:'${base}'`,`version:'${version}'`));if(mutate)mutate(dir);

@@ -19,6 +19,10 @@ const SAFE=/^[A-Za-z0-9_\-][A-Za-z0-9_.\-\/]*$/;
 const MAX_FILES=600,MAX_FILE=12*1024*1024,MAX_TOTAL=60*1024*1024;
 
 function cmp(a,b){const x=String(a||'0').split('.').map(n=>parseInt(n,10)||0),y=String(b||'0').split('.').map(n=>parseInt(n,10)||0);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q?1:-1}return 0}
+// 4.5.1 was a temporary number for the same jump release, renamed to 4.4.4.
+// Only content ordering treats that retired number as old; shell compatibility stays numeric.
+// Keeping cached files preserves user data and lets the built-in 4.4.4 take precedence.
+function contentCmp(a,b){return cmp(a==='4.5.1'?'4.4.3':a,b==='4.5.1'?'4.4.3':b)}
 const sha=buf=>crypto.createHash('sha256').update(buf).digest('hex');
 function readJSON(f){try{return JSON.parse(fs.readFileSync(f,'utf8'))}catch(e){return null}}
 function writeJSON(f,v){fs.mkdirSync(path.dirname(f),{recursive:true});const tmp=f+'.tmp';fs.writeFileSync(tmp,JSON.stringify(v,null,1));fs.renameSync(tmp,f)}
@@ -53,7 +57,7 @@ class Updater{
   const launching=readJSON(path.join(this.dir,'launching.json'));
   if(launching&&launching.version){if(!bad.includes(launching.version))bad.push(launching.version);this.settings.bad=bad;this.saveSettings();rmrf(path.join(this.dir,'launching.json'));this.log('上次启动未确认成功，停用',launching.version)}
   const cur=readJSON(path.join(this.dir,'current.json'));
-  if(cur&&cur.version&&cur.dir&&cmp(cur.version,this.builtinVersion)>0&&!bad.includes(cur.version)&&cmp(cur.minShell,this.shell)<=0){
+  if(cur&&cur.version&&cur.dir&&contentCmp(cur.version,this.builtinVersion)>0&&!bad.includes(cur.version)&&cmp(cur.minShell,this.shell)<=0){
    const d=path.join(this.dir,path.basename(cur.dir));
    if(cur.files&&verifyDir(d,cur.files)){writeJSON(path.join(this.dir,'launching.json'),{version:cur.version,at:Date.now()});this.running={dir:d,version:cur.version,fromUpdate:true};this.set({});return this.running}
    this.log('更新内容校验失败，使用内置版本');
@@ -82,9 +86,9 @@ class Updater{
    const got=await Promise.all(this.mirrors.map(m=>this.fetch(m.manifest+'?t='+t,10000).then(buf=>{const j=JSON.parse(buf.toString('utf8'));if(!validManifest(j))throw new Error('清单格式不对');return {mirror:m,man:j}}).catch(err=>({mirror:m,err}))));
    const ok=got.filter(x=>x.man);
    if(!ok.length){const e=got.find(x=>x.err);throw new Error(e&&e.err?String(e.err.message||e.err):'连不上更新服务器')}
-   ok.sort((a,b)=>cmp(b.man.version,a.man.version));const best=ok[0],m=best.man;
-   const ready=readJSON(path.join(this.dir,'current.json'));const have=ready&&cmp(ready.version,this.running.version)>0&&!(this.settings.bad||[]).includes(ready.version)?ready.version:this.running.version;
-   if(cmp(m.version,have)<=0){this.set({status:have!==this.running.version?'ready':'latest',latest:have,checkedAt:Date.now(),source:best.mirror.name,notes:m.notes||''});return this.state}
+   ok.sort((a,b)=>contentCmp(b.man.version,a.man.version));const best=ok[0],m=best.man;
+   const ready=readJSON(path.join(this.dir,'current.json'));const have=ready&&contentCmp(ready.version,this.running.version)>0&&!(this.settings.bad||[]).includes(ready.version)?ready.version:this.running.version;
+   if(contentCmp(m.version,have)<=0){this.set({status:have!==this.running.version?'ready':'latest',latest:have,checkedAt:Date.now(),source:best.mirror.name,notes:m.notes||''});return this.state}
    if((this.settings.bad||[]).includes(m.version)){this.set({status:'latest',latest:this.running.version,checkedAt:Date.now(),source:best.mirror.name});return this.state}
    if(cmp(m.minShell,this.shell)>0){this.set({status:'needShell',latest:m.version,page:RELEASE_PAGE,checkedAt:Date.now(),source:best.mirror.name,notes:m.notes||''});return this.state}
    // 镜像排序：先用刚才成功读到清单的那个
@@ -118,4 +122,4 @@ class Updater{
   try{for(const d of fs.readdirSync(this.dir)){const p=path.join(this.dir,d);if(!fs.statSync(p).isDirectory())continue;if(p!==final&&p!==this.running.dir)rmrf(p)}}catch(e){}
  }
 }
-module.exports={Updater,cmp,validManifest,verifyDir,RELEASE_PAGE};
+module.exports={Updater,cmp,contentCmp,validManifest,verifyDir,RELEASE_PAGE};
