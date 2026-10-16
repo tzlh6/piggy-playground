@@ -20,7 +20,7 @@
 | [alpiex1336-code/Rhythm-Game-v2](https://github.com/alpiex1336-code/Rhythm-Game-v2/tree/9de103a362058f400541aa3c8d4d13cca202fed0) | `script.js` 中的时钟、按下 / 松开和长按处理 | 借鉴音频时间锚点、长按首尾判定、暂停与偏移处理；使用本地合成旋律和原创三档谱面 |
 | [selenebun/bullethell](https://github.com/selenebun/bullethell/tree/75173f8c37868ac7f30b886da6d28560e8e4418b) | `scripts/class/player.js`、`boss.js` | 借鉴斜向移动归一化、小判定点、慢移、受击无敌与首领弹幕阶段；加入猪猪角色、清弹护盾、补给和三关目标 |
 
-### 猪猪跳一跳（4.5.1）
+### 猪猪跳一跳（4.4.4，开发时临时编号 4.5.1）
 
 参考并改写 [shenmaxg/web-jump](https://github.com/shenmaxg/web-jump/tree/3fdcb17436f77ddb6664b9aad8f9c5fffdf0fe58)，固定提交 `3fdcb17436f77ddb6664b9aad8f9c5fffdf0fe58`，MIT，Copyright (c) 2018 Edwin Webb。实际阅读 `src/object/LittleMan.js` 的蓄力、水平位移和当前 / 下一平台边界分类，以及 `src/object/BoxGroup.js` 的中点镜头与 `src/config/constant.js`。本项目保留按住时间决定距离、松开起跳和镜头中点的处理思路，改为既有 Canvas 渲染与独立规则模块，增加真实方台 / 圆台接触点、实际落点偏移、中心连续计分、练习落点和统一暂停。未导入上游图片、角色、音乐或 Three.js 运行依赖。
 

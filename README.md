@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-20 款小游戏，可离线游玩。共用游戏及 Windows 在线内容更新为 **4.5.1**，新增“猪猪跳一跳”。安卓 4.5.1 源码与触屏网页已同步；最近正式发行的安装包仍见 [Windows 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3) 与 [安卓 4.4.3](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.3-android)。Windows 4.4.0 及以上可通过在线内容更新取得新游戏；4.5.1 APK 已在本地使用原证书构建，尚未公开发行。项目新增代码采用 MIT，第三方材料保留各自权利。
+20 款小游戏，可离线游玩。正式版本统一为 **4.4.4**，新增“猪猪跳一跳”。下载 [Windows 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4) 或 [安卓 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4-android)。安卓已接入应用内更新；此次 Windows 改号修复需要更换 EXE 一次，保留原存档。[发行与检查说明](docs/4.4.4-release.md)。项目新增代码采用 MIT，第三方材料保留各自权利。
 
 ![猪猪轮盘 4.4.3：新道具魔术布，盖布变身演出](docs/images/desktop-magic-cloth-4.4.3.png)
 
@@ -14,11 +14,11 @@
 
 ![安卓 4.4.1：手机大厅与斗地猪入口](docs/images/android-hall-4.4.1.png)
 
-## 4.5.1 新游戏：猪猪跳一跳
+## 4.4.4 新游戏：猪猪跳一跳
 
-![猪猪跳一跳 4.5.1：使用现有猪猪造型，跳上方台与圆台](docs/images/jump-4.5.1.jpg)
+![猪猪跳一跳玩法预览：使用现有猪猪造型，跳上方台与圆台](docs/images/jump-4.5.1.jpg)
 
-按住鼠标、手指、空格或 Enter 蓄力，松开起跳，方向自动朝向下一台。普通落台 +1 分，连续中心 +2、+4、+6、+8、+10；经典挑战与带预估落点的轻松练习分别存档。使用现有 PigArt / PigLook 猪猪造型、表情和音效，没有新增美术素材或模型。参考 MIT 开源 [shenmaxg/web-jump](https://github.com/shenmaxg/web-jump)，已保留完整许可。[详细规则与本次检查](docs/4.5.1-jump.md)。
+按住鼠标、手指、空格或 Enter 蓄力，松开起跳，方向自动朝向下一台。普通落台 +1 分，连续中心 +2、+4、+6、+8、+10；经典挑战与带预估落点的轻松练习分别存档。使用现有 PigArt / PigLook 猪猪造型、表情和音效，没有新增美术素材或模型。参考 MIT 开源 [shenmaxg/web-jump](https://github.com/shenmaxg/web-jump)，已保留完整许可。[详细规则与开发检查](docs/4.5.1-jump.md)。
 
 ## 游戏与功能
 
@@ -57,7 +57,7 @@
 安装 Node.js 和 Python 3 后，在仓库根目录执行：
 
 ```sh
-python desktop/build-single.py build/猪猪游乐场v4.4.3.html
+python desktop/build-single.py build/猪猪游乐场v4.4.4.html
 ```
 
 用现代浏览器打开生成的 HTML。规则、图片与音效全部内嵌，可断网游玩。
@@ -77,7 +77,7 @@ npm run build:win
 
 ## 发布一次在线更新
 
-只改了 `desktop/app/` 里的游戏内容时，已经安装满足 `minShell` 的便携版的电脑会自动更新（4.4.0 起 `minShell` 为 4.4.0，因为联机需要新的主进程）：
+只改了 `desktop/app/` 里的游戏内容时，已经安装满足 `minShell` 的便携版的电脑会自动更新（当前 `minShell` 为 4.4.4，包含临时版本改号兼容）：
 
 1. 修改 `desktop/app/version.js`（版本号与更新说明）和 `desktop/package.json` 的 `version`，两者保持一致。
 2. `cd desktop && npm test`，然后先把 `desktop/app/` 等改动提交。
