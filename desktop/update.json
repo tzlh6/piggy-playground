@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.5.1",
- "date": "2026-10-15",
- "ref": "6678d9b069ecc24e5667fcebe5c153837a46160c",
- "minShell": "4.4.0",
+ "version": "4.4.4",
+ "date": "2026-10-16",
+ "ref": "b14dfe21544234993f49b70e9715acfe847ed15c",
+ "minShell": "4.4.4",
  "notes": "新增第 20 款小游戏“猪猪跳一跳”：用现有猪猪造型，在空中的方台与圆台之间跳跃。 鼠标、触屏或空格 / Enter 按住蓄力，松开起跳；连续落在中心会递增加分。 经典挑战与带预估落点的轻松练习分别保存最高分，接入原有换装、音效与暂停。",
  "files": {
   "app.js": {
@@ -360,7 +360,7 @@
    "size": 39928
   },
   "catalog.js": {
-   "sha256": "a81429b9968e274537712c9b14834110bb0a919b69b47e62cb5bfbde13a8dda2",
+   "sha256": "162f4801069764ce9ef4327f5acd76f1a98077c56dee6a4eb272e9ac6cf663b9",
    "size": 3180
   },
   "challenge-core.js": {
@@ -444,13 +444,12 @@
    "size": 42904
   },
   "style.css": {
-   "sha256": "3b63ff62f7402fda1737a60e67e5041cf81897d404f9156558934790eed75c1b",
+   "sha256": "adc018576f0df044125f4a80182956132ac8b0fec0eea7d20ca97d399b7a585d",
    "size": 112843
   },
   "version.js": {
-   "sha256": "2759353c09ce9e74e81b9ee753cdc2746d60c620426e95f394245bf3d8818eee",
+   "sha256": "1dbb21f2fb54d36115d8f848e58763a2caddddc615121ef9f2e3e73441c5a9d9",
    "size": 16914
   }
  }
 }
-

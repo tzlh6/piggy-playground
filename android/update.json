@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.3",
-  "versionCode": 40403,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.3-android/PiggyPlayground-4.4.3-Android.apk",
-  "bytes": 459794,
-  "sha256": "44c41137899216a973469ead07e39d2b65dafb64853843d7466f75ff304c3f0d",
-  "notes": "猪猪轮盘新增第 9 件道具「魔术布」：下一颗真屎变假屎、假屎变真屎（不能叠加）。喂饲料时猪仔会放屁，闻到的猪猪捏鼻子扇手；用魔法书时变身魔法猪；用魔术布时戴礼帽表演。保留 4.4.2 的更新修复。请保留应用数据，直接覆盖安装。"
+  "version": "4.4.4",
+  "versionCode": 40502,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.4-android/PiggyPlayground-4.4.4-Android.apk",
+  "bytes": 467986,
+  "sha256": "9213d27c3f0b3130730d082e9823d022254e11c38d179104e35aca95d80182ba",
+  "notes": "新增第 20 款小游戏“猪猪跳一跳”：按住蓄力，松手起跳，连续落在中心递增加分。提供经典挑战与带预估落点的轻松练习，两种模式分别保存最高分。正式版本统一为 4.4.4，复用原猪猪造型与音效。沿用原签名，支持从 4.4.2、4.4.3 和临时编号 4.5.1 覆盖更新，保留成绩和设置。下载后由安卓系统确认安装。"
 }
