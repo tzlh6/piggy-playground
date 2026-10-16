@@ -2,9 +2,10 @@
   "schema": 1,
   "package": "local.piggy.playground",
   "version": "4.4.4",
-  "versionCode": 40502,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.4-android/PiggyPlayground-4.4.4-Android.apk",
+  "versionCode": 40404,
+  "nativeRevision": 2,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.4-android-updatefix/PiggyPlayground-4.4.4-Android-compat.apk",
   "bytes": 467986,
-  "sha256": "9213d27c3f0b3130730d082e9823d022254e11c38d179104e35aca95d80182ba",
-  "notes": "新增第 20 款小游戏“猪猪跳一跳”：按住蓄力，松手起跳，连续落在中心递增加分。提供经典挑战与带预估落点的轻松练习，两种模式分别保存最高分。正式版本统一为 4.4.4，复用原猪猪造型与音效。沿用原签名，支持从 4.4.2、4.4.3 和临时编号 4.5.1 覆盖更新，保留成绩和设置。下载后由安卓系统确认安装。"
+  "sha256": "6a2d4b68c9cc9b68a33a119e0ebd971e07e584525aa117efd9cd1513aa007efd",
+  "notes": "修复安卓 4.4.3 检查更新误报最新版本的问题，兼容旧版的版本编号校验。保留正式版本 4.4.4 和 20 款游戏，包含猪猪跳一跳。新版改为独立更新通道，每次检查避开旧请求缓存，并显示实际核对的线路数量。原签名，覆盖安装保留成绩和设置。"
 }

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "package": "local.piggy.playground",
+  "version": "4.4.4",
+  "versionCode": 40503,
+  "nativeRevision": 2,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.4-android-updatefix/PiggyPlayground-4.4.4-Android-updatefix.apk",
+  "bytes": 467986,
+  "sha256": "69f79916332898abe2d8bace2838dcd87322062d42308149cf8e12dbc927e980",
+  "notes": "修复安卓 4.4.3 检查更新误报最新版本的问题，兼容旧版的版本编号校验。保留正式版本 4.4.4 和 20 款游戏，包含猪猪跳一跳。新版改为独立更新通道，每次检查避开旧请求缓存，并显示实际核对的线路数量。原签名，覆盖安装保留成绩和设置。"
+}
