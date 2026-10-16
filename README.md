@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-20 款小游戏，可离线游玩。正式版本统一为 **4.4.4**，新增“猪猪跳一跳”。下载 [Windows 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4) 或 [安卓 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4-android)。安卓已接入应用内更新；此次 Windows 改号修复需要更换 EXE 一次，保留原存档。[发行与检查说明](docs/4.4.4-release.md)。项目新增代码采用 MIT，第三方材料保留各自权利。
+20 款小游戏，可离线游玩。正式版本统一为 **4.4.4**，新增“猪猪跳一跳”。下载 [Windows 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4) 或 [安卓 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4-android-updatefix)。安卓更新误报已修复，4.4.3 手机已确认发现新版；[修复说明](docs/4.4.4-android-updatefix.md)。此次 Windows 改号修复需要更换 EXE 一次，保留原存档。[发行与检查说明](docs/4.4.4-release.md)。项目新增代码采用 MIT，第三方材料保留各自权利。
 
 ![猪猪轮盘 4.4.3：新道具魔术布，盖布变身演出](docs/images/desktop-magic-cloth-4.4.3.png)
 

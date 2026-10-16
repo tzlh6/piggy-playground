@@ -47,7 +47,9 @@ def main():
         if args.purge:
             path = '/gh/tzlh6/piggy-playground@main/android/' + filename
             try:
-                result, status, _ = read('https://purge.jsdelivr.net' + path, method='POST')
+                # This endpoint requires GET. A unique token avoids a cached purge response.
+                purge_url = 'https://purge.jsdelivr.net' + path + '?piggy_purge=' + str(int(time.time() * 1000))
+                result, status, _ = read(purge_url)
                 report['purge'].append({'file': filename, 'http': status, 'result': result})
             except Exception as error:
                 report['purge'].append({'file': filename, 'error': str(error)})
