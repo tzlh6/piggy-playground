@@ -22,18 +22,23 @@ public final class UpdateNetwork implements AutoCloseable {
         }
     }
     public static final Route[] MANIFESTS = {
-        new Route("GitHub API", "https://api.github.com/repos/tzlh6/piggy-playground/contents/android/update.json?ref=main", "application/vnd.github.raw+json"),
-        new Route("jsDelivr Gcore", "https://gcore.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json", "application/json"),
-        new Route("jsDelivr Fastly", "https://fastly.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json", "application/json"),
-        new Route("GitHub Raw", "https://raw.githubusercontent.com/tzlh6/piggy-playground/main/android/update.json", "application/json"),
-        new Route("jsDelivr", "https://cdn.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update.json", "application/json")
+        new Route("GitHub API", "https://api.github.com/repos/tzlh6/piggy-playground/contents/android/update-v2.json?ref=main", "application/vnd.github.raw+json"),
+        new Route("jsDelivr Gcore", "https://gcore.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update-v2.json", "application/json"),
+        new Route("jsDelivr Fastly", "https://fastly.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update-v2.json", "application/json"),
+        new Route("GitHub Raw", "https://raw.githubusercontent.com/tzlh6/piggy-playground/main/android/update-v2.json", "application/json"),
+        new Route("jsDelivr", "https://cdn.jsdelivr.net/gh/tzlh6/piggy-playground@main/android/update-v2.json", "application/json")
     };
     public interface Loader<T> { T load(Route route) throws Exception; }
     public interface Version<T> { long code(T value) throws Exception; }
     public static final class Selection<T> {
         public final T value;
         public final String source;
-        Selection(T value, String source) { this.value = value; this.source = source; }
+        public final int successfulRoutes, totalRoutes;
+        Selection(T value, String source) { this(value, source, 1, 1); }
+        Selection(T value, String source, int successfulRoutes, int totalRoutes) {
+            this.value = value; this.source = source;
+            this.successfulRoutes = successfulRoutes; this.totalRoutes = totalRoutes;
+        }
     }
     private final Set<HttpsURLConnection> connections = ConcurrentHashMap.newKeySet();
     private volatile boolean closed;
@@ -50,6 +55,7 @@ public final class UpdateNetwork implements AutoCloseable {
             long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
             Selection<T> newest = null;
             long newestCode = -1;
+            int successfulRoutes = 0;
             for (int remaining = routes.length; remaining > 0; remaining--) {
                 long wait = deadline - System.nanoTime();
                 if (wait <= 0) break;
@@ -58,6 +64,7 @@ public final class UpdateNetwork implements AutoCloseable {
                 try {
                     Selection<T> candidate = next.get();
                     long code = version.code(candidate.value);
+                    successfulRoutes++;
                     if (code > newestCode) { newest = candidate; newestCode = code; }
                 } catch (InterruptedException interrupted) {
                     throw interrupted;
@@ -66,8 +73,14 @@ public final class UpdateNetwork implements AutoCloseable {
                 }
             }
             if (newest == null) throw new IOException("暂时连不上更新服务，请稍后重试，或打开 GitHub 下载页手动更新。");
-            return newest;
+            return new Selection<>(newest.value, newest.source, successfulRoutes, routes.length);
         } finally { requests.shutdownNow(); }
+    }
+
+    public static String freshManifestUrl(String url, long nonce) {
+        UpdatePolicy.secureUri(url);
+        if (nonce < 0) throw new IllegalArgumentException("更新检查编号无效");
+        return url + (url.contains("?") ? "&" : "?") + "piggy_check=" + nonce;
     }
 
     public String text(String url, String accept, int limit) throws Exception {
@@ -94,6 +107,8 @@ public final class UpdateNetwork implements AutoCloseable {
             connection.setInstanceFollowRedirects(false); connection.setUseCaches(false);
             connection.setRequestProperty("User-Agent", "PiggyPlayground-Android");
             connection.setRequestProperty("Accept-Encoding", "identity");
+            connection.setRequestProperty("Cache-Control", "no-cache, no-store");
+            connection.setRequestProperty("Pragma", "no-cache");
             // Send API media headers only to GitHub's API, not to signed storage redirects.
             connection.setRequestProperty("Accept", "api.github.com".equals(new URL(url).getHost()) ? accept : "*/*");
             final int result;

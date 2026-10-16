@@ -20,12 +20,17 @@ public final class UpdateNetworkTests {
             throw new ConnectException("Failed to connect to cdn.jsdelivr.net/104.17.207.5:443");
         }, value -> value, 500);
         check(fallback.value == 40402 && "mirror".equals(fallback.source), "blocked routes do not hide successful mirror");
+        check(fallback.successfulRoutes == 1 && fallback.totalRoutes == 3, "partial connectivity is reported");
         UpdateNetwork.Selection<Long> fresh = UpdateNetwork.select(ROUTES, route -> {
             if ("newest".equals(route.name)) { Thread.sleep(60); return 40402L; }
             if ("mirror".equals(route.name)) return 40401L;
             throw new IllegalArgumentException("malformed manifest");
         }, value -> value, 500);
         check(fresh.value == 40402, "newer response beats a fast stale mirror");
+        check(fresh.successfulRoutes == 2, "only valid responses count as checked routes");
+        check(UpdateNetwork.freshManifestUrl("https://api.github.com/x?ref=main", 1).endsWith("?ref=main&piggy_check=1"), "API query retained");
+        check(UpdateNetwork.freshManifestUrl("https://cdn.jsdelivr.net/x", 2).endsWith("?piggy_check=2"), "new mirror request key");
+        check(!UpdateNetwork.freshManifestUrl("https://cdn.jsdelivr.net/x", 2).equals(UpdateNetwork.freshManifestUrl("https://cdn.jsdelivr.net/x", 3)), "successive checks bypass an old request cache");
         AtomicBoolean interrupted = new AtomicBoolean();
         long start = System.nanoTime();
         UpdateNetwork.Selection<Long> bounded = UpdateNetwork.select(ROUTES, route -> {
@@ -55,7 +60,7 @@ public final class UpdateNetworkTests {
         if (args.length > 0 && "--live".equals(args[0])) {
             try (UpdateNetwork network = new UpdateNetwork()) {
                 for (UpdateNetwork.Route route : UpdateNetwork.MANIFESTS) {
-                    String body = network.text(route.url, route.accept, 65536);
+                    String body = network.text(UpdateNetwork.freshManifestUrl(route.url, System.currentTimeMillis()), route.accept, 65536);
                     check(body.contains("\"schema\": 1") && body.contains("\"package\": \"local.piggy.playground\""), route.name + " live manifest");
                     System.out.println("LIVE PASS: " + route.name);
                 }

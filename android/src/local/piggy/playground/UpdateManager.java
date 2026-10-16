@@ -25,6 +25,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 /** Native HTTPS updater. The WebView remains offline and receives only status snapshots. */
 public final class UpdateManager {
+    private static final int NATIVE_REVISION = 2;
     public interface Listener { void changed(JSONObject state); }
     private final Activity activity;
     private final Listener listener;
@@ -44,7 +45,8 @@ public final class UpdateManager {
         PackageInfo own = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
         current = own.versionName;
         currentCode = code(own);
-        put("current", current); put("auto", prefs.getBoolean("auto", true)); put("status", "idle");
+        put("current", current); put("currentCode", currentCode); put("nativeRevision", NATIVE_REVISION);
+        put("auto", prefs.getBoolean("auto", true)); put("status", "idle");
     }
     private static long code(PackageInfo info) { return Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode; }
     private synchronized void put(String key, Object value) { try { state.put(key, value); } catch (Exception ignored) {} }
@@ -70,26 +72,30 @@ public final class UpdateManager {
         worker.execute(() -> {
             try (UpdateNetwork requests = new UpdateNetwork()) {
                 network = requests;
+                final long nonce = System.currentTimeMillis();
                 UpdateNetwork.Selection<JSONObject> selected = UpdateNetwork.select(UpdateNetwork.MANIFESTS, route -> {
-                    JSONObject candidate = manifest(requests.text(route.url, route.accept, 65536));
+                    JSONObject candidate = manifest(requests.text(UpdateNetwork.freshManifestUrl(route.url, nonce), route.accept, 65536));
                     validate(candidate);
                     return candidate;
                 }, candidate -> candidate.getLong("versionCode"), 12000);
                 JSONObject found = selected.value;
                 put("source", selected.source);
+                put("checkedRoutes", selected.successfulRoutes); put("totalRoutes", selected.totalRoutes);
                 synchronized (this) { release = found; }
                 put("checkedAt", System.currentTimeMillis()); put("latest", found.getString("version"));
                 put("notes", found.optString("notes", "发现新版本，可下载后覆盖安装。"));
                 put("total", found.getLong("bytes")); put("done", 0);
-                if (found.getLong("versionCode") <= currentCode) status("latest");
-                else {
+                put("latestCode", found.getLong("versionCode"));
+                if (UpdatePolicy.needsUpdate(current, currentCode, NATIVE_REVISION, found.getString("version"),
+                        found.getLong("versionCode"), found.optInt("nativeRevision", 0))) {
                     File saved = UpdateProvider.apk(activity);
                     boolean ready = false;
                     if (saved.isFile()) {
                         try { verify(saved, found); ready = true; } catch (Exception ignored) {}
                     }
                     status(ready ? "ready" : "available");
-                }
+                } else if (found.getLong("versionCode") < currentCode && !current.equals(found.getString("version"))) status("stale");
+                else status("latest");
             } catch (Exception error) { fail(error); }
             finally { network = null; end(); }
         });
@@ -104,7 +110,7 @@ public final class UpdateManager {
     private static JSONObject manifest(String body) throws Exception {
         JSONObject result = new JSONObject(body);
         if (!result.has("schema") && "base64".equals(result.optString("encoding")) &&
-                "android/update.json".equals(result.optString("path"))) {
+                "android/update-v2.json".equals(result.optString("path"))) {
             byte[] decoded = java.util.Base64.getMimeDecoder().decode(result.getString("content"));
             if (decoded.length > 65536) throw new IOException("更新清单过大");
             result = new JSONObject(new String(decoded, java.nio.charset.StandardCharsets.UTF_8));

@@ -1,12 +1,12 @@
 """Build a universal offline APK with the official Android command-line tools."""
 from pathlib import Path
-import argparse, hashlib, json, os, subprocess, sys, zipfile
+import argparse, hashlib, json, os, re, subprocess, sys, zipfile
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
 DESKTOP = ROOT.parent / 'desktop'
 WORK = ROOT.parent / 'build/android'
-TOOL_CACHE = Path(os.environ.get('PIGGY_ANDROID_TOOLS', str(ROOT.parent / '.android-tools'))).expanduser()
+TOOL_CACHE = ROOT.parent / '.android-tools'
 
 def run(args, env=None):
     subprocess.run([str(arg) for arg in args], check=True, env=env)
@@ -59,7 +59,17 @@ def compile_apk(args):
     output = args.output or work / 'piggy-release.apk'
     output.parent.mkdir(parents=True, exist_ok=True)
     native_root = args.native_root or ROOT
-    build_apk(native_root, native_root / 'AndroidManifest.xml', native_root / 'src', 'release',
+    manifest_path = native_root / 'AndroidManifest.xml'
+    if args.legacy_compatible:
+        markup = manifest_path.read_text(encoding='utf-8')
+        version = ET.fromstring(markup).get('{http://schemas.android.com/apk/res/android}versionName')
+        major, minor, patch = map(int, version.split('.'))
+        legacy_code = major * 10000 + minor * 100 + patch
+        markup, count = re.subn(r'android:versionCode="[0-9]+"', f'android:versionCode="{legacy_code}"', markup)
+        assert count == 1
+        manifest_path = work / 'legacy-AndroidManifest.xml'
+        manifest_path.write_text(markup, encoding='utf-8', newline='\n')
+    build_apk(native_root, manifest_path, native_root / 'src', 'release',
               work, jdk, build_tools, platform, args.keystore, output)
     run([jdk / 'java.exe', '-jar', build_tools / 'lib/apksigner.jar', 'verify', '--verbose', '--print-certs', output])
     run([build_tools / 'aapt.exe', 'dump', 'badging', output])
@@ -115,6 +125,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path)
     parser.add_argument('--keystore', type=Path)
     parser.add_argument('--tests', action='store_true')
+    parser.add_argument('--legacy-compatible', action='store_true', help='Build a bridge APK accepted by 4.4.2/4.4.3 update policy')
     args = parser.parse_args()
     prepare()
     if not args.prepare_only:

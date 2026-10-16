@@ -19,12 +19,22 @@ public final class UpdatePolicyTests {
                 URL.replace(".apk", ".exe"), URL.replace("v4.4.1/", "../../"),
                 URL.replace("github.com", "github.com.evil.test")})
             reject(() -> UpdatePolicy.validate("4.4.1", 40401, 2000000, HASH, invalid));
-        reject(() -> UpdatePolicy.validate("4.4.1", 40200, 2000000, HASH, URL));
+        // Display version and install ordering are independent after a release rename.
+        UpdatePolicy.validate("4.4.4", 40404, 2000000, HASH, URL); passed++;
+        UpdatePolicy.validate("4.4.4", 40503, 2000000, HASH, URL); passed++;
+        reject(() -> UpdatePolicy.validate("4.4.4", 0, 2000000, HASH, URL));
+        reject(() -> UpdatePolicy.validate("4.4.4", -1, 2000000, HASH, URL));
+        reject(() -> UpdatePolicy.validate("4.4.4", (long)Integer.MAX_VALUE + 1, 2000000, HASH, URL));
         reject(() -> UpdatePolicy.validate("4.4.1", 40401, 0, HASH, URL));
         reject(() -> UpdatePolicy.validate("4.4.1", 40401, UpdatePolicy.MAX_APK_BYTES + 1, HASH, URL));
         reject(() -> UpdatePolicy.validate("4.4.1", 40401, 2000000, "fake", URL));
         reject(() -> UpdatePolicy.validate("4.4.1<script>", 40401, 2000000, HASH, URL));
         reject(() -> UpdatePolicy.validate("4.100.1", 50001, 2000000, HASH, URL));
+        if (!UpdatePolicy.needsUpdate("4.4.3", 40403, 0, "4.4.4", 40503, 2)) throw new AssertionError("old game upgrade"); passed++;
+        if (UpdatePolicy.needsUpdate("4.4.4", 40404, 2, "4.4.4", 40503, 2)) throw new AssertionError("equivalent bridge must not need a second install"); passed++;
+        if (!UpdatePolicy.needsUpdate("4.4.4", 40404, 2, "4.4.4", 40504, 3)) throw new AssertionError("new native revision"); passed++;
+        if (!UpdatePolicy.needsUpdate("4.4.4", 40503, 2, "4.4.5", 40504, 2)) throw new AssertionError("future renamed release"); passed++;
+        if (UpdatePolicy.needsUpdate("4.4.4", 40503, 2, "4.4.3", 40403, 2)) throw new AssertionError("downgrade"); passed++;
         byte[] data = "piggy update".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         byte[] digest = MessageDigest.getInstance("SHA-256").digest(data);
         String sha = UpdatePolicy.hex(digest);

@@ -33,11 +33,13 @@
       available: `发现新版 ${state.latest || ''}，可以下载更新。`,
       downloading: `正在下载 ${state.latest || ''}：${mb(state.done)} / ${mb(state.total)}。`,
       ready: `新版 ${state.latest || ''} 已校验，可以安装。`,
-      latest: '已经是最新版本。',
+      latest: `当前可连接的更新线路未发现新版${state.latest ? '（服务版本 ' + state.latest + '）' : ''}。`,
+      stale: '更新服务返回了比当前安装版本更旧的信息，请稍后重试。',
       error: '暂时无法完成更新，不影响离线游玩。'
     };
     updates.querySelector('.android-current').textContent = `当前版本：${state.current || version}`;
-    updates.querySelector('.android-update-status').textContent = native ? labels[state.status] || labels.idle : '请在安装后的安卓版中检查更新。';
+    const checked = Number(state.totalRoutes) > 0 && !busy ? ` 已核对 ${state.checkedRoutes || 0}/${state.totalRoutes} 条更新线路。` : '';
+    updates.querySelector('.android-update-status').textContent = native ? (labels[state.status] || labels.idle) + checked : '请在安装后的安卓版中检查更新。';
     const error = updates.querySelector('.android-update-error'); error.textContent = state.error || ''; error.hidden = !state.error;
     const notes = updates.querySelector('.android-update-notes'); notes.textContent = state.notes || '';
     notes.hidden = !state.notes || !['available', 'downloading', 'ready'].includes(state.status);

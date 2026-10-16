@@ -14,14 +14,24 @@ public final class UpdatePolicy {
             throw new IllegalArgumentException("版本号无效");
         String[] parts = version.split("\\.");
         int major = Integer.parseInt(parts[0]), minor = Integer.parseInt(parts[1]), patch = Integer.parseInt(parts[2]);
-        if (minor > 99 || patch > 99 || code != major * 10000L + minor * 100L + patch || code <= 0)
-            throw new IllegalArgumentException("版本编号不一致");
+        // Android versionCode is an independent, monotonically increasing build number.
+        // Renaming a release must not make its correctly signed APK invalid.
+        if (minor > 99 || patch > 99 || code <= 0 || code > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("版本编号无效");
         if (bytes <= 0 || bytes > MAX_APK_BYTES || sha == null || !sha.matches("[a-fA-F0-9]{64}"))
             throw new IllegalArgumentException("更新文件大小或校验值无效");
         URI uri = secureUri(url);
         if (!"github.com".equals(uri.getHost()) || uri.getRawQuery() != null ||
             !uri.getRawPath().matches("/tzlh6/piggy-playground/releases/download/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+\\.apk"))
             throw new IllegalArgumentException("更新文件必须来自本项目的 GitHub Release");
+    }
+
+    public static boolean needsUpdate(String current, long currentCode, int currentRevision,
+                                      String latest, long latestCode, int latestRevision) {
+        if (latestCode <= currentCode) return false;
+        // The legacy bridge and normal APK contain the same native/game revision.
+        // Do not ask bridge users to install identical 4.4.4 content a second time.
+        return !current.equals(latest) || latestRevision <= 0 || latestRevision > currentRevision;
     }
 
     public static URI secureUri(String url) {
