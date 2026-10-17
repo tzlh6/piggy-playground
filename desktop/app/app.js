@@ -9,7 +9,7 @@ const icon=(id,cls)=>`<svg class="ico ${cls||''}"><use href="#${id}"/></svg>`;
 const pigCards=[['crown','皇冠猪'],['glasses','眼镜猪'],['pirate','海盗猪'],['chef','厨师猪'],['space','太空猪'],['bow','蝴蝶结猪'],['flower','花环猪'],['music','耳机猪'],['wizard','魔法猪'],['scarf','围巾猪'],['detective','侦探猪'],['bee','蜜蜂猪']];
 const cardSrc=v=>PigLook.src(v);
 const pigCardNames=Object.fromEntries(pigCards),pigCardIndex=Object.fromEntries(pigCards.map((p,i)=>[p[0],i]));
-const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI.configs,...PigDdzUI.configs,...PigJumpUI.configs,
+const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI.configs,...PigDdzUI.configs,...PigJumpUI.configs,...PigPoolUI.configs,
  mine:{name:'扫猪',icon:'i-flag',title:'草地里，藏着小秘密。',subtitle:'用一点点推理，找到每只熟睡的小猪。',tag:'经典规则 · 仅首格安全',eyebrow:'01 / A LITTLE CHALLENGE',note:'慢慢想，每一个数字都是线索。',levels:[['easy','入门 9×9'],['medium','中级 16×16'],['hard','高级 30×16'],['expert','极限 30×20']],labels:['剩余标记','本局用时','最佳用时'],tips:[['数字是线索','数字代表周围八格的小猪数量。只有第一格保证安全。'],['圈出藏身处','右键插旗，或切换标记模式。F 键也能切换。'],['按住数字连开','旗数吻合时点击数字连开；按住可预览周围格。插错旗也会吵醒猪。']]},
  memory:{name:'记忆翻翻乐',icon:'i-cards',title:'十二种小猪，等你来认。',subtitle:'皇冠猪、海盗猪、太空猪……找到一模一样的猪猪搭档。',tag:'观察与记忆 · 找到所有配对',eyebrow:'02 / A LITTLE MEMORY',note:'每种小猪都有自己的叫声。',levels:[['easy','热身 6 对'],['normal','标准 8 对'],['hard','挑战 12 对']],labels:['已找到','翻牌步数','最佳步数'],tips:[['一次翻两张','图案相同便配对成功，不同会重新盖上。'],['听声音记猪','配对成功时，这种小猪会用自己的声音哼一声。连续配对音调越来越高。'],['耐心胜过手快','翻开的图案停留片刻再盖上；暂停会遮住棋盘。']]},
  merge:{name:'猪猪 2048',icon:'i-spark',title:'一样的小猪，合在一起就长大。',subtitle:'从小猪仔一路长成猪猪国王（2048），再往上还有魔法猪和太空猪。',tag:'滑动合成 · 13 种小猪等你解锁',eyebrow:'03 / A LITTLE MAGIC',note:'每次合成都会“啵”一声，小猪越大叫声越低沉。',levels:[],labels:['本局得分','最大小猪','最高得分'],tips:[['向一个方向推','用方向键、WASD、滑动或下方按钮移动，所有小猪一起滑。'],['一样的才能合','两只一样的小猪相撞会长大一级，每只每步只能合成一次。'],['收集成长图鉴','右侧图鉴记录你见过的最大小猪。给大猪留一个角落，别让牧场住满。']]},
@@ -20,10 +20,10 @@ const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI
 let game='mine',level='hard',state,paused=false,elapsed=0,running=false,lastFrame=performance.now(),mode=false,wonToast=false;
 const minePresets={easy:[9,9,10],medium:[16,16,40],hard:[30,16,99],expert:[30,20,150]};
 const extraContext={$,Sound,Store,icon,message,stats,record,result,confetti,rr,dpadHTML,pigSrc:role=>PigLook.sprite(role),get:()=>({game,level,state,paused,running,elapsed}),setState:v=>state=v,setRunning:v=>running=v,nextLevel:v=>{level=v;Store.set('level-'+game,v);renderLevels(configs[game]);newGame()}};
-const Arcade=PigArcadeUI.create(extraContext),Challenge=PigChallengeUI.create(extraContext),Roulette=PigRouletteUI.create(extraContext),Ddz=PigDdzUI.create(extraContext),Jump=PigJumpUI.create(extraContext);
+const Arcade=PigArcadeUI.create(extraContext),Challenge=PigChallengeUI.create(extraContext),Roulette=PigRouletteUI.create(extraContext),Ddz=PigDdzUI.create(extraContext),Jump=PigJumpUI.create(extraContext),Pool=PigPoolUI.create(extraContext);
 // 扩展游戏控制器：统一接入初始化、帧循环、键盘、换装与窗口变化
-const controllers=[Arcade,Challenge,Roulette,Ddz,Jump],owner=id=>controllers.find(c=>c.has(id));
-const Extra={captureKeys:e=>{const c=owner(game);return !!(c&&c.captureKeys&&c.captureKeys(e))},has:id=>!!owner(id),init:id=>owner(id).init(id),tick:dt=>controllers.forEach(c=>c.tick(dt)),resize:()=>controllers.forEach(c=>c.resize()),keyDown:e=>{const c=owner(game);return c?c.keyDown(e):false},keyUp:e=>controllers.forEach(c=>c.keyUp(e)),clearKeys:()=>controllers.forEach(c=>c.clearKeys()),changeLook:()=>controllers.forEach(c=>c.changeLook()),leave:(prev,next)=>controllers.forEach(c=>{if(c.leave)c.leave(prev,next)})};
+const controllers=[Arcade,Challenge,Roulette,Ddz,Jump,Pool],owner=id=>controllers.find(c=>c.has(id));
+const Extra={captureKeys:e=>{const c=owner(game);return !!(c&&c.captureKeys&&c.captureKeys(e))},has:id=>!!owner(id),init:id=>owner(id).init(id),tick:dt=>controllers.forEach(c=>c.tick(dt)),resize:()=>{const c=owner(game);if(c)c.resize()},keyDown:e=>{const c=owner(game);return c?c.keyDown(e):false},keyUp:e=>controllers.forEach(c=>c.keyUp(e)),clearKeys:()=>controllers.forEach(c=>c.clearKeys()),changeLook:()=>controllers.forEach(c=>c.changeLook()),leave:(prev,next)=>controllers.forEach(c=>{if(c.leave)c.leave(prev,next)})};
 
 // ---------- shared UI ----------
 function fmt(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
@@ -323,7 +323,7 @@ function renderUpdateChip(){const st=updState||{},chip=$('update-chip');chip.cla
  else if(st.status==='downloading'){chip.hidden=false;chip.textContent='正在下载新版本…';chip.onclick=()=>{renderUpdatePanel();openDialog('about-dialog')}}
  else chip.hidden=true}
 if(Upd){try{Upd.onStatus(st=>{updState=st;renderUpdateChip();if($('about-dialog').open)renderUpdatePanel()});Promise.resolve(Upd.info()).then(st=>{updState=st;renderUpdateChip()}).catch(()=>{})}catch(e){}}
-syncSound();renderLobby();selectGame('mine',false);requestAnimationFrame(frame);
+syncSound();renderLobby();selectGame(PigCatalog.byId[location.hash.slice(1)]?location.hash.slice(1):'mine',false);requestAnimationFrame(frame);
 if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);
 // 告诉桌面程序：这一版内容已正常启动（在线更新失败回退用）
 if(Upd&&Upd.ready)try{Upd.ready(V.version)}catch(e){}

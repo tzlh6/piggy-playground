@@ -60,5 +60,8 @@ for(const prof of ['soft','fairy','retro']){S.profile=prof;log.length=0;S.pigOin
 const dd=['ddShuffle','ddDeal','ddSlap','ddSelect','ddPass','ddBid','ddTurn','ddLandlord','ddButcher','ddBomb','ddRocket','ddPlane','ddTrain','ddHop','ddAlarm','ddSpring','ddNet','ddBubble','ddTick','ddDenied','ddEmote'];
 for(const n of dd){const c=count(()=>S[n](3));assert(c.osc+c.noise>0,n)}
 S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.ddBomb();S.ddRocket();S.ddLandlord()}),{osc:0,noise:0,pig:0});S.enabled=true;
+for(const profile of ['soft','fairy','retro']){S.profile=profile;for(const f of [()=>S.poolStrike(.9),()=>S.poolImpact(.8,8,-.5,false),()=>S.poolImpact(.12,2,.6,true),()=>S.poolPocket(8,2),()=>S.poolFoul()]){const n=count(f);assert(n.osc+n.noise>0,'pool cue audible in '+profile)}}
+S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.poolStrike(1);S.poolImpact(1,8,1,false);S.poolPocket(8,2);S.poolFoul()}),{osc:0,noise:0,pig:0});S.enabled=true;S.profile='soft';
+console.log('PASS: pool strike, per-contact pig grunt, cushion, pocket and foul across all timbres; mute and stop.');
 console.log('PASS:',dd.length,'doudizhu cues (deal, slap, bomb, rocket, train, alarm, landlord…) audible and muted correctly.');
 console.log('PASS: 12 synthesized pig voices (hum, giggle, wail, yelp…) and',rl.length,'roulette cues; capped, stoppable, muted, all three timbres.');

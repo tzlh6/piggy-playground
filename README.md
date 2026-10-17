@@ -1,6 +1,8 @@
 # 猪猪游乐场 🐷
 
-20 款小游戏，可离线游玩。正式版本统一为 **4.4.4**，新增“猪猪跳一跳”。下载 [Windows 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4) 或 [安卓 4.4.4](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.4-android-updatefix)。安卓更新误报已修复，4.4.3 手机已确认发现新版；[修复说明](docs/4.4.4-android-updatefix.md)。此次 Windows 改号修复需要更换 EXE 一次，保留原存档。[发行与检查说明](docs/4.4.4-release.md)。项目新增代码采用 MIT，第三方材料保留各自权利。
+21 款小游戏，可离线游玩。当前版本 **4.4.5**，新增猪猪台球“黑猪8”：猪仔球、侦探桃桃 / 海盗乌梅、三档人机、同屏双人、自由练球与碰撞猪叫。下载 [Windows 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5) 或 [安卓 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5-android)。Windows 4.4.4 可直接更新游戏内容；安卓保留普通 / 旧版兼容双通道与原签名。项目新增代码采用 MIT，第三方材料保留各自权利。[规则、来源与验证说明](docs/4.4.5-pool.md)。
+
+![黑猪8 4.4.5：猪仔球、侦探桃桃与海盗乌梅](docs/images/pool-pigs-4.4.5.png)
 
 ![猪猪轮盘 4.4.3：新道具魔术布，盖布变身演出](docs/images/desktop-magic-cloth-4.4.3.png)
 
@@ -41,6 +43,7 @@
 
 | 目录 | 用途 |
 | --- | --- |
+| `desktop/app/pool-core.js`、`pool-ui.js` | 黑猪8：固定步长物理、规则 / AI，猪仔球、差异角色与球桌操作 |
 | `desktop/app/` | 游戏规则、界面、SVG 美术、音频和原有许可（在线更新只更新这个目录） |
 | `desktop/app/version.js` | 版本号与更新说明（打开新版本时弹出） |
 | `desktop/main.cjs`、`preload.cjs`、`updater.cjs` | Electron 桌面入口、便携存档与在线更新 |
@@ -57,7 +60,7 @@
 安装 Node.js 和 Python 3 后，在仓库根目录执行：
 
 ```sh
-python desktop/build-single.py build/猪猪游乐场v4.4.4.html
+python desktop/build-single.py build/猪猪游乐场v4.4.5.html
 ```
 
 用现代浏览器打开生成的 HTML。规则、图片与音效全部内嵌，可断网游玩。
