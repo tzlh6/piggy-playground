@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-21 款小游戏，可离线游玩。当前版本 **4.4.5**，新增猪猪台球“黑猪8”：猪仔球、侦探桃桃 / 海盗乌梅、三档人机、同屏双人、自由练球与碰撞猪叫。下载 [Windows 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5) 或 [安卓 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5-android)。Windows 4.4.4 可直接更新游戏内容；安卓保留普通 / 旧版兼容双通道与原签名。项目新增代码采用 MIT，第三方材料保留各自权利。[规则、来源与验证说明](docs/4.4.5-pool.md)。
+21 款小游戏，可离线游玩。当前版本 **4.4.5**，新增猪猪台球“黑猪8”：猪仔球、侦探桃桃 / 海盗乌梅、三档人机、同屏双人、自由练球与碰撞猪叫。下载 [Windows 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5) 或 [安卓 4.4.5](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.5-android-r2)。Windows 4.4.4 可直接更新游戏内容；安卓保留普通 / 旧版兼容双通道与原签名。项目新增代码采用 MIT，第三方材料保留各自权利。[规则、来源与验证说明](docs/4.4.5-pool.md)。
 
 ![黑猪8 4.4.5：猪仔球、侦探桃桃与海盗乌梅](docs/images/pool-pigs-4.4.5.png)
 

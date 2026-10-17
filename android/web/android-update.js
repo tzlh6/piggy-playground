@@ -66,7 +66,7 @@
   updates.querySelector('#android-auto').onchange = event => action('setAuto', event.target.checked);
   function mobileAbout() {
     const panel = document.getElementById('update-panel');
-    panel.innerHTML = `<p>安卓 ${version} · 20 款游戏可离线玩。</p><button class="secondary" id="android-about-update">检查版本与更新</button>`;
+    panel.innerHTML = `<p>安卓 ${version} · ${PigCatalog.GAMES.length} 款游戏可离线玩。</p><button class="secondary" id="android-about-update">检查版本与更新</button>`;
     panel.querySelector('button').onclick = () => { document.getElementById('about-dialog').close(); open(); };
   }
   document.getElementById('about').onclick = () => { mobileAbout(); openDialog('about-dialog'); };
@@ -76,7 +76,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = '<p class="note-meta">安卓 4.4.4 · 2026-10-16</p><h3>新游戏：猪猪跳一跳</h3><ul><li>新增第 20 款离线小游戏。按住画面或按钮蓄力，松手起跳；连续落在中心递增加分。</li><li>经典挑战与轻松练习独立保存最高分，练习模式显示预估落点。复用现有猪猪造型、表情和声音。</li><li>保留既有原生更新与数据保存方式，局域网联机仅适用于 Windows。</li></ul><p class="muted small">下方是共用游戏 4.4.4 及历史更新说明。</p>';
+    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>安卓安装包与更新</h3><p>本机已同步共用游戏 ${window.PIGGY_VERSION.version}。新游戏、完整规则和操作说明在下方详细列出。</p><p class="muted small">覆盖安装请保留数据，不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };

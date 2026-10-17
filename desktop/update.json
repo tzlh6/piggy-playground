@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.4.4",
- "date": "2026-10-16",
- "ref": "b14dfe21544234993f49b70e9715acfe847ed15c",
+ "version": "4.4.5",
+ "date": "2026-10-17",
+ "ref": "597babf9370ffa1aedeff5c857b61000d895c40f",
  "minShell": "4.4.4",
- "notes": "新增第 20 款小游戏“猪猪跳一跳”：用现有猪猪造型，在空中的方台与圆台之间跳跃。 鼠标、触屏或空格 / Enter 按住蓄力，松开起跳；连续落在中心会递增加分。 经典挑战与带预估落点的轻松练习分别保存最高分，接入原有换装、音效与暂停。",
+ "notes": "新增猪猪台球“黑猪8”：三档人机、同屏双人、自由练球，Windows 与安卓均可离线玩。 碰一下猪叫一声：轻碰短哼、大力哎哟，配合清脆撞击、碰库闷声、入袋咕咚、拉杆与轻微震动演出。 鼠标移动或触屏点选瞄准，往回拖动后松手击球；也能调整力度轻点出杆，或按住按钮 / 空格蓄力。手机自动竖桌，球号保持正向。",
  "files": {
   "app.js": {
-   "sha256": "bed6c48cccf0c404ec58a87e4e8f5462d776040f41c8d2de37e98a6ea1b69619",
-   "size": 64388
+   "sha256": "77630e9cee33762fa6c46539355b0da648ab0908b864b862acd6c4dc261dab08",
+   "size": 64516
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -86,6 +86,10 @@
   "assets/licenses/flashhawk_spp.js-MIT.txt": {
    "sha256": "b50d6df8772c15a322787b65319cb015aa1f64a43792b6d877e3b54a67e56f98",
    "size": 1082
+  },
+  "assets/licenses/neuralsorcerer_8ballpool-MIT.txt": {
+   "sha256": "aa36750c173569a346312d68c45c582b5612503cdf741f806f0c07a78dc6e999",
+   "size": 1073
   },
   "assets/licenses/selenebun_bullethell-MIT.txt": {
    "sha256": "5bd073fd7b09727d0fd7b880dc21860b86deb63254edea1ba036cfe167086747",
@@ -360,8 +364,8 @@
    "size": 39928
   },
   "catalog.js": {
-   "sha256": "162f4801069764ce9ef4327f5acd76f1a98077c56dee6a4eb272e9ac6cf663b9",
-   "size": 3180
+   "sha256": "290637dd0f7ce2c239695e1bedd1aea6245136c09621b59f6eadd54134357c48",
+   "size": 3391
   },
   "challenge-core.js": {
    "sha256": "8764c38b8d5b1ec3eec510c8ddcf30d2554810c19d539562dcec26086b55f550",
@@ -396,12 +400,12 @@
    "size": 58584
   },
   "help.js": {
-   "sha256": "5fd049147b8cf37c47d022b07dc526833c0dc639d4ab6c08749099684246708a",
-   "size": 14665
+   "sha256": "07f9481acf0ded1361d4dfe624301d0353f78816ceefbb4b86ac9d2091d186c1",
+   "size": 17374
   },
   "index.html": {
-   "sha256": "f14042cbe15857e539c0d5e09e264de8a9a2946ffdb393b61d41982d67dd0338",
-   "size": 23367
+   "sha256": "dadc72204a28d372e4d2f0382cf7ff708a5da70ec8514999e052f50b78281c60",
+   "size": 24137
   },
   "jump-core.js": {
    "sha256": "332af31254f8d3a3ad03c7c88b808db54b441b394631f5d378928a01d4b53c2a",
@@ -427,6 +431,14 @@
    "sha256": "53d72f7e043dde1dd76165db6897fe4748f0a2f14358863c76066a903913d455",
    "size": 29551
   },
+  "pool-core.js": {
+   "sha256": "7b0516fe7ddcb259c197f8984d17ae67f7762bac510fe928597b30f7d89d49a1",
+   "size": 13888
+  },
+  "pool-ui.js": {
+   "sha256": "563a4cdb34f81de9b8d491d8b211962a5b1516e6e99e9ddd2196f566cd110729",
+   "size": 28979
+  },
   "roulette-art.js": {
    "sha256": "a1ae8ab466a3d42d4ba1f795db7c4b55122e72f206a78b74acc3c166a2ec51af",
    "size": 29895
@@ -444,12 +456,12 @@
    "size": 42904
   },
   "style.css": {
-   "sha256": "adc018576f0df044125f4a80182956132ac8b0fec0eea7d20ca97d399b7a585d",
-   "size": 112843
+   "sha256": "d7dc24f4738c82beb1cfb50d86cb72d48819334d8822afcf93d74c41a7266b09",
+   "size": 123402
   },
   "version.js": {
-   "sha256": "1dbb21f2fb54d36115d8f848e58763a2caddddc615121ef9f2e3e73441c5a9d9",
-   "size": 16914
+   "sha256": "e6cc7a3adf6c563d69766bb31fd3ccd4ab4fe08fbfcd67317239d14d64503b89",
+   "size": 19883
   }
  }
 }
