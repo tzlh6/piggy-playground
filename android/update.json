@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.4",
-  "versionCode": 40404,
-  "nativeRevision": 2,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.4-android-updatefix/PiggyPlayground-4.4.4-Android-compat.apk",
-  "bytes": 467986,
-  "sha256": "6a2d4b68c9cc9b68a33a119e0ebd971e07e584525aa117efd9cd1513aa007efd",
-  "notes": "修复安卓 4.4.3 检查更新误报最新版本的问题，兼容旧版的版本编号校验。保留正式版本 4.4.4 和 20 款游戏，包含猪猪跳一跳。新版改为独立更新通道，每次检查避开旧请求缓存，并显示实际核对的线路数量。原签名，覆盖安装保留成绩和设置。"
+  "version": "4.4.5",
+  "versionCode": 40405,
+  "nativeRevision": 3,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.5-android-r2/PiggyPlayground-4.4.5-Android-compat-r2.apk",
+  "bytes": 492562,
+  "sha256": "9ea9d0b26061e4da854f075f11786898e52f85436db3735dbbcbd39879a3ac39",
+  "notes": "新增第21款小游戏黑猪8：猪仔球、侦探桃桃与海盗乌梅，三档人机、同屏双人、自由练球；碰撞猪叫、拉杆蓄力、手机竖桌与专注球桌。封装说明已动态显示4.4.5与21款游戏。沿用原签名，覆盖安装，不要先卸载。"
 }
