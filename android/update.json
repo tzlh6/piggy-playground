@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.5",
-  "versionCode": 40405,
+  "version": "4.4.6",
+  "versionCode": 40406,
   "nativeRevision": 3,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.5-android-r2/PiggyPlayground-4.4.5-Android-compat-r2.apk",
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.6-android/PiggyPlayground-4.4.6-Android-compat.apk",
   "bytes": 492562,
-  "sha256": "9ea9d0b26061e4da854f075f11786898e52f85436db3735dbbcbd39879a3ac39",
-  "notes": "新增第21款小游戏黑猪8：猪仔球、侦探桃桃与海盗乌梅，三档人机、同屏双人、自由练球；碰撞猪叫、拉杆蓄力、手机竖桌与专注球桌。封装说明已动态显示4.4.5与21款游戏。沿用原签名，覆盖安装，不要先卸载。"
+  "sha256": "5c41bdf615270ec5ae3ebe601360b6da5dec48581acfaf63209c68e47dbaa161",
+  "notes": "黑猪8碰撞、碰库、入袋和结算改用佩奇、乔治、猪妈妈、猪爸爸四段原声，保持原速；保留猪仔球、侦探桃桃与海盗乌梅、击球手感。21款离线游戏，沿用原签名，直接覆盖安装以保留成绩。"
 }
