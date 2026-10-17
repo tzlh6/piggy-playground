@@ -60,8 +60,23 @@ for(const prof of ['soft','fairy','retro']){S.profile=prof;log.length=0;S.pigOin
 const dd=['ddShuffle','ddDeal','ddSlap','ddSelect','ddPass','ddBid','ddTurn','ddLandlord','ddButcher','ddBomb','ddRocket','ddPlane','ddTrain','ddHop','ddAlarm','ddSpring','ddNet','ddBubble','ddTick','ddDenied','ddEmote'];
 for(const n of dd){const c=count(()=>S[n](3));assert(c.osc+c.noise>0,n)}
 S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.ddBomb();S.ddRocket();S.ddLandlord()}),{osc:0,noise:0,pig:0});S.enabled=true;
-for(const profile of ['soft','fairy','retro']){S.profile=profile;for(const f of [()=>S.poolStrike(.9),()=>S.poolImpact(.8,8,-.5,false),()=>S.poolImpact(.12,2,.6,true),()=>S.poolPocket(8,2),()=>S.poolFoul()]){const n=count(f);assert(n.osc+n.noise>0,'pool cue audible in '+profile)}}
-S.stop();S.enabled=false;assert.deepEqual(count(()=>{S.poolStrike(1);S.poolImpact(1,8,1,false);S.poolPocket(8,2);S.poolFoul()}),{osc:0,noise:0,pig:0});S.enabled=true;S.profile='soft';
-console.log('PASS: pool strike, per-contact pig grunt, cushion, pocket and foul across all timbres; mute and stop.');
+// Pool must use the existing four recordings, at their original pitch and full length.
+const synthBefore=S.pigSynth;S.pigSynth=()=>assert.fail('pool called a synthesized pig voice');
+for(const profile of ['soft','fairy','retro']){
+ S.profile=profile;S.stop();const heard=new Set();
+ for(const id of [1,2,3,4,8,0])for(const rail of [false,true]){
+  const n=count(()=>S.poolImpact(.8,id,-.5,rail,.02));assert.equal(n.pig,1);assert(n.osc+n.noise>0);
+  const v=log.find(x=>x.type==='src'&&x.buf!==undefined);assert.equal(v.rate,1);assert.equal(v.buf,S.buffers[id===8?3:id===0?0:(id-1)%4].id);heard.add(v.buf);
+ }
+ assert.equal(heard.size,4,'all four original pigs are used in '+profile);
+ for(const id of [0,8,15])assert.equal(count(()=>S.poolPocket(id,2)).pig,1);
+ assert.equal(count(()=>S.poolResult(true)).pig,4);assert.equal(count(()=>S.poolResult(false)).pig,1);
+ assert.equal(count(()=>S.poolStrike(.9)).pig,0);assert.equal(count(()=>S.poolFoul()).pig,0);
+}
+S.stop();S.poolImpact(.1,1,0,false);const quiet=S.voices.find(v=>v.pool).g.gain.value;S.stop();S.poolImpact(1,1,0,false);assert(S.voices.find(v=>v.pool).g.gain.value>quiet);
+for(let k=0;k<32;k++)S.poolImpact(.8,1+k%15,0,false);assert.equal(S.voices.filter(v=>v.pool).length,4,'break-shot polyphony capped at four recordings');
+log.length=0;S.stop();assert.equal(S.voices.length,0);assert(log.filter(x=>x.type==='src-stop').length>=4,'pause stops recorded pigs too');
+S.enabled=false;assert.deepEqual(count(()=>{S.poolStrike(1);S.poolImpact(1,8,1,false);S.poolPocket(8,2);S.poolFoul();S.poolResult(true)}),{osc:0,noise:0,pig:0});S.enabled=true;S.profile='soft';S.pigSynth=synthBefore;
+console.log('PASS: pool uses all four original recordings at rate 1; no synthesized pigs; four-voice cap, strength, profiles, mute and stop.');
 console.log('PASS:',dd.length,'doudizhu cues (deal, slap, bomb, rocket, train, alarm, landlord…) audible and muted correctly.');
 console.log('PASS: 12 synthesized pig voices (hum, giggle, wail, yelp…) and',rl.length,'roulette cues; capped, stoppable, muted, all three timbres.');

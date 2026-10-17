@@ -53,6 +53,28 @@ function createSound(opts){
   noise(o){o=o||{};if(!this.live||!this.noiseBuf)return;const c=this.ctx,t=c.currentTime+(o.delay||0),d=o.dur||.08;const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=this.noiseBuf;f.type=o.filter||'bandpass';f.frequency.setValueAtTime(o.freq||1800,t);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+d);f.Q.value=o.q||1;
    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.gain||.15,t+(o.attack||.003));g.gain.exponentialRampToValueAtTime(0.0001,t+d);src.connect(f);f.connect(g);g.connect(this.fxBus);const tracked={src,g,i:-1};this.effects.push(tracked);src.onended=()=>{this.effects=this.effects.filter(v=>v!==tracked)};src.start(t,Math.random()*.5);src.stop(t+d+.02)},
 
+  // 黑猪8：沿用声音工坊的四段录音，完整原速播放；物理击声走独立提示音层。
+  poolVoice(id,o){
+   if(!this.live)return null;
+   const active=this.voices.filter(v=>v.pool);
+   while(active.length>=4){const old=active.shift();try{old.g.gain.setTargetAtTime(0,this.ctx.currentTime,.015);old.src.stop(this.ctx.currentTime+.06)}catch(e){}this.voices=this.voices.filter(v=>v!==old)}
+   const i=id===8?3:id===0?0:(Math.abs(id|0)-1)%4,v=this.voice(i,Object.assign({},o,{rate:1}));
+   if(v)v.pool=true;return v;
+  },
+  poolStrike(power){const p=Math.max(.03,Math.min(1,power||.4));this.noise({freq:1800+p*1900,to:750,dur:.035,gain:.06+p*.09,attack:.002});this.tone(230+p*180,{to:100,dur:.065,gain:.055+p*.07,type:'triangle',attack:.002})},
+  poolImpact(strength,id,pan,rail,delay){
+   const s=Math.max(.035,Math.min(1,strength||.1)),d=delay||0;
+   this.noise({freq:rail?640:2300+s*1500,to:rail?180:1000,q:1.3,dur:rail?.045:.022,gain:(rail?.025:.035)+s*.065,delay:d,attack:.001});
+   this.tone(rail?155:720+(id%5)*85,{to:rail?85:350,dur:.035,gain:.018+s*.035,type:'triangle',delay:d,attack:.001});
+   this.poolVoice(id,{gain:(rail?.14:.18)+s*.35,pan,delay:d});
+  },
+  poolPocket(id,combo){this.noise({freq:420,to:140,q:.7,dur:.16,gain:.07});this.tone(160,{to:65,dur:.13,gain:.065,type:'triangle'});this.poolVoice(id,{gain:id===8?.7:.5,delay:.04});if(id!==0)this.tone(660+Math.min(5,combo||1)*90,{to:1100,dur:.19,gain:.045,type:'triangle',delay:.07})},
+  poolFoul(){this.tone(260,{to:180,dur:.16,gain:.055,type:'triangle'});this.tone(196,{to:145,dur:.17,gain:.04,delay:.14})},
+  poolResult(win){
+   (win?[523,659,784,1047]:[392,330,262,196]).forEach((f,k)=>this.tone(f,{dur:.28,gain:.07,type:'triangle',delay:k*.12}));
+   if(win)[1,2,3,4].forEach((id,k)=>this.poolVoice(id,{gain:.55,delay:.25+k*.2,pan:[-.6,.6,-.25,.25][k]}));else this.poolVoice(8,{gain:.6,delay:.4});
+  },
+
   // ---- layer 1: small actions ----
   click(){this.tone(1400,{dur:.035,gain:.05,type:'triangle'})},
   dig(n){const r=.94+Math.random()*.12;this.noise({freq:2600*r,q:.9,dur:.045,gain:.09});if(n>0)this.tone(note(392,n-1),{dur:.13,gain:.11,type:'triangle',delay:.012});else this.tone(330*r,{dur:.06,gain:.06})},

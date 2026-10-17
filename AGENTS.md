@@ -2,7 +2,7 @@
 
 - 沟通与产品文字使用简体中文，代码及必要英文术语保留原文。
 - 本仓库维护 Windows 和安卓源码，不纳入 iOS 版本。
-- 当前游戏共用源在 `desktop/app`，安卓在 `android`。当前版本 4.4.5，21 款游戏，新增黑猪8；安卓普通包 versionCode 40505、旧更新器兼容包 40405，原签名、nativeRevision=3；Windows minShell 仍为 4.4.4。验证与规则见 `docs/4.4.5-pool.md`；安卓尚未真机安装验收。
+- 当前游戏共用源在 `desktop/app`，安卓在 `android`。当前版本 4.4.6，21 款游戏，黑猪8改用四只猪原声；安卓普通包 versionCode 40506、旧更新器兼容包 40406，原签名、nativeRevision=3；Windows minShell 仍为 4.4.4。验证与规则见 `docs/4.4.6-pool.md`；安卓尚未真机安装验收。
 - 在线更新：Windows 便携版读取 `main` 上的 `desktop/update.json`，再按其中的 `ref`（提交号）下载 `desktop/app`。每次发布游戏内容更新：同步改 `app/version.js` 与 `package.json` 版本、写清更新说明（新规则要详细），运行 `npm test`，先提交 `desktop/app` 的改动，再运行 `npm run manifest` 并提交 `update.json`，推送 `main`。改动主进程文件（main / preload / updater / lan）时提高 `minShell` 并重建 exe；4.4.4 起 `minShell` 为 4.4.4。
 - 每次完成用户授权的更新后，运行适当检查，保持版本及文档一致，然后将更新提交并同步到 GitHub 默认分支；已有同步授权无需重复确认。
 - 同步目标是 `tzlh6/piggy-playground` 的 `main` 分支。同步前检查远端变化，发生并发修改时先合并；不得强制覆盖远端工作。完成后核对远端提交并向用户报告结果。
@@ -19,3 +19,5 @@
 - 2026-10-17 黑猪8：共用游戏和安装包为 4.4.5，21 款游戏；新增 pool-core.js / pool-ui.js、侦探桃桃与海盗乌梅、猪仔台球、碰撞猪叫。普通安卓 versionCode 40505，旧更新器兼容包 40405，原签名，nativeRevision 为 3；Windows 最低壳版本仍为 4.4.4。参考 MIT neuralsorcerer/8ballpool（5c7a8b3）。本次工作文件在 黑猪8_20261017；公开副本仍沿用既有目录。安卓真机安装与运行尚未验收。
 
 - 4.4.5 安卓封装说明修正：关于与更新说明改为动态读取游戏数量和版本，普通包 40505、nativeRevision=3，正式附件使用 Android-r2.apk，发行标签 v4.4.5-android-r2；旧通道兼容包仍按公式为 40405，使用 compat-r2.apk。首包 40504 保留为历史；新清单只指向修正包。
+
+- 2026-10-17 四只猪原声修正：4.4.6，黑猪8所有猪叫改用 sounds.js 既有四段录音，原速；最多叠四声。普通安卓40506、兼容40406，nativeRevision仍3，Windows minShell仍4.4.4。验证与发布记录见原声修正文件；安卓尚未真机安装验收。

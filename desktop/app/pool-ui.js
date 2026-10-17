@@ -160,7 +160,7 @@ function create(ui){
  }
  function finish(){
   if(t.finished)return;t.finished=true;cancel();const g=t.g,win=g.mode==='local'||g.winner===0;
-  record(points(0));if(win){Sound.win();ui.confetti(28)}else Sound.lose();
+  record(points(0));Sound.poolResult(win);if(win)ui.confetti(28);
   const title=g.mode==='practice'?'十五只小猪，都回家啦！':g.mode==='local'?(g.winner===0?'一号':'二号')+'猪手拿下黑猪！':win?'漂亮，黑猪归你啦！':'这一局，猪猪略胜一筹';
   result(title,g.last.reason+'。本局共出杆 '+(g.shots[0]+g.shots[1])+' 次。',win);
  }
