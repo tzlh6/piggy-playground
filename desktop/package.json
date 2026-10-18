@@ -1,9 +1,9 @@
 {
-  "version": "4.5.0",
+  "version": "4.6.0",
   "build": {
     "appId": "local.piggy.playground",
     "portable": {
-      "artifactName": "猪猪游乐场-4.5.0-Win7兼容.exe"
+      "artifactName": "猪猪游乐场-4.6.0-Win7兼容.exe"
     },
     "directories": {
       "output": "dist"
@@ -38,8 +38,8 @@
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs",
-    "build:web": "python build-single.py ../build/猪猪游乐场v4.5.0.html",
+    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs",
+    "build:web": "python build-single.py ../build/猪猪游乐场v4.6.0.html",
     "build:pigs": "node make-pigs.cjs",
     "build:win": "electron-builder --win portable --ia32 --publish never",
     "playtest": "node tools/playtest-click.cjs",

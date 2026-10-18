@@ -1022,3 +1022,16 @@ body[data-game="jump"] .jump-stage canvas{box-shadow:none;border-radius:18px;tou
 .jump-hold{min-height:54px;min-width:180px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .jump-hold.holding{transform:translateY(2px);box-shadow:0 1px 0 #c69bac;background:#cba1b7}.jump-hold:disabled{opacity:.62;cursor:default}
 @media(max-width:560px){.jump-controls{gap:12px;margin-top:12px;padding:0 3px}.jump-hold{min-width:146px;font-size:13px}.jump-meter small{font-size:10px}.jump-welcome b{font-size:15px}}
+
+/* ---------- 22 猪猪闯算门 ---------- */
+body[data-game="mathgate"] .mg-stage{position:relative;overflow:hidden;border-radius:18px;margin:4px auto 0;max-width:100%}
+body[data-game="mathgate"] .mg-stage canvas{display:block;box-shadow:none;border-radius:18px;touch-action:none;outline-offset:-4px;cursor:grab;-webkit-user-select:none;user-select:none}
+body[data-game="mathgate"] .mg-stage canvas:active{cursor:grabbing}
+.mg-welcome{position:absolute;left:12px;right:12px;bottom:22px;display:flex;align-items:center;flex-direction:column;gap:7px;padding:18px 14px;border:1px solid #fff9;border-radius:18px;background:#fff8f2ed;box-shadow:0 8px 24px #a28a9a22;backdrop-filter:blur(8px);text-align:center}
+.mg-welcome[hidden]{display:none}
+.mg-welcome b{font-size:17px;color:#9a4f6e}.mg-welcome span{font-size:13px;color:#8d6f80}.mg-welcome small{font-size:11px;color:#ab95a1;line-height:1.6}.mg-welcome button{margin-top:5px;min-height:44px;min-width:140px;font-size:16px}
+.mg-controls{display:flex;align-items:center;justify-content:center;gap:14px;max-width:660px;margin:14px auto 6px;padding:0 8px}
+.mg-steer{min-width:104px;min-height:50px;font-size:15px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.mg-steer.holding{transform:translateY(2px);background:#f3dbe3}
+.mg-tip{flex:1;text-align:center;font-size:12px;color:#a18d98;line-height:1.5}
+@media(max-width:560px){.mg-controls{gap:8px;padding:0 2px}.mg-steer{min-width:86px}.mg-tip{font-size:11px}.mg-welcome b{font-size:15px}}

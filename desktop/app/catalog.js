@@ -23,7 +23,8 @@ const GAMES=[
  {id:'roulette',no:18,name:'猪猪轮盘',desc:'三阶段积分赛',icon:'i-roulette',cat:'versus',keys:'轮盘 双人 对战 道具'},
  {id:'doudizhu',no:19,name:'斗地猪',desc:'屠夫大战邪恶猪猪',icon:'i-ddz',cat:'versus',keys:'斗地主 扑克 纸牌 地主 农民 联机 局域网 三人 对战',badge:'新游戏',badgeVer:'4.4.0'},
  {id:'jump',no:20,name:'猪猪跳一跳',desc:'按住蓄力，松开向前跳',icon:'i-run',cat:'action',keys:'跳一跳 蓄力 跳跃 平台 中心 连跳',badge:'新游戏',badgeVer:'4.4.4'},
- {id:'pool',no:21,name:'黑猪8',desc:'碰一下，哼唧一声',icon:'i-pool',cat:'versus',keys:'台球 八球 黑八 黑8 黑猪8 8ball 桌球 球杆 人机 双人 练球',badge:'新游戏',badgeVer:'4.4.5'}
+ {id:'pool',no:21,name:'黑猪8',desc:'碰一下，哼唧一声',icon:'i-pool',cat:'versus',keys:'台球 八球 黑八 黑8 黑猪8 8ball 桌球 球杆 人机 双人 练球',badge:'新游戏',badgeVer:'4.4.5'},
+ {id:'mathgate',no:22,name:'猪猪闯算门',desc:'选对门，带队打猪王',icon:'i-gate',cat:'action',keys:'算门 数学门 加减乘除 平方 开方 微积分 导数 积分 极限 跑酷 人群 猪群 boss 猪王 count masters',badge:'新游戏',badgeVer:'4.6.0'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
 root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};

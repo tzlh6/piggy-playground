@@ -1,3 +1,9 @@
+# 安卓 4.6.0 · 猪猪闯算门
+
+当前共用游戏与 App 均为 **4.6.0**，22 款离线游戏。普通安装包 `PiggyPlayground-4.6.0-Android.apk`（40610），旧更新器兼容包 `PiggyPlayground-4.6.0-Android-compat.apk`（40600）；原签名、nativeRevision=3。普通包读取 `android/update-v2.json`，旧更新器读取 `android/update.json`；普通编号须高于同版兼容包，后续普通包从 40611 起递增。覆盖安装保留数据，不要先卸载。
+
+[下载 4.6.0](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.0-android) / [规则与验证](../docs/4.6.0-mathgate.md)。本机已核验 APK 版本、签名和内置网页；安卓真机安装、原生联网更新与运行尚未验收。下文保留历史更新器修复与构建说明，构建新版本时使用当前 Manifest 和实际发行标签。
+
 ## 4.4.5 · 黑猪8
 
 21 款离线游戏，含猪仔八球、差异角色和碰撞猪叫。普通安装包 40505，旧更新器兼容包 40405，显示版本均为 4.4.5，原签名、nativeRevision=3；升级后统一用 v2 通道。普通包用于手动安装；覆盖安装，不要先卸载。安卓尚未真机验收。[验证说明](../docs/4.4.5-pool.md)。

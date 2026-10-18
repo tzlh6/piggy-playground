@@ -25,3 +25,7 @@
 参考并改写 [shenmaxg/web-jump](https://github.com/shenmaxg/web-jump/tree/3fdcb17436f77ddb6664b9aad8f9c5fffdf0fe58)，固定提交 `3fdcb17436f77ddb6664b9aad8f9c5fffdf0fe58`，MIT，Copyright (c) 2018 Edwin Webb。实际阅读 `src/object/LittleMan.js` 的蓄力、水平位移和当前 / 下一平台边界分类，以及 `src/object/BoxGroup.js` 的中点镜头与 `src/config/constant.js`。本项目保留按住时间决定距离、松开起跳和镜头中点的处理思路，改为既有 Canvas 渲染与独立规则模块，增加真实方台 / 圆台接触点、实际落点偏移、中心连续计分、练习落点和统一暂停。未导入上游图片、角色、音乐或 Three.js 运行依赖。
 
 完整许可证：`desktop/app/assets/licenses/shenmaxg_web-jump-MIT.txt`，随桌面包和离线网页保留。另阅读 [potato47/jump](https://github.com/potato47/jump) README 的预判落点讨论，仅用于比较处理思路，没有复制其代码或资产。
+
+### 猪猪闯算门（4.6.0）
+
+参考 [5ubh4d45/CountMasters_Prototype](https://github.com/5ubh4d45/CountMasters_Prototype/tree/da97ed904ee97b186305c51cf32bed94f4828bd8)，固定提交 `da97ed904ee97b186305c51cf32bed94f4828bd8`，MIT。参考门的加 / 乘结算和按队伍半径收窄左右边界，重新实现为 JavaScript / Canvas；使用游乐场既有 PigArt 猪猪模型和音效，没有导入上游角色、图片或音乐。完整许可保存在 `desktop/app/assets/licenses/5ubh4d45_CountMasters_Prototype-MIT.txt`，随桌面包和单文件网页保留。
