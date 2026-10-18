@@ -9,12 +9,10 @@ function scene(mode='local',layout={0:[250,250],1:[500,250]}){
  return g;
 }
 function settle(g,ms=1000/60){let n=0;while(g.phase==='moving'&&n++<1800)g.update(ms);ok(g.phase!=='moving','a shot always comes to rest');return g.last}
-function outcome({group=null,targets,first=1,pots=[],rail=true,brk=false,scratch=false,called=null,mode='local'}){
+function outcome({group=null,targets,first=1,pots=[],brk=false,scratch=false,mode='local'}){
  const g=new A.Pool(mode,rng);g.break=brk;if(group){g.groups=[group,group==='solid'?'stripe':'solid']}
  if(targets)for(const b of g.balls)if(b.id&&A.group(b.id)===group&&!targets.includes(b.id))b.potted=true;
- if(called!==null)g.callPocket(called);
- ok(g.shoot(0,.4),'rule fixture accepts a shot');g.balls[0].vx=0;g.shot.first=first;g.shot.afterRail=rail;
- if(brk&&rail)g.shot.rails=new Set([1,2,3,4]);
+ ok(g.shoot(0,.4),'rule fixture accepts a shot');g.balls[0].vx=0;g.shot.first=first;
  for(const item of pots)g.pot(g.balls[typeof item==='number'?item:item.id],typeof item==='number'?0:item.pocket);
  if(scratch)g.pot(g.balls[0],0);
  g.resolve();return g;
@@ -58,26 +56,27 @@ for(const [id,p] of A.POCKETS.entries()){
  ok(g.balls.every(b=>b.potted||(b.x>=-35&&b.x<=1035&&b.y>=-35&&b.y<=535)),'all live balls remain accessible');
 }
 // Rule regressions: open break, assignment, continuation, foul and called eight.
-let g=outcome({brk:true,pots:[2]});ok(g.groups[0]===null&&g.turn===0,'break keeps table open and legal pot continues');
+let g=outcome({brk:true,pots:[2]});ok(g.groups[0]==='solid'&&g.turn===0,'a break pot assigns groups and continues');
+g=outcome({brk:true,pots:[]});ok(!g.last.foul&&g.turn===1&&!g.ballInHand,'an empty break is simply a turn change');
+g=outcome({pots:[]});ok(!g.last.foul&&g.turn===1,'no rail requirement after contact');
 g=outcome({pots:[10,2],first:10});ok(g.groups[0]==='stripe'&&g.groups[1]==='solid','first actual post-break pot assigns groups');
 g=outcome({group:'solid',pots:[1]});ok(g.turn===0&&!g.last.foul,'own pot continues');
 g=outcome({group:'solid',pots:[9]});ok(g.turn===1&&!g.last.foul,'opponent-only pot passes without foul');
-for(const options of [{first:null},{group:'solid',first:9},{rail:false},{scratch:true}]){
+for(const options of [{first:null},{group:'solid',first:9},{scratch:true}]){
  g=outcome(options);ok(g.ballInHand&&g.turn===1&&!!g.last.foul,'foul grants incoming player ball in hand');
  ok(!g.placeCue(-5,250)&&!g.placeCue(g.balls[1].x,g.balls[1].y),'reject invalid or overlapping placement');
- ok(g.placeCue(200,200)&&g.canShoot,'legal placement restores shooting');
+ ok(g.canShoot,'ball in hand never blocks shooting');ok(g.placeCue(200,200)&&g.canShoot,'cue may be moved before the shot');
 }
 g=outcome({group:'solid',pots:[8]});ok(g.over&&g.winner===1,'early eight loses');
 g=outcome({group:'solid',targets:[1],pots:[1,8]});ok(g.winner===1,'last group ball plus eight in one shot loses');
-g=outcome({group:'solid',targets:[],first:8,pots:[{id:8,pocket:4}],called:4});ok(g.over&&g.winner===0,'cleared group plus called eight wins');
-g=outcome({group:'solid',targets:[],first:8,pots:[{id:8,pocket:3}],called:4});ok(g.winner===1,'eight into wrong called pocket loses');
-g=outcome({group:'solid',targets:[],first:8,pots:[{id:8,pocket:4}],called:4,scratch:true});ok(g.winner===1,'eight and scratch loses');
+for(let pocket=0;pocket<6;pocket++){g=outcome({group:'solid',targets:[],first:8,pots:[{id:8,pocket}]});ok(g.over&&g.winner===0,'cleared group plus eight in any pocket wins')}
+g=outcome({group:'solid',targets:[],first:8,pots:[{id:8,pocket:4}],scratch:true});ok(g.winner===1,'eight and scratch loses');
 g=outcome({brk:true,pots:[8]});ok(!g.over&&!g.balls[8].potted,'eight on break is respotted');
-g=outcome({brk:true,pots:[8],scratch:true});ok(g.ballInHand&&!g.balls[8].potted&&g.turn===1,'break eight with scratch respots and gives ball in hand');
+g=outcome({brk:true,pots:[8],scratch:true});ok(g.ballInHand&&!g.balls[8].potted&&g.turn===1&&!g.balls[0].potted&&g.validCue(g.balls[0].x,g.balls[0].y),'scratch returns the cue to a legal spot and gives ball in hand');
 g=outcome({mode:'practice',first:8,pots:[8]});ok(!g.over&&g.balls[8].potted,'practice allows eight first');
 {
  const g=scene('local',{0:[250,250],8:[700,250]});g.groups=['solid','stripe'];
- ok(g.needsCall&&!g.shoot(0,.5),'cannot shoot eight before selecting pocket');ok(g.callPocket(2)&&g.shoot(0,.5),'called pocket unlocks shot');
+ ok(g.targets(0).join()==='8'&&g.shoot(0,.5),'eight is shot directly after clearing a group');
 }
 // A geometrically clear pot must actually drop; AI does not shoot through blockers.
 for(const difficulty of ['easy','normal','hard']){
@@ -87,7 +86,7 @@ for(const difficulty of ['easy','normal','hard']){
 }
 {
  const g=new A.Pool('hard',rng);let shots=0;
- while(!g.over&&shots++<250){const s=A.plan(g,'hard',rng);ok(s&&Number.isFinite(s.power),'CPU handles crowded table / free ball');if(g.needsCall)g.callPocket(s.pocket);ok(g.shoot(s.angle,s.power),'CPU can play full legal turn');settle(g,1000/30)}
+ while(!g.over&&shots++<250){const s=A.plan(g,'hard',rng);ok(s&&Number.isFinite(s.power),'CPU handles crowded table / free ball');ok(g.shoot(s.angle,s.power),'CPU can play full legal turn');settle(g,1000/30)}
  ok(g.over,'CPU self-play can finish a full rack');
  console.log('CPU self-play:',shots,'shots; winner',g.winner);
 }

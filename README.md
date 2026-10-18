@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-21 款小游戏，可离线游玩。当前版本 **4.4.6**，黑猪8的碰撞、入袋和结算已换回佩奇、乔治、猪妈妈、猪爸爸四段原声，保持原速；保留猪仔球、侦探桃桃 / 海盗乌梅、三档人机、同屏双人和自由练球。下载 [Windows 4.4.6](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.6) 或 [安卓 4.4.6](https://github.com/tzlh6/piggy-playground/releases/tag/v4.4.6-android)。Windows 4.4.4 可直接更新游戏内容；安卓保留双通道与原签名。项目新增代码采用 MIT，四段录音版权归原权利人。[原声修正与验证说明](docs/4.4.6-pool-voices.md) / [黑猪8玩法与来源](docs/4.4.5-pool.md)。
+21 款小游戏，可离线游玩。当前版本 **4.5.0**，猪猪跳一跳新增十四种稀有彩蛋方块与收藏图鉴，包含合集联动和猪猪轮盘系列动画；黑猪8重画猪猪球、改进拉杆与弹弓操作，并简化犯规和黑猪获胜规则。下载 [Windows 4.5.0](https://github.com/tzlh6/piggy-playground/releases/tag/v4.5.0) 或 [安卓 4.5.0](https://github.com/tzlh6/piggy-playground/releases/tag/v4.5.0-android)。Windows 4.4.4 可直接更新游戏内容；安卓保留双通道与原签名。项目新增代码采用 MIT，四段录音版权归原权利人。[4.5.0 详细规则与验证说明](docs/4.5.0-eggs-and-pool.md) / [原声与许可说明](docs/4.4.6-pool-voices.md)。
 
 ![黑猪8 4.4.5：猪仔球、侦探桃桃与海盗乌梅](docs/images/pool-pigs-4.4.5.png)
 
@@ -50,7 +50,7 @@
 | `desktop/lan.cjs` | 局域网联机中继：UDP 找房间、TCP 按行转发 JSON（4.4） |
 | `desktop/app/doudizhu-*.js` | 斗地猪：规则与 AI（core）、房间与联机（net）、扑克与角色美术（art）、牌桌界面（ui） |
 | `desktop/update.json` | 在线更新清单：版本、标签与每个文件的 SHA-256 |
-| `desktop/test*.cjs` | 九组游戏规则、音效、单击操作与斗地猪房间测试（`npm test` 另含联机中继测试） |
+| `desktop/test*.cjs` | 游戏规则、音效、单击操作与斗地猪房间测试（`npm test` 共十二组，含联机中继、跳一跳与黑猪8） |
 | `desktop/build-single.py` | 生成单文件离线网页 |
 | `android/` | Android 原生容器、触屏适配、图标与构建入口 |
 | `docs/images/` | 历史界面预览（各图片标注实际版本） |
@@ -60,7 +60,7 @@
 安装 Node.js 和 Python 3 后，在仓库根目录执行：
 
 ```sh
-python desktop/build-single.py build/猪猪游乐场v4.4.6.html
+python desktop/build-single.py build/猪猪游乐场v4.5.0.html
 ```
 
 用现代浏览器打开生成的 HTML。规则、图片与音效全部内嵌，可断网游玩。
@@ -74,7 +74,7 @@ npm ci
 npm run build:win
 ```
 
-`npm test` 的十组测试只依赖 Node.js，不需要先下载 Electron。Windows 成品输出到 `desktop/dist/`。构建固定使用 Electron 22.3.27、electron-builder 24.13.3 和 32 位便携配置；编译依赖由 `package-lock.json` 锁定。
+`npm test` 的十二组测试只依赖 Node.js，不需要先下载 Electron。Windows 成品输出到 `desktop/dist/`。构建固定使用 Electron 22.3.27、electron-builder 24.13.3 和 32 位便携配置；编译依赖由 `package-lock.json` 锁定。
 
 在线更新的端到端测试（本机假服务器 → 下载、校验、重启加载、坏版本回退）：`xvfb-run -a node tools/test-updater.cjs`（Windows 上直接 `node tools/test-updater.cjs`）。斗地猪联机的端到端试玩（同一台电脑开两个 Electron 窗口：开房、发现、加入、整局对打、掉线重连）：`xvfb-run -a node tools/playtest-lan.cjs`。
 
@@ -90,7 +90,7 @@ npm run build:win
 
 ## 安卓构建
 
-安卓 App 与共用游戏均为 4.4.3，新增魔术布、饲料屁与魔法猪演出，保留 4.4.2 的更新按钮修复、五条更新线路与中文连接提示；包含 19 款游戏、最新动画、搜索分类排序与放大的斗地猪手牌。已装 4.4.2 的用户可通过应用内更新；原 4.2 / 4.4.1 用户先从发行页手动覆盖安装一次。之后可通过「游戏大厅 → 版本与更新」检查、下载并交给系统确认安装。采用独立的 `android/update.json` 通道，自动检查可关闭，APK 安装前校验 SHA-256、包名、版本和同签名。系统联网和覆盖安装流程尚待安卓真机验收，浏览器检查不能替代真机。
+安卓 App 与共用游戏均为 4.5.0，共 21 款游戏，包含跳一跳十四种彩蛋与黑猪8新球面、操作和简化规则。普通包 versionCode 为 40509，通过 `android/update-v2.json` 更新；旧更新器兼容包为 40500，通过 `android/update.json` 更新。nativeRevision 保持 3，沿用原签名。可通过「游戏大厅 → 版本与更新」检查、下载并交给系统确认覆盖安装；原 4.2 / 4.4.1 用户先从发行页手动覆盖安装一次。自动检查可关闭，APK 安装前校验 SHA-256、包名、版本和同签名。系统联网和覆盖安装流程尚待安卓真机验收，浏览器检查不能替代真机。
 
 生成触屏网页资产不需要 Android SDK：
 

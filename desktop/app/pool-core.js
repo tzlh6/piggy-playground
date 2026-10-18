@@ -1,12 +1,12 @@
 /* 黑猪8 — deterministic, offline eight-ball core.
  * Collision / rolling / hot-seat architecture informed by neuralsorcerer/8ballpool
  * at 5c7a8b3dd424693ed323583c95fc2587c0d48899 (MIT, Soumyadip Sarkar, 2024).
- * Reimplemented for Piggy Playground: 240 Hz, pocket jaws, called eight, CPU play.
+ * Reimplemented for Piggy Playground: 240 Hz, pocket jaws, simplified casual rules, CPU play.
  * See assets/licenses/neuralsorcerer_8ballpool-MIT.txt. No DOM, audio or wall clock.
  */
 (function(root){
 'use strict';
-const W=1000,H=500,R=16,STEP=1/240,MAX_SPEED=1450,DRAG=90;
+const W=1000,H=500,R=16,STEP=1/240,MAX_SPEED=1450,DRAG=125;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const group=id=>id===0?'cue':id===8?'eight':id<8?'solid':'stripe';
 const POCKETS=[{x:0,y:0},{x:500,y:-4},{x:1000,y:0},{x:0,y:500},{x:500,y:504},{x:1000,y:500}];
@@ -75,7 +75,7 @@ class Pool{
   this.mode=mode==='practice'?'practice':mode==='local'?'local':['easy','hard'].includes(mode)?mode:'normal';
   this.rng=rng||Math.random;this.balls=rack(this.rng);this.turn=0;this.groups=[null,null];
   this.phase='aim';this.break=true;this.ballInHand=false;this.winner=null;this.over=false;
-  this.shots=[0,0];this.pottedBy=[[],[]];this.calledPocket=null;this.acc=0;this.time=0;
+  this.shots=[0,0];this.pottedBy=[[],[]];this.acc=0;this.time=0;
   this.shot=null;this.last=null;this.history=[];this.events=[];
  }
  remaining(player){return this.balls.filter(b=>!b.potted&&group(b.id)===this.groups[player]).length}
@@ -84,8 +84,8 @@ class Pool{
   const own=this.groups[player];
   return this.balls.filter(b=>!b.potted&&b.id&&(own?(this.remaining(player)?group(b.id)===own:b.id===8):b.id!==8)).map(b=>b.id);
  }
- get canShoot(){return this.phase==='aim'&&!this.over&&!this.ballInHand}
- get needsCall(){return this.mode!=='practice'&&!this.break&&!!this.groups[this.turn]&&this.remaining(this.turn)===0}
+ // ballInHand only means the cue may be moved before the shot; it never blocks shooting.
+ get canShoot(){return this.phase==='aim'&&!this.over&&!this.balls[0].potted}
  validCue(x,y){
   return Number.isFinite(x)&&Number.isFinite(y)&&x>=R+1&&x<=W-R-1&&y>=R+1&&y<=H-R-1&&
    !POCKETS.some(p=>Math.hypot(x-p.x,y-p.y)<35)&&
@@ -93,14 +93,22 @@ class Pool{
  }
  placeCue(x,y){
   if(!this.ballInHand||this.phase!=='aim'||!this.validCue(x,y))return false;
-  Object.assign(this.balls[0],{x,y,vx:0,vy:0,potted:false,pocket:-1});this.ballInHand=false;return true;
+  Object.assign(this.balls[0],{x,y,vx:0,vy:0,potted:false,pocket:-1});return true;
  }
- callPocket(index){if(!this.needsCall||!Number.isInteger(index)||index<0||index>5)return false;this.calledPocket=index;return true}
+ homeCue(){
+  // After a scratch the cue returns near the head spot; the next player may still move it.
+  const q=this.balls[0];
+  for(let r=0;r<420;r+=R)for(let k=0,n=Math.max(1,Math.round(r/4));k<n;k++){
+   const a=k/n*Math.PI*2,x=250+Math.cos(a)*r,y=250+Math.sin(a)*r;
+   if(this.validCue(x,y)){Object.assign(q,{x,y,vx:0,vy:0,potted:false,pocket:-1});return}
+  }
+  Object.assign(q,{x:250,y:250,vx:0,vy:0,potted:false,pocket:-1});
+ }
  shoot(angle,power){
-  if(!this.canShoot||!Number.isFinite(angle)||!Number.isFinite(power)||power<.025||power>1||(this.needsCall&&this.calledPocket===null))return false;
+  if(!this.canShoot||!Number.isFinite(angle)||!Number.isFinite(power)||power<.025||power>1)return false;
   const speed=80+power*(MAX_SPEED-80),q=this.balls[0];q.vx=Math.cos(angle)*speed;q.vy=Math.sin(angle)*speed;
-  this.shot={player:this.turn,first:null,pots:[],rails:new Set(),afterRail:false,targets:this.targets(this.turn),called:this.calledPocket,wasBreak:this.break,elapsed:0};
-  this.shots[this.turn]++;this.phase='moving';this.acc=0;this.events=[];return true;
+  this.shot={player:this.turn,first:null,pots:[],rails:new Set(),afterRail:false,targets:this.targets(this.turn),wasBreak:this.break,elapsed:0};
+  this.ballInHand=false;this.shots[this.turn]++;this.phase='moving';this.acc=0;this.events=[];return true;
  }
  pot(b,pocket){
   b.potted=true;b.pocket=pocket;b.vx=b.vy=0;
@@ -167,33 +175,33 @@ class Pool{
   Object.assign(b,pos||{x:250,y:250},{vx:0,vy:0,potted:false,pocket:-1});
  }
  resolve(){
+  // Casual rules: only three fouls (cue in pocket, no contact, wrong ball first); no rail or break requirements, no called pocket.
   const s=this.shot,p=s.player,op=1-p,pots=s.pots.filter(b=>b.id>0&&b.id!==8),eight=s.pots.find(b=>b.id===8),scratch=this.balls[0].potted;
-  let foul=scratch?'白猪落袋':s.first===null?'白猪没有碰到任何球':!s.targets.includes(s.first)?'先碰到了不该打的球':
-   s.wasBreak&&!pots.length&&s.rails.size<4?'开球未进球，且不足四颗目标球碰库':!s.wasBreak&&!s.pots.some(b=>b.id)&&!s.afterRail?'碰球后没有球进袋或碰库':'';
-  this.break=false;this.phase='aim';this.calledPocket=null;
+  const foul=scratch?'白猪落袋':s.first===null?'白猪没有碰到球':!s.targets.includes(s.first)?'先碰到了不该打的球':'';
+  this.break=false;this.phase='aim';
   let again=false,reason='';
   if(this.mode==='practice'){
-   foul='';again=true;this.pottedBy[0].push(...s.pots.filter(b=>b.id).map(b=>b.id));
-   if(scratch){this.ballInHand=true;reason='白猪落袋，点桌面重新摆放'}
-   else reason=pots.length||eight?'漂亮！继续练下一杆':'调整角度，再来一杆';
+   again=true;this.pottedBy[0].push(...s.pots.filter(b=>b.id).map(b=>b.id));
+   reason=scratch?'白猪落袋，已摆回，可以拖动白猪换位置':pots.length||eight?'漂亮！继续练下一杆':'调整角度，再来一杆';
+   if(scratch)this.ballInHand=true;
    if(this.balls.slice(1).every(b=>b.potted)){this.over=true;this.winner=0;this.phase='over';reason='清台完成'}
   }else{
-   if(eight&&s.wasBreak){this.respot(8);reason='开球黑猪入袋，已重新摆回'}
+   if(eight&&s.wasBreak){this.respot(8);reason='开球黑猪入袋，已摆回'}
    else if(eight){
     this.over=true;this.phase='over';
-    const legal=s.targets.length===1&&s.targets[0]===8&&!foul&&s.called===eight.pocket;
+    const legal=s.targets.length===1&&s.targets[0]===8&&!foul;
     this.winner=legal?p:op;
-    reason=legal?'黑猪归位，拿下这一局！':foul?'打进黑猪时犯规，判负':s.targets.includes(8)?'黑猪进了未指定的球袋，判负':'提前打进黑猪，判负';
+    reason=legal?'黑猪回家，拿下这一局！':s.targets.includes(8)?'打进黑猪时'+foul+'，判负':'本组没清完就打进黑猪，判负';
    }
    if(!this.over){
-    if(!foul&&!s.wasBreak&&!this.groups[p]&&pots.length){this.groups[p]=group(pots[0].id);this.groups[op]=this.groups[p]==='solid'?'stripe':'solid'}
+    if(!foul&&!this.groups[p]&&pots.length){this.groups[p]=group(pots[0].id);this.groups[op]=this.groups[p]==='solid'?'stripe':'solid'}
     again=!foul&&(this.groups[p]?pots.some(b=>group(b.id)===this.groups[p]):pots.length>0);
-    if(foul){this.turn=op;this.ballInHand=true;reason=foul+' · 对方获得自由球'}
-    else{if(!again)this.turn=op;reason=(reason?reason+'；':'')+(again?'合法进球，继续出杆':'换对方出杆')}
+    if(foul){this.turn=op;this.ballInHand=true;reason=foul+' · 换对方，可拖动白猪换位置'}
+    else{if(!again)this.turn=op;reason=(reason?reason+'；':'')+(again?'进球啦，继续出杆':'换对方出杆')}
    }
    for(const b of s.pots)if(b.id&&!(b.id===8&&s.wasBreak))this.pottedBy[p].push(b.id);
   }
-  if(scratch&&!this.over){this.balls[0].vx=this.balls[0].vy=0;this.ballInHand=true}
+  if(scratch&&!this.over)this.homeCue();
   this.last={player:p,foul,reason,pots:s.pots.map(b=>({...b})),again,first:s.first};
   this.history.unshift(this.last);if(this.history.length>8)this.history.pop();
   this.events.push({type:'settled',...this.last,over:this.over,winner:this.winner});
@@ -220,12 +228,11 @@ function placeForAI(g){
   const b=g.balls[id],d=Math.hypot(b.x-p.x,b.y-p.y),pos={x:b.x+(b.x-p.x)/d*135,y:b.y+(b.y-p.y)/d*135};
   if(g.validCue(pos.x,pos.y)){g.placeCue(pos.x,pos.y);return true}
  }
- for(let y=80;y<H;y+=65)for(let x=80;x<W;x+=80)if(g.placeCue(x,y))return true;
  return false;
 }
 function plan(g,difficulty,rng){
  rng=rng||Math.random;if(g.over||g.phase!=='aim')return null;
- if(g.ballInHand&&!placeForAI(g))return null;
+ if(g.ballInHand)placeForAI(g);
  if(g.break)return {angle:Math.atan2(250-g.balls[0].y,716-g.balls[0].x)+(rng()-.5)*.008,power:.96,pocket:0};
  const options=candidates(g),easy=difficulty==='easy',hard=difficulty==='hard';
  let shot=options[0];

@@ -132,6 +132,14 @@ function createSound(opts){
   brickPop(){this.tone(720+Math.random()*150,{dur:.11,gain:.07,to:1100,type:'triangle'});this.noise({freq:2200,dur:.025,gain:.035})},
   flapWing(){this.noise({freq:1100,to:3200,dur:.1,gain:.045,filter:'highpass'});this.tone(320,{dur:.1,gain:.055,to:570,type:'triangle'})},
   gatePass(n){this.tone(784,{dur:.1,gain:.075,type:'triangle'});this.tone(1175,{dur:.16,gain:.07,delay:.07,type:'triangle'});if(n%5===0)this.voice(0,{gain:.5,rate:1.4})},
+  // 猪猪跳一跳：蓄力弹簧咯吱、按力度起跳、连中音阶上行、掉落哼唧
+  jumpCharge(ratio){const r=Math.max(0,Math.min(1,ratio||0));this.tone(180+r*420,{dur:.05,gain:.014+r*.014,type:'triangle'});if(r>.6)this.noise({freq:900+r*900,q:3,dur:.03,gain:.01+r*.012})},
+  jumpFull(){this.tone(988,{dur:.08,gain:.04,type:'triangle'});this.tone(1319,{dur:.12,gain:.035,type:'triangle',delay:.06})},
+  jumpLaunch(power){const p=Math.max(0,Math.min(1,power||0));this.tone(150+p*60,{dur:.12,gain:.07,to:90,type:'triangle'});this.tone(300+p*120,{dur:.16+p*.08,gain:.08,to:700+p*500,type:'triangle',delay:.02});this.noise({freq:600,to:2600,q:.8,dur:.12+p*.1,gain:.035+p*.03})},
+  jumpLand(perfect,combo){this.noise({freq:520,q:.8,dur:.07,gain:.07,filter:'lowpass'});this.tone(150,{dur:.07,gain:.06,to:95});
+   if(perfect){const c=Math.max(1,combo||1),base=Math.min(8,c-1);[0,2,4].forEach((st,k)=>this.tone(note(523,base+st),{dur:.14,gain:.06,type:'triangle',delay:.03+k*.05}));if(c>=3)this.voice(c%4,{gain:.45,rate:Math.min(1.45,1.05+c*.05),delay:.08});else this.pigOink({delay:.06,rate:1.15})}},
+  jumpStay(){this.noise({freq:480,q:.8,dur:.06,gain:.05,filter:'lowpass'});this.pigSnort({delay:.05,rate:1.05})},
+  jumpFall(){this.noise({freq:1400,to:300,q:.7,dur:.4,gain:.05});this.tone(520,{dur:.42,gain:.05,to:180,type:'triangle'});this.pigYelp({delay:.05,rate:1.08})},
   stackLand(perfect){this.blockLand();if(perfect){[659,880,1175].forEach((f,k)=>this.tone(f,{dur:.14,gain:.065,delay:k*.05}));this.voice(2,{gain:.45,rate:1.18})}},
   chessDrop(p){this.noise({freq:780,q:1.8,dur:.04,gain:.05});this.tone(p===1?392:494,{dur:.12,gain:.065,type:'triangle'})},
   boxPush(goal){this.noise({freq:600,to:300,q:.6,dur:.12,gain:.06});if(goal){this.tone(880,{dur:.16,gain:.07,type:'triangle'});this.voice(2,{gain:.4,rate:1.1})}else this.tone(160,{dur:.06,gain:.035})},
