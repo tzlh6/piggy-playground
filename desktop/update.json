@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.4.6",
- "date": "2026-10-17",
- "ref": "0ced2c18011b7041f3b859467116a12c66d9cddf",
+ "version": "4.5.0",
+ "date": "2026-10-18",
+ "ref": "5fd6a8e1cbbb9994983407d1fb7f3aa08ca08b8b",
  "minShell": "4.4.4",
- "notes": "黑猪8的碰撞、碰库、入袋和结算猪叫，全部换为声音工坊已有的佩奇、乔治、猪妈妈、猪爸爸四段录音。 四只猪保持原速和完整声线，黑猪8号使用猪爸爸的声音；连续碰撞最多叠四声，力度影响音量、位置影响左右声像。 保留清脆击球、碰库闷声、入袋咕咚，以及侦探桃桃、海盗乌梅和猪仔台球造型。",
+ "notes": "猪猪跳一跳加入十四种稀有彩蛋方块，联动合集里的游戏：2048、黑猪8、斗地猪、扫猪、泥坑、节奏派对，以及八座猪猪轮盘主题方块。落上去静停 2 秒得额外分，并播放对应游戏的经典动画。 猪猪轮盘系列最热闹：摸屎盲盒、魔术布变帽子、饲料下一跳翻倍、腐肉放屁、搋子吸头、X 光看骨架、魔法书预言落点，还有稀有的猪王嘚瑟舞和王冠。 黑猪8 焕新：十六颗猪猪球重画，拉杆和弹弓出杆更顺手，规则简化为三种犯规，黑猪打进任意袋就赢。",
  "files": {
   "app.js": {
    "sha256": "77630e9cee33762fa6c46539355b0da648ab0908b864b862acd6c4dc261dab08",
@@ -360,8 +360,8 @@
    "size": 15720
   },
   "audio.js": {
-   "sha256": "bdb2aa99c8241c478b51d10a4060c2a016449aec91763cb006f7cdc31d419f11",
-   "size": 41825
+   "sha256": "012938ce608c90daeef081a95215da51fa0b01df150a73d0509c406dbe762834",
+   "size": 43207
   },
   "catalog.js": {
    "sha256": "290637dd0f7ce2c239695e1bedd1aea6245136c09621b59f6eadd54134357c48",
@@ -400,20 +400,20 @@
    "size": 58584
   },
   "help.js": {
-   "sha256": "07f9481acf0ded1361d4dfe624301d0353f78816ceefbb4b86ac9d2091d186c1",
-   "size": 17374
+   "sha256": "7b9905b9ec80fa1cc4e94c0e4106d132c588fd9cfa2ae4c3dab067f022a0606b",
+   "size": 18095
   },
   "index.html": {
-   "sha256": "dadc72204a28d372e4d2f0382cf7ff708a5da70ec8514999e052f50b78281c60",
+   "sha256": "15a9b5192c270fb8f276a335e4f1f5d153fd08618c4c3498c4f57c30cc13f9d1",
    "size": 24137
   },
   "jump-core.js": {
-   "sha256": "332af31254f8d3a3ad03c7c88b808db54b441b394631f5d378928a01d4b53c2a",
-   "size": 5950
+   "sha256": "81dcf3eedf7a485ddb12dae3ecccda65ca47cd766d80c6557eb61661e6d4d065",
+   "size": 9694
   },
   "jump-ui.js": {
-   "sha256": "4304c6b8ee65728b10664a3b58997004690a869678dfeb31b633490b8652a2c3",
-   "size": 15023
+   "sha256": "de1bf3e38abd63099020facb7f39d07ff511223dd55040b24352dc48e123dafc",
+   "size": 69738
   },
   "look.js": {
    "sha256": "fd7df14e0ca7b968b170bc9d7885cabf5969e1b5c79a30680359ea6d6992a3da",
@@ -432,12 +432,12 @@
    "size": 29551
   },
   "pool-core.js": {
-   "sha256": "7b0516fe7ddcb259c197f8984d17ae67f7762bac510fe928597b30f7d89d49a1",
-   "size": 13888
+   "sha256": "d22558ec95bfbc77fa36d50cca1b85bd8e33bd589312d7a8eec5af01f76ab99e",
+   "size": 13817
   },
   "pool-ui.js": {
-   "sha256": "b81898fbc29b4000b781b25c62b175455dde04a8b39e74f2da9051d9e8fe4517",
-   "size": 28970
+   "sha256": "3a18d15a7ee9f5c6834baca7290e956cc0968d8ac059fd964f7dae822b37c12c",
+   "size": 30514
   },
   "roulette-art.js": {
    "sha256": "a1ae8ab466a3d42d4ba1f795db7c4b55122e72f206a78b74acc3c166a2ec51af",
@@ -456,12 +456,12 @@
    "size": 42904
   },
   "style.css": {
-   "sha256": "d7dc24f4738c82beb1cfb50d86cb72d48819334d8822afcf93d74c41a7266b09",
-   "size": 123402
+   "sha256": "5836e259ae203dcaabd61999bbfaba32b19ea20467f76f89b0733fcb7d4c8c18",
+   "size": 122862
   },
   "version.js": {
-   "sha256": "05562b66d54329afe91b37e3da1d57a8f870821a8feb084fb11e08ffe6afd5bd",
-   "size": 21032
+   "sha256": "b48108a4646f5adb004ab3c0e4a999c5d42f05a565e6f13067863dc7f9e702c0",
+   "size": 28274
   }
  }
 }
