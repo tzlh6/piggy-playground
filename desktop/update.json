@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.5.0",
+ "version": "4.6.0",
  "date": "2026-10-18",
- "ref": "5fd6a8e1cbbb9994983407d1fb7f3aa08ca08b8b",
+ "ref": "abffa1e9731616789d0be0af93b0a59b1c3f9f5f",
  "minShell": "4.4.4",
- "notes": "猪猪跳一跳加入十四种稀有彩蛋方块，联动合集里的游戏：2048、黑猪8、斗地猪、扫猪、泥坑、节奏派对，以及八座猪猪轮盘主题方块。落上去静停 2 秒得额外分，并播放对应游戏的经典动画。 猪猪轮盘系列最热闹：摸屎盲盒、魔术布变帽子、饲料下一跳翻倍、腐肉放屁、搋子吸头、X 光看骨架、魔法书预言落点，还有稀有的猪王嘚瑟舞和王冠。 黑猪8 焕新：十六颗猪猪球重画，拉杆和弹弓出杆更顺手，规则简化为三种犯规，黑猪打进任意袋就赢。",
+ "notes": "新增“猪猪闯算门”：小猪队沿着跑道自动前进，你左右带队，从两扇算式门里挑一扇穿过去，猪猪数量随之变多或变少。 三档难度：加减乘除；平方开方；微积分（定积分、导数、极限、求和、对数、排列数，门不提示好坏，过门后揭晓答案）。 路上有野猪群拦路，终点是戴王冠、披斗篷的巨大猪王：猪猪一只只扑上去扣血，数量够就能把猪王打倒，进入更难的下一关。",
  "files": {
   "app.js": {
-   "sha256": "77630e9cee33762fa6c46539355b0da648ab0908b864b862acd6c4dc261dab08",
-   "size": 64516
+   "sha256": "44ec8260f808f575d6c4ac1365e6494ebc93e22809bcd13b14f3853355dd5040",
+   "size": 64578
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -70,6 +70,10 @@
   "assets/cards/wizard.svg": {
    "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
    "size": 5445
+  },
+  "assets/licenses/5ubh4d45_CountMasters_Prototype-MIT.txt": {
+   "sha256": "feea97dd5c809435a948173ade79c669d4d5b4ad02d9a34abe76bf2a376b1cf0",
+   "size": 1416
   },
   "assets/licenses/ShaistaShabbir-prog_candy-crush-match3-MIT.txt": {
    "sha256": "79a0089d3d811775e9ad9e20e9a792633d2c5be95e2c00c16e012d81026b8d56",
@@ -364,8 +368,8 @@
    "size": 43207
   },
   "catalog.js": {
-   "sha256": "290637dd0f7ce2c239695e1bedd1aea6245136c09621b59f6eadd54134357c48",
-   "size": 3391
+   "sha256": "f1ef39757f0e6e0bce291ec812aa3af40ff9e0df2482c679af238962aa873fab",
+   "size": 3664
   },
   "challenge-core.js": {
    "sha256": "8764c38b8d5b1ec3eec510c8ddcf30d2554810c19d539562dcec26086b55f550",
@@ -399,13 +403,21 @@
    "sha256": "146fc8a466afc941e39becd31d4f93a049533b5166a26cc1ee5cc811ce7ee436",
    "size": 58584
   },
+  "gate-core.js": {
+   "sha256": "3146912adeb02be1ff511dd902f60a5c3871120f7be330819f710aea89487c5f",
+   "size": 13731
+  },
+  "gate-ui.js": {
+   "sha256": "201ade75dae32c9ce9b4864fc1ac4def2e10e5c77be649c3eae2c7ca09b933ce",
+   "size": 44076
+  },
   "help.js": {
-   "sha256": "7b9905b9ec80fa1cc4e94c0e4106d132c588fd9cfa2ae4c3dab067f022a0606b",
-   "size": 18095
+   "sha256": "6173d672c7eb199bca569f87f8ee402551debbfcff74e4a5638ad29f898a4de2",
+   "size": 19976
   },
   "index.html": {
-   "sha256": "15a9b5192c270fb8f276a335e4f1f5d153fd08618c4c3498c4f57c30cc13f9d1",
-   "size": 24137
+   "sha256": "9202c32083ef7ca1e17907d594dc1aa52b18a304b11b516e346ab3365329efca",
+   "size": 24944
   },
   "jump-core.js": {
    "sha256": "81dcf3eedf7a485ddb12dae3ecccda65ca47cd766d80c6557eb61661e6d4d065",
@@ -456,12 +468,12 @@
    "size": 42904
   },
   "style.css": {
-   "sha256": "5836e259ae203dcaabd61999bbfaba32b19ea20467f76f89b0733fcb7d4c8c18",
-   "size": 122862
+   "sha256": "9c70b7a6cb3b4d798886084bea0a22e157ccc83102682af6b5bb135c326ed995",
+   "size": 124393
   },
   "version.js": {
-   "sha256": "b48108a4646f5adb004ab3c0e4a999c5d42f05a565e6f13067863dc7f9e702c0",
-   "size": 28274
+   "sha256": "94856f343d630a58968955592c1d7fd86fc3016755d88c161c6facb23753e5e3",
+   "size": 31719
   }
  }
 }
