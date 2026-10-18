@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.5.0",
-  "versionCode": 40500,
+  "version": "4.6.0",
+  "versionCode": 40600,
   "nativeRevision": 3,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.5.0-android/PiggyPlayground-4.5.0-Android-compat.apk",
-  "bytes": 517138,
-  "sha256": "8a06d6213dd0c61c036332042c98fd12ce546720bfadd17d8feffa03cb67053a",
-  "notes": "跳一跳新增十四种稀有彩蛋方块，联动 2048、黑猪8、斗地猪、扫猪、节奏派对和猪猪轮盘：静停 2 秒得额外分，并播放经典动画（王炸火箭、摸屎盲盒、魔术布变帽子、放屁、猪王嘚瑟舞……）。黑猪8 球面重画，出杆更顺手，规则简化。21 款离线游戏，沿用原签名，直接覆盖安装可保留成绩。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.6.0-android/PiggyPlayground-4.6.0-Android-compat.apk",
+  "bytes": 541714,
+  "sha256": "3a0e35e8b323e588f8ac1f942225c0e87c94064368ee245c6870c8dff3d89dcb",
+  "notes": "新增第 22 款游戏「猪猪闯算门」：左右带队穿过算式门，猪猪越跑越多，终点打倒巨大猪王。三档难度：加减乘除、平方开方、微积分（定积分、导数、极限等，过门揭晓答案）。路上有野猪群拦路，打赢进入更难的下一关。22 款离线游戏，沿用原签名，直接覆盖安装可保留成绩。"
 }
