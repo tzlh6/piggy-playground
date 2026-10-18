@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.4.6",
-  "versionCode": 40506,
+  "version": "4.5.0",
+  "versionCode": 40509,
   "nativeRevision": 3,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.4.6-android/PiggyPlayground-4.4.6-Android.apk",
-  "bytes": 492562,
-  "sha256": "34de0574d987a95f003508411d2b9b760d1194ca7c07e2d03b18ffa050eda721",
-  "notes": "黑猪8碰撞、碰库、入袋和结算改用佩奇、乔治、猪妈妈、猪爸爸四段原声，保持原速；保留猪仔球、侦探桃桃与海盗乌梅、击球手感。21款离线游戏，沿用原签名，直接覆盖安装以保留成绩。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.5.0-android/PiggyPlayground-4.5.0-Android.apk",
+  "bytes": 517138,
+  "sha256": "ab839215957b3fe1d5955c5005be37631a2420b4fbcb49c9f99e1e28abf1ee5a",
+  "notes": "跳一跳新增十四种稀有彩蛋方块，联动 2048、黑猪8、斗地猪、扫猪、节奏派对和猪猪轮盘：静停 2 秒得额外分，并播放经典动画（王炸火箭、摸屎盲盒、魔术布变帽子、放屁、猪王嘚瑟舞……）。黑猪8 球面重画，出杆更顺手，规则简化。21 款离线游戏，沿用原签名，直接覆盖安装可保留成绩。"
 }
