@@ -5,12 +5,13 @@
 'use strict';
 const G=root.PigGateCore;
 const configs={mathgate:{name:'猪猪闯算门',icon:'i-gate',title:'选对门，猪猪越跑越多。',
- subtitle:'左右带队穿过算式门：加减乘除、平方开方，甚至微积分。终点用整支猪队挑战巨大猪王。',
+ subtitle:'左右带队穿过算式门：四则混合、乘方开方、微积分，还有全都混在一起的混合运算。终点用整支猪队挑战巨大猪王。',
  tag:'左右带队 · 算式门 · 终点打猪王',eyebrow:'22 / COUNT THE OINKS',
  note:'冲到终点时，猪猪数量不少于猪王血量就能打赢。',defaultLevel:'easy',
- levels:[['easy','加减乘除'],['normal','平方开方'],['hard','微积分']],labels:['猪猪数量','猪王血量','最佳剩余'],
+ levels:[['easy','加减乘除'],['normal','平方开方'],['hard','微积分'],['mix','混合运算']],labels:['猪猪数量','猪王血量','最佳剩余'],
  tips:[['左右带队','拖动画面、按住左右按钮，或用 ← / → / A / D。领头的小猪走哪边，就穿过哪扇门。'],
-  ['先算再选','门上的式子作用在当前猪猪数 n 上，结果向下取整。蓝门变多、红门变少；“微积分”难度不提示颜色，要自己算。'],
+  ['先算再选','上方题卡放大显示下一排两扇门。常数门（+ − × ÷ 一个算式）先把算式算成一个数；n 门直接告诉你 n 变成什么。结果向下取整。'],
+  ['两扇都不错','很多时候两扇门都会让猪猪变多，只差一点点；也有两扇都变少、只能挑损失小的时候。只有“加减乘除”档用蓝 / 红提示。'],
   ['小心野猪','路上的野猪群一换一，数量够才能冲过去。'],
   ['打倒猪王','终点的巨大猪王有血量，每只猪猪扑上去扣 1 点。数量够就赢，赢了进入下一关，猪王更壮。']]}};
 const ROAD=G.ROAD,CAM_BACK=9,CAM_H=5,FAR=120;
@@ -63,6 +64,8 @@ function node(c,n,size,st){
     return {w:I.w*.8+Math.max(H.w,L.w)+size*.12,a:size*.95+H.a*.4,d:size*.42+L.d,draw(x,y){I.draw(x,y+size*.26);H.draw(x+I.w*.72,y-size*.66);L.draw(x+I.w*.5,y+size*.36)}}}
    const bs=size*1.25,Sg=text(c,n.sym,bs,st),H=mathBox(c,n.hi,small,st),L=mathBox(c,n.lo,small,st),w=Math.max(Sg.w,H.w,L.w);
    return {w:w+size*.12,a:size*.95+H.a+H.d,d:size*.3+L.a+L.d,draw(x,y){Sg.draw(x+(w-Sg.w)/2,y+size*.12);H.draw(x+(w-H.w)/2,y-size*1.02);L.draw(x+(w-L.w)/2,y+size*.3+L.a)}}}
+  // n 次根号：画成根号，左上角写小小的根指数。
+  case 'root':{const B=node(c,{k:'sqrt',c:n.c},size,st),I=text(c,n.n,size*.42,st);return {w:B.w,a:B.a,d:B.d,draw(x,y){B.draw(x,y);I.draw(x,y-size*.44)}}}
   case 'lim':{const T=text(c,'lim',size*.86,st),U=mathBox(c,n.u.map(x=>typeof x==='string'?x.replace('→',' → '):x),size*.62,st),w=Math.max(T.w,U.w);
    return {w:w+size*.16,a:T.a,d:size*.3+U.a+U.d,draw(x,y){T.draw(x+(w-T.w)/2,y);U.draw(x+(w-U.w)/2,y+size*.28+U.a)}}}
   case 'at':{const C=mathBox(c,n.c,size,st),S=mathBox(c,n.s,small,st);
@@ -116,14 +119,16 @@ function create(ui){
  function init(){
   drag=null;keys={left:false,right:false};
   const level=get().level,st=stage();
-  const t={mathgate:true,run:new G.Run(level,Math.random,st),stageNo:st,started:false,clock:0,pigs:[],boars:{},flyers:[],parts:[],floats:[],gateFx:{},
+  const recent=Store.get('mathgate-recent',[]),run=new G.Run(level,Math.random,st,Array.isArray(recent)?recent:[]);
+  Store.set('mathgate-recent',run.L.ids.concat(Array.isArray(recent)?recent:[]).slice(0,120));
+  const t={mathgate:true,run,stageNo:st,started:false,clock:0,pigs:[],boars:{},flyers:[],parts:[],floats:[],gateFx:{},
    shake:0,shakeAt:0,badge:{n:-1,at:-9,dir:0},boss:{hitAt:-9,state:'idle',at:0,crownT:-1},banner:null,lastStat:'',endAt:-1,popAt:0,soundAt:0,
    initialBest:Store.get('mathgate-'+level,null)};
   ui.setState(t);
   $('board').innerHTML='<div class="mg-stage canvas-wrap"><canvas id="mg-canvas" tabindex="0" aria-label="猪猪闯算门：左右拖动带队，选择算式门"></canvas>'+
-   '<div class="mg-welcome" id="mg-welcome"><b>第 '+st+' 关 · 巨大猪王血量 '+t.run.bossMax+'</b><span>拖动画面左右带队，穿过让猪猪变多的门。</span><small>'+(t.run.cfg.hidden?'微积分难度：门不提示好坏，看清式子再选。':'蓝门让猪猪变多，红门让猪猪变少；n 表示当前猪猪数。')+'</small><button class="primary" id="mg-go">出发！</button></div></div>'+
+   '<div class="mg-welcome" id="mg-welcome"><b>第 '+st+' 关 · 巨大猪王血量 '+t.run.bossMax+'</b><span>拖动画面左右带队，穿过让猪猪变多的门。</span><small>'+(t.run.cfg.hidden?t.run.cfg.name+'：门不提示好坏，上方题卡放大显示下一排门，先算再选。':'蓝门让猪猪变多，红门变少；两扇都是蓝门时要比谁更多。n 表示当前猪猪数。')+'</small><button class="primary" id="mg-go">出发！</button></div></div>'+
    '<div class="mg-controls"><button class="secondary mg-steer" id="mg-left" aria-label="向左">◀ 左</button><div class="mg-tip" id="mg-tip">拖动画面、按住按钮或 ← / → 带队</div><button class="secondary mg-steer" id="mg-right" aria-label="向右">右 ▶</button></div>';
-  $('play-toolbar').innerHTML='<span class="key-hint">第 '+st+' 关 · '+t.run.cfg.name+(t.run.cfg.hidden?' · 门不提示颜色':' · 蓝门变多 / 红门变少')+'</span>';
+  $('play-toolbar').innerHTML='<span class="key-hint">第 '+st+' 关 · '+t.run.cfg.name+(t.run.cfg.hidden?' · 门不提示好坏 · 看上方题卡':' · 蓝门变多 / 红门变少 · 看上方题卡')+'</span>';
   t.cv=$('mg-canvas');t.ctx=t.cv.getContext('2d');
   $('mg-go').onclick=()=>{begin();t.cv.focus({preventScroll:true})};
   t.cv.oncontextmenu=e=>e.preventDefault();
@@ -193,7 +198,7 @@ function create(ui){
     const sp=proj(t,e.side==='left'?-ROAD/2:ROAD/2,1.6,e.row.z);
     if(sp)burst(t,sp.x,sp.y,reduce()?3:14,'shard',sp.s,up?'#bfe3ff':same?'#ece4f6':'#ffc4cc');
     floatText(t,{nodes:e.op.nodes,sub:'→ '+e.to,x:t.W/2,y:t.H*.42,color:up?'#2f7fc0':same?'#8a78a8':'#d0506a',dur:1.35});
-    if(e.op.revealNodes||e.op.reveal)t.reveal={nodes:e.op.revealNodes||[e.op.reveal],at:t.clock,best:e.best};
+    {const other=e.row[e.side==='left'?'right':'left'].apply(e.from);t.reveal={nodes:e.op.revealNodes||(e.op.reveal?[e.op.reveal]:[e.op.text.replace(/\s+/g,' ')+' → '+e.to]),at:t.clock,best:e.best,other}}
     t.badge={n:e.to,at:t.clock,dir:up?1:same?0:-1};
     if(up){Sound.gatePass(e.to);if(e.to>=e.from*2)Sound.pigCheer({delay:.12});else Sound.pigOink({delay:.1,rate:1.15})}
     else if(same){Sound.boing()}else{Sound.tone(392,{dur:.14,gain:.06,to:262,type:'triangle'});Sound.pigWhimper({delay:.08})}
@@ -493,11 +498,24 @@ function create(ui){
   r.rows.forEach(row=>{const k=clamp(row.z/(r.bossZ-G.BOSS_STOP),0,1);ell(c,x+w*k,y,row.type==='gate'?3:3.5,row.type==='gate'?3:3.5,row.type==='gate'?'#fff':'#8a5a3f')});
   noseIcon(c,x+w*r.progress,y,7,'#f39ab1');c.save();c.translate(x+w+12,y+2);c.scale(.28,.28);crown(c,0,0,1);c.restore();
   label(c,'第 '+t.stageNo+' 关',x-10,y,12,'#8a6a7a','rgba(255,255,255,.8)','right');
-  // 过门后的“答案揭晓”
-  if(t.reveal&&t.clock-t.reveal.at<2.2){const k=t.clock-t.reveal.at,a=clamp(Math.min(k/.15,(2.2-k)/.3),0,1);c.save();c.globalAlpha=a;
-   const size=W<500?17:19;const B=mathBox(c,t.reveal.nodes,size,{fill:'#5b4a66'}),bw=Math.min(W-24,B.w+40),bh=B.a+B.d+22;
-   rr(c,W/2-bw/2,40,bw,bh,14);c.fillStyle='rgba(255,252,247,.94)';c.fill();c.strokeStyle='#e8d9e6';c.lineWidth=1.5;c.stroke();
-   drawMath(c,t.reveal.nodes,W/2,40+bh/2,size,bw-28,{fill:'#5b4a66'});c.restore()}
+  // 下一排门的题卡：远处门上的字太小，把两道题放大显示在上方。
+  let top=34;const nx=r.rows[r.next];
+  if(t.started&&nx&&nx.type==='gate'&&(r.phase==='run'||r.phase==='fight')){
+   const a=clamp((84-(nx.z-r.z))/12,0,1);
+   if(a>0){c.save();const gap=8,cw=(W-24-gap)/2,ch=W<500?60:64,size=W<500?17:20;
+    [['left','左门'],['right','右门']].forEach(([side,name],i)=>{
+     const op=nx[side],v=op.apply(r.count),cmp=v>r.count?1:v<r.count?-1:0;
+     const col=r.cfg.hidden?['#f7f2fd','#b9a2dc','#563a80']:cmp>0?['#eaf4fd','#86b8e5','#21598f']:cmp<0?['#fdeef1','#e8a0ae','#962a43']:['#f4f2f6','#bdb5c8','#5d546d'];
+     const bx=12+i*(cw+gap);c.globalAlpha=a*.95;rr(c,bx,top,cw,ch,12);c.fillStyle=col[0];c.fill();c.globalAlpha=a;c.strokeStyle=col[1];c.lineWidth=1.5;c.stroke();
+     label(c,name,bx+9,top+10,10,col[1],null,'left');drawMath(c,op.nodes,bx+cw/2,top+ch/2+5,size,cw-18,{fill:col[2]})});
+    c.globalAlpha=a;label(c,'现在 n = '+r.count,W/2,top+ch+11,12,'#7a5f72','rgba(255,255,255,.9)');c.restore();top+=ch+22}
+  }
+  // 过门后的“答案揭晓”，并告诉你另一扇门会得到多少。
+  if(t.reveal&&t.clock-t.reveal.at<2.4){const k=t.clock-t.reveal.at,a=clamp(Math.min(k/.15,(2.4-k)/.3),0,1);c.save();c.globalAlpha=a;
+   const size=W<500?16:18;const B=mathBox(c,t.reveal.nodes,size,{fill:'#5b4a66'}),bw=Math.min(W-24,Math.max(B.w+40,190)),bh=B.a+B.d+40;
+   rr(c,W/2-bw/2,top,bw,bh,14);c.fillStyle='rgba(255,252,247,.94)';c.fill();c.strokeStyle=t.reveal.best?'#bfdcb5':'#ecc9cf';c.lineWidth=1.5;c.stroke();
+   drawMath(c,t.reveal.nodes,W/2,top+(B.a+B.d)/2+11,size,bw-28,{fill:'#5b4a66'});
+   label(c,t.reveal.best?'另一扇门只有 '+t.reveal.other+' 只':'另一扇门能有 '+t.reveal.other+' 只',W/2,top+bh-13,11,t.reveal.best?'#5c8a4f':'#b4566b');c.restore()}
   for(const f of t.floats){const k=(t.clock-f.at)/f.dur,a=clamp(Math.min(k/.12,(1-k)/.3),0,1),y=f.y-k*(f.small?30:46);c.save();c.globalAlpha=a;
    if(f.nodes){const size=W<500?30:36;c.translate(f.x,y);const sc=k<.15?.6+ease(k/.15)*.4:1;c.scale(sc,sc);drawMath(c,f.nodes,0,0,size,W*.8,{fill:'#fff',stroke:f.color});if(f.sub)label(c,f.sub,0,size*1.05,size*.62,'#fff',f.color)}
    else label(c,f.text,f.x,y,f.small?15:22,'#fff',f.color);c.restore()}

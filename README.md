@@ -1,6 +1,6 @@
 # 猪猪游乐场 🐷
 
-22 款小游戏，可离线游玩。当前版本 **4.6.0**，新增第 22 款游戏「猪猪闯算门」：左右带队穿过算式门、冲过野猪群，终点打倒巨大猪王；提供加减乘除、平方开方、微积分三档难度。下载 [Windows 4.6.0 与离线网页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.0) 或 [安卓 4.6.0](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.0-android)。Windows 4.4.4 及以上壳版本可直接更新游戏内容；安卓保留双通道与原签名。项目新增代码采用 MIT，四段录音版权归原权利人。[4.6.0 详细规则与验证说明](docs/4.6.0-mathgate.md) / [4.5.0 彩蛋与黑猪8](docs/4.5.0-eggs-and-pool.md) / [原声与许可说明](docs/4.4.6-pool-voices.md)。
+22 款小游戏，可离线游玩。当前版本 **4.6.1**，猪猪闯算门题目大升级：算式现场随机生成，四则、乘方开方、微积分任意组合；四档难度全面加难，新增「混合运算」，配有大号题卡、过门答案与另一扇门的结果。下载 [Windows 4.6.1、离线网页与运算规则 PDF](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.1) 或 [安卓 4.6.1](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.1-android)。Windows 4.4.4 及以上壳版本可直接更新游戏内容；安卓保留双通道与原签名。项目新增代码采用 MIT，四段录音版权归原权利人。[4.6.1 出题、难度与验证说明](docs/4.6.1-mathgate-questions.md) / [闯算门基础玩法](docs/4.6.0-mathgate.md) / [原声与许可说明](docs/4.4.6-pool-voices.md)。
 
 ![黑猪8 4.4.5：猪仔球、侦探桃桃与海盗乌梅](docs/images/pool-pigs-4.4.5.png)
 
@@ -15,6 +15,12 @@
 ![整场胜利：猪王嘚瑟舞](docs/images/desktop-dance-4.3.jpg)
 
 ![安卓 4.4.1：手机大厅与斗地猪入口](docs/images/android-hall-4.4.1.png)
+
+## 4.6.1：随机题目与混合运算
+
+出题器先确定答案，再用表达式树随机拆成多步运算，按难度加入乘方、根号、积分、导数、极限等写法；同局和最近 120 个题型尽量避开。四档为加减乘除、平方开方、微积分、混合运算，只有第一档显示蓝 / 红提示。上方大号题卡显示下一排两扇门，过门后揭晓答案和另一扇门的结果。
+
+[出题规则与测试说明](docs/4.6.1-mathgate-questions.md) / [所有运算规则与例题 PDF](https://github.com/tzlh6/piggy-playground/releases/download/v4.6.1/PiggyPlayground-4.6.1-Gate-Rules.pdf)。
 
 ## 4.6.0 新游戏：猪猪闯算门
 
@@ -49,7 +55,7 @@
 
 | 目录 | 用途 |
 | --- | --- |
-| `desktop/app/gate-core.js`、`gate-ui.js` | 猪猪闯算门：单调算式门、关卡与猪王结算，跑道、公式和猪猪队伍画面 |
+| `desktop/app/gate-core.js`、`gate-ui.js` | 猪猪闯算门：随机表达式树、四档难度、单调算式门与猪王结算，题卡与跑道画面 |
 | `desktop/app/pool-core.js`、`pool-ui.js` | 黑猪8：固定步长物理、规则 / AI，猪仔球、差异角色与球桌操作 |
 | `desktop/app/` | 游戏规则、界面、SVG 美术、音频和原有许可（在线更新只更新这个目录） |
 | `desktop/app/version.js` | 版本号与更新说明（打开新版本时弹出） |
@@ -67,7 +73,7 @@
 安装 Node.js 和 Python 3 后，在仓库根目录执行：
 
 ```sh
-python desktop/build-single.py build/猪猪游乐场v4.6.0.html
+python desktop/build-single.py build/猪猪游乐场v4.6.1.html
 ```
 
 用现代浏览器打开生成的 HTML。规则、图片与音效全部内嵌，可断网游玩。
@@ -97,7 +103,7 @@ npm run build:win
 
 ## 安卓构建
 
-安卓 App 与共用游戏均为 4.6.0，共 22 款游戏，新增猪猪闯算门，保留跳一跳十四种彩蛋与黑猪8优化。普通包 versionCode 为 40610，通过 `android/update-v2.json` 更新；旧更新器兼容包为 40600，通过 `android/update.json` 更新。普通包编号须高于同版兼容包，下一版普通包从 40611 起递增。nativeRevision 保持 3，沿用原签名。可通过「游戏大厅 → 版本与更新」检查、下载并交给系统确认覆盖安装；原 4.2 / 4.4.1 用户先从发行页手动覆盖安装一次。自动检查可关闭，APK 安装前校验 SHA-256、包名、版本和同签名。系统联网和覆盖安装流程尚待安卓真机验收，浏览器检查不能替代真机。
+安卓 App 与共用游戏均为 4.6.1，共 22 款游戏，闯算门新增随机表达式、混合运算、大号题卡与另一扇门结果。普通包 versionCode 为 40611，通过 `android/update-v2.json` 更新；旧更新器兼容包为 40601，通过 `android/update.json` 更新。普通包编号须高于同版兼容包，下一版普通包从 40612 起递增。nativeRevision 保持 3，沿用原签名。可通过「游戏大厅 → 版本与更新」检查、下载并交给系统确认覆盖安装；原 4.2 / 4.4.1 用户先从发行页手动覆盖安装一次。自动检查可关闭，APK 安装前校验 SHA-256、包名、版本和同签名。系统联网和覆盖安装流程尚待安卓真机验收，浏览器检查不能替代真机。
 
 生成触屏网页资产不需要 Android SDK：
 
@@ -108,6 +114,8 @@ python android/build.py --prepare-only
 生成 APK 使用 Windows、JDK、官方 Android SDK 构建工具及自己的签名密钥。工具目录布局和参数见 [安卓构建说明](android/README.md)。仓库不包含发行签名密钥或口令。
 
 ## 验证范围
+
+4.6.1（2026-10-19，发布核验）：公开副本 13 组游戏与联机测试，加上版本改号回归，共 14 组通过；闯算门含 330372 项检查，覆盖独立数值复算、按显示文字重算、25 种单调 n 门和四档关卡。117 个游戏文件与正式源一致，公开源重生成的 HTML、安卓内置网页与实际附件一致。本版发布前已验收 Windows 实际 Chromium 108 程序，以及手机视口下微积分和混合运算两档的单文件 / 安卓内置网页。安卓真机安装、原生联网更新与运行，以及 Windows 7 实机尚未验证。
 
 4.6.0（2026-10-19，发布核验）：公开副本的十三组游戏与联机测试，加上版本改号回归，共 14 组全部通过；新增闯算门含 98907 项检查。117 个游戏文件已与正式源核对，由公开源重新生成的单文件网页与发行 HTML 逐字节一致，两个 APK 的内置网页与公开安卓源生成结果一致。既有桌面 / 手机宽度浏览器、Windows 实际 Chromium 108 程序、触屏单文件与安卓内置网页试玩记录沿用本版发布前验收；安卓真机安装、原生联网更新与运行，以及 Windows 7 实机尚未验证。
 
