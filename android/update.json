@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.6.0",
-  "versionCode": 40600,
+  "version": "4.6.1",
+  "versionCode": 40601,
   "nativeRevision": 3,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.6.0-android/PiggyPlayground-4.6.0-Android-compat.apk",
-  "bytes": 541714,
-  "sha256": "3a0e35e8b323e588f8ac1f942225c0e87c94064368ee245c6870c8dff3d89dcb",
-  "notes": "新增第 22 款游戏「猪猪闯算门」：左右带队穿过算式门，猪猪越跑越多，终点打倒巨大猪王。三档难度：加减乘除、平方开方、微积分（定积分、导数、极限等，过门揭晓答案）。路上有野猪群拦路，打赢进入更难的下一关。22 款离线游戏，沿用原签名，直接覆盖安装可保留成绩。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.6.1-android/PiggyPlayground-4.6.1-Android-compat.apk",
+  "bytes": 549906,
+  "sha256": "be5e65ded1f5f958dfab1494994e8ce6f08a1e6a5a504e86ce3cf99f617a729b",
+  "notes": "猪猪闯算门题目大升级：门上的算式现场随机生成，四则、乘方开方、微积分任意组合，几乎不重样；四档难度全面加难，新增第四档“混合运算”。上方题卡放大显示下一排两扇门，过门后揭晓答案并告诉你另一扇门能得多少。22 款离线游戏，沿用原签名，直接覆盖安装可保留成绩。"
 }
