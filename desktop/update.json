@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.6.1",
- "date": "2026-10-19",
- "ref": "cc814fce4c9f98a2dd17006020975df9adf46cb2",
- "minShell": "4.4.4",
- "notes": "闯算门的题目全部重做：门上的算式由“先定答案、再随机拆分”的表达式树现场生成，四则、乘方开方、微积分写法任意组合，几乎不会重样；同一局和最近几局用过的题型会主动避开。 四档难度全面加码，并新增第四档“混合运算”，把所有运算混在同一道式子里。 新增上方题卡：下一排两扇门的式子放大显示，过门后揭晓答案，并告诉你另一扇门能得到多少只。",
+ "version": "4.7.1",
+ "date": "2026-10-21",
+ "ref": "0eeaced88385f2618703728163d722abcfb0b2c9",
+ "minShell": "4.7.1",
+ "notes": "题型按学科细分（英语阅读 / 七选五 / 完形 / 语法填空 / 写作，语文文言文 / 诗歌 / 语用等），新增难度筛选（基础 / 中档 / 较难）。 选择题改为先选中、再点“交卷”才判分；数学填空、英语语法填空直接输入答案自动判分，数学有符号键盘，等价写法都算对。 语文、英语阅读整篇出题，每个小题直接点选或填写；分值改按原卷（英语阅读每题 2.5、完形 1、语法填空 1.5 等）。",
  "files": {
   "app.js": {
-   "sha256": "44ec8260f808f575d6c4ac1365e6494ebc93e22809bcd13b14f3853355dd5040",
-   "size": 64578
+   "sha256": "01eefc3d25ef1920fa7f0f553c0c07df55b2fc3a4aec4e4d53e7b457ec29c0c9",
+   "size": 64644
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -71,9 +71,109 @@
    "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
    "size": 5445
   },
+  "assets/katex/LICENSE.txt": {
+   "sha256": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
+   "size": 1107
+  },
+  "assets/katex/fonts/KaTeX_AMS-Regular.woff2": {
+   "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308",
+   "size": 28076
+  },
+  "assets/katex/fonts/KaTeX_Caligraphic-Bold.woff2": {
+   "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c",
+   "size": 6912
+  },
+  "assets/katex/fonts/KaTeX_Caligraphic-Regular.woff2": {
+   "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b",
+   "size": 6908
+  },
+  "assets/katex/fonts/KaTeX_Fraktur-Bold.woff2": {
+   "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f",
+   "size": 11348
+  },
+  "assets/katex/fonts/KaTeX_Fraktur-Regular.woff2": {
+   "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc",
+   "size": 11316
+  },
+  "assets/katex/fonts/KaTeX_Main-Bold.woff2": {
+   "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021",
+   "size": 25324
+  },
+  "assets/katex/fonts/KaTeX_Main-BoldItalic.woff2": {
+   "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b",
+   "size": 16780
+  },
+  "assets/katex/fonts/KaTeX_Main-Italic.woff2": {
+   "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267",
+   "size": 16988
+  },
+  "assets/katex/fonts/KaTeX_Main-Regular.woff2": {
+   "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866",
+   "size": 26272
+  },
+  "assets/katex/fonts/KaTeX_Math-BoldItalic.woff2": {
+   "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1",
+   "size": 16400
+  },
+  "assets/katex/fonts/KaTeX_Math-Italic.woff2": {
+   "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264",
+   "size": 16440
+  },
+  "assets/katex/fonts/KaTeX_SansSerif-Bold.woff2": {
+   "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62",
+   "size": 12216
+  },
+  "assets/katex/fonts/KaTeX_SansSerif-Italic.woff2": {
+   "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a",
+   "size": 12028
+  },
+  "assets/katex/fonts/KaTeX_SansSerif-Regular.woff2": {
+   "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342",
+   "size": 10344
+  },
+  "assets/katex/fonts/KaTeX_Script-Regular.woff2": {
+   "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b",
+   "size": 9644
+  },
+  "assets/katex/fonts/KaTeX_Size1-Regular.woff2": {
+   "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe",
+   "size": 5468
+  },
+  "assets/katex/fonts/KaTeX_Size2-Regular.woff2": {
+   "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd",
+   "size": 5208
+  },
+  "assets/katex/fonts/KaTeX_Size3-Regular.woff2": {
+   "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995",
+   "size": 3624
+  },
+  "assets/katex/fonts/KaTeX_Size4-Regular.woff2": {
+   "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0",
+   "size": 4928
+  },
+  "assets/katex/fonts/KaTeX_Typewriter-Regular.woff2": {
+   "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b",
+   "size": 13568
+  },
+  "assets/katex/katex.min.css": {
+   "sha256": "b075123b50e51a0a7819b49efa2a62bb05bc7dac04b0d65a9a3799c2211ea48f",
+   "size": 21218
+  },
+  "assets/katex/katex.min.js": {
+   "sha256": "e8d885505949f3a5f4abdd5dd0d53696bd1371ad26ffbf4f310dcd77c8cdae89",
+   "size": 276701
+  },
+  "assets/katex/mhchem.min.js": {
+   "sha256": "9f87e5e9c384a160472d0045035a8641f6013358eddb3ece708634a50f946a40",
+   "size": 33712
+  },
   "assets/licenses/5ubh4d45_CountMasters_Prototype-MIT.txt": {
    "sha256": "feea97dd5c809435a948173ade79c669d4d5b4ad02d9a34abe76bf2a376b1cf0",
    "size": 1416
+  },
+  "assets/licenses/KaTeX_KaTeX-MIT.txt": {
+   "sha256": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
+   "size": 1107
   },
   "assets/licenses/ShaistaShabbir-prog_candy-crush-match3-MIT.txt": {
    "sha256": "79a0089d3d811775e9ad9e20e9a792633d2c5be95e2c00c16e012d81026b8d56",
@@ -368,8 +468,8 @@
    "size": 43207
   },
   "catalog.js": {
-   "sha256": "e5aff45ccd8525ea68dd75af544b28a49e812d567bafef64561bfd4374f2f957",
-   "size": 3684
+   "sha256": "cf28371d77e677f7c24221763c111ad4e9dda7c3edeccc34b1b00274e3b33249",
+   "size": 4066
   },
   "challenge-core.js": {
    "sha256": "8764c38b8d5b1ec3eec510c8ddcf30d2554810c19d539562dcec26086b55f550",
@@ -412,12 +512,12 @@
    "size": 46264
   },
   "help.js": {
-   "sha256": "88c77766166cd69c10a1a8806662b616ff76f1b079e407e874403bbe89b0c139",
-   "size": 20572
+   "sha256": "11537e8de43382d8ec7e1b933167e6a318236e8c53c649ba04a37aa5b543d272",
+   "size": 24059
   },
   "index.html": {
-   "sha256": "9202c32083ef7ca1e17907d594dc1aa52b18a304b11b516e346ab3365329efca",
-   "size": 24944
+   "sha256": "865371e068e8103c8256c362f3eddc30b1ac675bbaaeb6c3b412cd118f58ad24",
+   "size": 25660
   },
   "jump-core.js": {
    "sha256": "81dcf3eedf7a485ddb12dae3ecccda65ca47cd766d80c6557eb61661e6d4d065",
@@ -467,13 +567,25 @@
    "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
    "size": 42904
   },
+  "study-core.js": {
+   "sha256": "b898c2a126a200ef45049ed8152279714224281d53c71870bbb14c2d405c42d8",
+   "size": 20502
+  },
+  "study-math.js": {
+   "sha256": "83f584dbd7016edb62fe632717602a8f238d27edb5e387aade767f9a2cb7b4b9",
+   "size": 20691
+  },
+  "study-ui.js": {
+   "sha256": "aec74eb0da7ebe62e359454edef56651f11d896621e3179000aefecbca9b9761",
+   "size": 46630
+  },
   "style.css": {
-   "sha256": "9c70b7a6cb3b4d798886084bea0a22e157ccc83102682af6b5bb135c326ed995",
-   "size": 124393
+   "sha256": "2d1529ce9b6b671081ba771baaaf32fd93c3728bec420bc5dada74f8fb760db4",
+   "size": 140240
   },
   "version.js": {
-   "sha256": "edf217465f998c22c10ed3c66be9817f5078b49641256395b6ad5a1e65f9c85e",
-   "size": 34283
+   "sha256": "5917a178e4b7fae8b0593521cf72ab9d337c40f81ed4a3072946cc647f7ffc53",
+   "size": 40758
   }
  }
 }
