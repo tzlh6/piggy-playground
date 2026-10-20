@@ -9,6 +9,16 @@ contextBridge.exposeInMainWorld('PiggyUpdate',{
  ready:version=>ipcRenderer.send('piggy-update:ready',String(version||'')),
  onStatus:cb=>{ipcRenderer.on('piggy-update:status',(_e,st)=>{try{cb(st)}catch(e){}})}
 });
+// 猪猪爱学习（4.7 起）：只能列出、读取「猪猪题库」文件夹里的 .json，导入由主进程弹出文件对话框
+contextBridge.exposeInMainWorld('PiggyStudy',{
+ version:1,
+ dir:()=>ipcRenderer.invoke('piggy-study:dir'),
+ list:()=>ipcRenderer.invoke('piggy-study:list'),
+ head:f=>ipcRenderer.invoke('piggy-study:head',String(f||'')),
+ read:f=>ipcRenderer.invoke('piggy-study:read',String(f||'')),
+ importFiles:()=>ipcRenderer.invoke('piggy-study:import'),
+ openFolder:()=>ipcRenderer.invoke('piggy-study:open')
+});
 // 局域网联机（4.4 起）：找房间、开房、加入、收发消息都由主进程代办
 contextBridge.exposeInMainWorld('PiggyLan',{
  version:1,

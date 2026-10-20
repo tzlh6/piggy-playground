@@ -22,14 +22,28 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.window.OnBackInvokedDispatcher;
+import android.content.ClipData;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-/** Offline game launcher with a narrow native update bridge; no external storage access. */
+/** Offline game launcher with narrow native bridges (updates, study banks); no external storage access. */
 public class MainActivity extends Activity {
     private static final int CREAM = Color.rgb(255, 251, 241);
+    private static final int PICK_STUDY_BANKS = 4701;
+    private static final long MAX_BANK_BYTES = 120L * 1024 * 1024;
     private static final String ORIGIN = "https://appassets.androidplatform.net/";
     private FrameLayout root;
     private WebView web;
@@ -98,6 +112,7 @@ public class MainActivity extends Activity {
             settings.setMediaPlaybackRequiresUserGesture(true);
             WebView.setWebContentsDebuggingEnabled(false);
             if (updater != null) web.addJavascriptInterface(new UpdateBridge(), "PiggyAndroidBridge");
+            web.addJavascriptInterface(new StudyBridge(), "PiggyStudyAndroid");
             web.setWebViewClient(new WebViewClient() {
                 @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                     return true; // Game and attribution content have no external navigation.
@@ -192,6 +207,138 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void download() { updater.download(); }
         @JavascriptInterface public void install() { runOnUiThread(() -> { pauseGame(); updater.install(); }); }
         @JavascriptInterface public void openPage() { updater.openPage(); }
+    }
+
+    /**
+     * 猪猪爱学习题库：用户在系统文件选择器里选中的 .json 复制到应用内部的 study 文件夹，
+     * 页面只能按相对文件名列出、读取或移除这里的文件。
+     */
+    private File studyDir() {
+        File dir = new File(getFilesDir(), "study");
+        if (!dir.isDirectory()) dir.mkdirs();
+        return dir;
+    }
+
+    private File studyFile(String rel) {
+        if (rel == null || !rel.toLowerCase().endsWith(".json") || rel.contains("..") || rel.startsWith("/")) return null;
+        try {
+            File base = studyDir().getCanonicalFile();
+            File f = new File(base, rel).getCanonicalFile();
+            return f.getPath().startsWith(base.getPath() + File.separator) ? f : null;
+        } catch (Exception e) { return null; }
+    }
+
+    private static String readAll(InputStream in, long limit) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buffer = new byte[65536];
+        int n;
+        long total = 0;
+        while ((n = in.read(buffer)) != -1) {
+            total += n;
+            if (total > limit) throw new Exception("too large");
+            out.write(buffer, 0, n);
+        }
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public final class StudyBridge {
+        @JavascriptInterface public String list() {
+            JSONArray rows = new JSONArray();
+            File base = studyDir();
+            File[] subs = base.listFiles();
+            if (subs == null) return "[]";
+            for (File sub : subs) {
+                File[] files = sub.isDirectory() ? sub.listFiles() : new File[] { sub };
+                if (files == null) continue;
+                for (File f : files) {
+                    if (!f.isFile() || !f.getName().toLowerCase().endsWith(".json")) continue;
+                    try {
+                        String rel = sub.isDirectory() ? sub.getName() + "/" + f.getName() : f.getName();
+                        rows.put(new JSONObject().put("file", rel).put("size", f.length()));
+                    } catch (Exception ignored) { }
+                }
+            }
+            return rows.toString();
+        }
+        @JavascriptInterface public String head(String rel) {
+            File f = studyFile(rel);
+            if (f == null || !f.isFile()) return "";
+            try (InputStream in = new java.io.FileInputStream(f)) {
+                byte[] b = new byte[4096];
+                int n = in.read(b);
+                return n > 0 ? new String(b, 0, n, StandardCharsets.UTF_8) : "";
+            } catch (Exception e) { return ""; }
+        }
+        @JavascriptInterface public String read(String rel) {
+            File f = studyFile(rel);
+            if (f == null || !f.isFile()) return "";
+            try (InputStream in = new java.io.FileInputStream(f)) { return readAll(in, MAX_BANK_BYTES); }
+            catch (Exception e) { return ""; }
+        }
+        @JavascriptInterface public boolean remove(String rel) {
+            File f = studyFile(rel);
+            return f != null && f.isFile() && f.delete();
+        }
+        @JavascriptInterface public void pick() {
+            runOnUiThread(() -> {
+                try {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "application/json", "application/octet-stream", "text/plain", "text/json" });
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    startActivityForResult(intent, PICK_STUDY_BANKS);
+                } catch (Exception e) {
+                    studyPicked(0, 0);
+                }
+            });
+        }
+    }
+
+    private void studyPicked(int added, int skipped) {
+        if (web != null) web.evaluateJavascript("window.PigStudyHost&&window.PigStudyHost.onPicked('{\"added\":" + added + ",\"skipped\":" + skipped + "}')", null);
+    }
+
+    private String displayName(Uri uri) {
+        try (Cursor c = getContentResolver().query(uri, new String[] { OpenableColumns.DISPLAY_NAME }, null, null, null)) {
+            if (c != null && c.moveToFirst()) return c.getString(0);
+        } catch (Exception ignored) { }
+        String last = uri.getLastPathSegment();
+        return last == null ? "题库.json" : last;
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != PICK_STUDY_BANKS) return;
+        final ArrayList<Uri> uris = new ArrayList<>();
+        if (resultCode == RESULT_OK && data != null) {
+            ClipData clip = data.getClipData();
+            if (clip != null) for (int i = 0; i < clip.getItemCount(); i++) uris.add(clip.getItemAt(i).getUri());
+            else if (data.getData() != null) uris.add(data.getData());
+        }
+        new Thread(() -> {
+            int added = 0, skipped = 0;
+            Pattern subject = Pattern.compile("\"subjectName\"\\s*:\\s*\"([^\"\\\\/:*?<>|]{1,10})\"");
+            for (Uri uri : uris) {
+                try (InputStream in = getContentResolver().openInputStream(uri)) {
+                    String text = readAll(in, MAX_BANK_BYTES);
+                    String head = text.substring(0, Math.min(4096, text.length()));
+                    if (!head.matches("(?s).*\"format\"\\s*:\\s*\"piggy-study-bank\".*")) { skipped++; continue; }
+                    Matcher m = subject.matcher(head);
+                    String sub = m.find() ? m.group(1) : "其他";
+                    String name = displayName(uri).replaceAll("[\\\\/:*?\"<>|]", "_");
+                    if (!name.toLowerCase().endsWith(".json")) name = name + ".json";
+                    File dir = new File(studyDir(), sub);
+                    dir.mkdirs();
+                    try (FileOutputStream out = new FileOutputStream(new File(dir, name))) {
+                        out.write(text.getBytes(StandardCharsets.UTF_8));
+                    }
+                    added++;
+                } catch (Exception e) { skipped++; }
+            }
+            final int a = added, s = skipped;
+            runOnUiThread(() -> studyPicked(a, s));
+        }).start();
     }
 
     private void requestBack() {

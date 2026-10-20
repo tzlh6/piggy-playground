@@ -25,7 +25,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 /** Native HTTPS updater. The WebView remains offline and receives only status snapshots. */
 public final class UpdateManager {
-    private static final int NATIVE_REVISION = 3;
+    private static final int NATIVE_REVISION = 4;
     public interface Listener { void changed(JSONObject state); }
     private final Activity activity;
     private final Listener listener;

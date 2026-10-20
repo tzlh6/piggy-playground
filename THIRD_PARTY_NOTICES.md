@@ -29,3 +29,7 @@
 ### 猪猪闯算门（4.6.0）
 
 参考 [5ubh4d45/CountMasters_Prototype](https://github.com/5ubh4d45/CountMasters_Prototype/tree/da97ed904ee97b186305c51cf32bed94f4828bd8)，固定提交 `da97ed904ee97b186305c51cf32bed94f4828bd8`，MIT。参考门的加 / 乘结算和按队伍半径收窄左右边界，重新实现为 JavaScript / Canvas；使用游乐场既有 PigArt 猪猪模型和音效，没有导入上游角色、图片或音乐。完整许可保存在 `desktop/app/assets/licenses/5ubh4d45_CountMasters_Prototype-MIT.txt`，随桌面包和单文件网页保留。
+
+## KaTeX 0.16.22（含 mhchem）
+
+来源：https://github.com/KaTeX/KaTeX 。MIT 许可，用于猪猪爱学习离线公式显示；只随附 woff2 字体。完整许可保留在 `desktop/app/assets/katex/LICENSE.txt` 和 `desktop/app/assets/licenses/KaTeX_KaTeX-MIT.txt`。

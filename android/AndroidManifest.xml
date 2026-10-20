@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.piggy.playground" android:versionCode="40611" android:versionName="4.6.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.piggy.playground" android:versionCode="40711" android:versionName="4.7.1">
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="36" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />

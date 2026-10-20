@@ -1,7 +1,7 @@
 /* 游戏目录：编号、名称、一句话、图标、分类。侧栏、搜索、分类与排序都从这里生成。 */
 (function(root){
 'use strict';
-const CATS=[['all','全部'],['puzzle','益智'],['action','敏捷'],['arcade','街机'],['versus','对战']];
+const CATS=[['all','全部'],['puzzle','益智'],['action','敏捷'],['arcade','街机'],['versus','对战'],['study','学习']];
 const GAMES=[
  {id:'mine',no:1,name:'扫猪',desc:'嘘，别吵醒小猪',icon:'i-flag',cat:'puzzle',keys:'扫雷 推理'},
  {id:'memory',no:2,name:'记忆翻翻乐',desc:'把好朋友配成对',icon:'i-cards',cat:'puzzle',keys:'翻牌 记忆 配对'},
@@ -24,7 +24,8 @@ const GAMES=[
  {id:'doudizhu',no:19,name:'斗地猪',desc:'屠夫大战邪恶猪猪',icon:'i-ddz',cat:'versus',keys:'斗地主 扑克 纸牌 地主 农民 联机 局域网 三人 对战',badge:'新游戏',badgeVer:'4.4.0'},
  {id:'jump',no:20,name:'猪猪跳一跳',desc:'按住蓄力，松开向前跳',icon:'i-run',cat:'action',keys:'跳一跳 蓄力 跳跃 平台 中心 连跳',badge:'新游戏',badgeVer:'4.4.4'},
  {id:'pool',no:21,name:'黑猪8',desc:'碰一下，哼唧一声',icon:'i-pool',cat:'versus',keys:'台球 八球 黑八 黑8 黑猪8 8ball 桌球 球杆 人机 双人 练球',badge:'新游戏',badgeVer:'4.4.5'},
- {id:'mathgate',no:22,name:'猪猪闯算门',desc:'选对门，带队打猪王',icon:'i-gate',cat:'action',keys:'算门 数学门 加减乘除 平方 开方 微积分 导数 积分 极限 混合运算 四则 跑酷 人群 猪群 boss 猪王 count masters',badge:'新游戏',badgeVer:'4.6.0'}
+ {id:'mathgate',no:22,name:'猪猪闯算门',desc:'选对门，带队打猪王',icon:'i-gate',cat:'action',keys:'算门 数学门 加减乘除 平方 开方 微积分 导数 积分 极限 混合运算 四则 跑酷 人群 猪群 boss 猪王 count masters',badge:'新游戏',badgeVer:'4.6.0'},
+ {id:'study',no:23,name:'猪猪爱学习',desc:'眼镜猪老师出真题',icon:'i-book',cat:'study',keys:'学习 刷题 题库 真题 试卷 答案 解析 数学 物理 化学 生物 语文 英语 选择题 填空题 解答题 阅读 完形填空 七选五 语法填空 文言文 作文 难度 错题本 高考 模拟 联考',badge:'新游戏',badgeVer:'4.7.0'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
 root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};

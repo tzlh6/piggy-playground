@@ -1,8 +1,10 @@
-# 安卓 4.6.1 · 闯算门题目升级与混合运算
+# 安卓 4.7.1 · 猪猪爱学习
 
-当前共用游戏与 App 均为 **4.6.1**，22 款离线游戏。普通安装包 `PiggyPlayground-4.6.1-Android.apk`（40611），旧更新器兼容包 `PiggyPlayground-4.6.1-Android-compat.apk`（40601）；原签名、nativeRevision=3。普通包读取 `android/update-v2.json`，旧更新器读取 `android/update.json`；普通编号须高于同版兼容包，后续普通包从 40612 起递增。覆盖安装保留数据，不要先卸载。
+当前共用游戏与 App 均为 **4.7.1**，23 款离线游戏。普通安装包 `PiggyPlayground-4.7.1-Android.apk`（40711），旧更新器兼容包 `PiggyPlayground-4.7.1-Android-compat.apk`（40701）；原签名、nativeRevision=4。普通包读取 `android/update-v2.json`，旧更新器读取 `android/update.json`；普通编号须高于同版兼容包，后续普通包从 40712 起递增。覆盖安装保留数据，不要先卸载。
 
-[下载 4.6.1](https://github.com/tzlh6/piggy-playground/releases/tag/v4.6.1-android) / [出题规则与验证](../docs/4.6.1-mathgate-questions.md) / [运算规则与例题 PDF](https://github.com/tzlh6/piggy-playground/releases/download/v4.6.1/PiggyPlayground-4.6.1-Gate-Rules.pdf)。本机已核验 APK 版本、签名和内置网页；安卓真机安装、原生联网更新与运行尚未验收。下文保留历史更新器修复与构建说明，构建新版本时使用当前 Manifest 和实际发行标签。
+新增「猪猪爱学习」：分科题型、难度筛选、数学填空和英语语法填空输入判分、语文英语整篇阅读逐小题作答、主观题自评与错题本。题库由使用者自行准备，不随程序和仓库发布；在游戏中点「导入题库文件」，通过系统文件选择器多选 JSON，保存到应用内部。语文、英语逐小题题库使用格式第 2 版，需 4.7.1 及以上程序。
+
+[下载 4.7.1](https://github.com/tzlh6/piggy-playground/releases/tag/v4.7.1-android) / [详细玩法、格式与验证](../docs/4.7.1-study.md)。已核验 APK 版本、原签名和内置网页，手机视口下已模拟桥接试玩；安卓真机安装、系统文件选择器、原生联网更新与运行尚未验收。下文保留历史更新器修复与构建说明，构建新版本时使用当前 Manifest 和实际发行标签。生成本版更新清单必须指定 `--native-revision 4`（生成器默认值仍为历史版本的 3）。
 
 ## 4.4.5 · 黑猪8
 
