@@ -32,10 +32,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -43,7 +46,7 @@ import org.json.JSONObject;
 public class MainActivity extends Activity {
     private static final int CREAM = Color.rgb(255, 251, 241);
     private static final int PICK_STUDY_BANKS = 4701;
-    private static final long MAX_BANK_BYTES = 120L * 1024 * 1024;
+    private static final long MAX_BANK_BYTES = StudyBankImporter.MAX_BANK_BYTES;
     private static final String ORIGIN = "https://appassets.androidplatform.net/";
     private FrameLayout root;
     private WebView web;
@@ -210,7 +213,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 猪猪爱学习题库：用户在系统文件选择器里选中的 .json 复制到应用内部的 study 文件夹，
+     * 猪猪爱学习题库：用户选择 JSON 或 ZIP，验证后复制到应用内部的 study 文件夹，
      * 页面只能按相对文件名列出、读取或移除这里的文件。
      */
     private File studyDir() {
@@ -285,7 +288,7 @@ public class MainActivity extends Activity {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("*/*");
-                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "application/json", "application/octet-stream", "text/plain", "text/json" });
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "application/json", "application/zip", "application/x-zip-compressed", "application/octet-stream", "text/plain", "text/json" });
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                     startActivityForResult(intent, PICK_STUDY_BANKS);
                 } catch (Exception e) {
@@ -307,6 +310,47 @@ public class MainActivity extends Activity {
         return last == null ? "题库.json" : last;
     }
 
+    private static String safeStudyName(String name, String fallback, int maxBytes) {
+        String safe = String.valueOf(name).replaceAll("[\\\\/:*?\"<>|\\p{Cntrl}]", "_").trim();
+        while (safe.contains("..")) safe = safe.replace("..", "_");
+        while (safe.getBytes(StandardCharsets.UTF_8).length > maxBytes)
+            safe = safe.substring(0, safe.offsetByCodePoints(safe.length(), -1));
+        return safe.isEmpty() || safe.equals(".") ? fallback : safe;
+    }
+
+    private boolean stageStudyBank(String name, byte[] bytes, Map<String, File> staged) throws IOException {
+        String text = new String(bytes, StandardCharsets.UTF_8);
+        if (text.startsWith("\uFEFF")) text = text.substring(1);
+        String subject;
+        try {
+            JSONObject bank = new JSONObject(text);
+            JSONArray units = bank.optJSONArray("units");
+            if (!"piggy-study-bank".equals(bank.optString("format")) || bank.optInt("version", 1) > 2 || units == null)
+                return false;
+            boolean hasQuestions = false;
+            for (int i = 0; i < units.length(); i++) {
+                JSONObject unit = units.optJSONObject(i);
+                JSONArray questions = unit == null ? null : unit.optJSONArray("questions");
+                if (questions != null && questions.length() > 0) { hasQuestions = true; break; }
+            }
+            if (!hasQuestions) return false;
+            subject = safeStudyName(bank.optString("subjectName", "其他"), "其他", 60);
+        } catch (org.json.JSONException error) { return false; }
+        String fileName = safeStudyName(name, "题库.json", 220);
+        if (!fileName.toLowerCase(java.util.Locale.ROOT).endsWith(".json")) fileName += ".json";
+        File temp = File.createTempFile("study-bank-", ".json", getCacheDir());
+        boolean saved = false;
+        try {
+            try (FileOutputStream output = new FileOutputStream(temp)) {
+                output.write(text.getBytes(StandardCharsets.UTF_8));
+            }
+            File old = staged.put(subject + "/" + fileName, temp);
+            if (old != null) old.delete();
+            saved = true;
+        } finally { if (!saved) temp.delete(); }
+        return true;
+    }
+
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != PICK_STUDY_BANKS) return;
@@ -318,26 +362,39 @@ public class MainActivity extends Activity {
         }
         new Thread(() -> {
             int added = 0, skipped = 0;
-            Pattern subject = Pattern.compile("\"subjectName\"\\s*:\\s*\"([^\"\\\\/:*?<>|]{1,10})\"");
+            ArrayList<String> errors = new ArrayList<>();
             for (Uri uri : uris) {
+                Map<String, File> staged = new LinkedHashMap<>();
                 try (InputStream in = getContentResolver().openInputStream(uri)) {
-                    String text = readAll(in, MAX_BANK_BYTES);
-                    String head = text.substring(0, Math.min(4096, text.length()));
-                    if (!head.matches("(?s).*\"format\"\\s*:\\s*\"piggy-study-bank\".*")) { skipped++; continue; }
-                    Matcher m = subject.matcher(head);
-                    String sub = m.find() ? m.group(1) : "其他";
-                    String name = displayName(uri).replaceAll("[\\\\/:*?\"<>|]", "_");
-                    if (!name.toLowerCase().endsWith(".json")) name = name + ".json";
-                    File dir = new File(studyDir(), sub);
-                    dir.mkdirs();
-                    try (FileOutputStream out = new FileOutputStream(new File(dir, name))) {
-                        out.write(text.getBytes(StandardCharsets.UTF_8));
+                    StudyBankImporter.Result imported = StudyBankImporter.read(in, displayName(uri),
+                        (name, bytes) -> stageStudyBank(name, bytes, staged));
+                    skipped += imported.skipped;
+                    // Complete and verify the archive first; a damaged ZIP leaves existing banks intact.
+                    for (Map.Entry<String, File> entry : staged.entrySet()) {
+                        File target = studyFile(entry.getKey());
+                        if (target == null) throw new IOException("题库文件名无法保存。");
+                        File parent = target.getParentFile();
+                        if (!parent.isDirectory() && !parent.mkdirs()) throw new IOException("题库文件夹无法创建。");
+                        Files.move(entry.getValue().toPath(), target.toPath(),
+                            StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                        added++;
                     }
-                    added++;
-                } catch (Exception e) { skipped++; }
+                } catch (Exception error) {
+                    errors.add(displayName(uri) + "：" + (error instanceof java.util.zip.ZipException ?
+                        "ZIP 已损坏或加密，请重新获取未加密的压缩包。" :
+                        error instanceof IOException ? error.getMessage() : "未能导入，请重新选择题库文件。"));
+                } finally {
+                    for (File temp : staged.values()) temp.delete();
+                }
             }
             final int a = added, s = skipped;
-            runOnUiThread(() -> studyPicked(a, s));
+            runOnUiThread(() -> {
+                studyPicked(a, s);
+                if (!errors.isEmpty() && !isDestroyed()) new AlertDialog.Builder(this)
+                    .setTitle("部分题库未能导入")
+                    .setMessage((a > 0 ? "已导入 " + a + " 套题库。\n\n" : "") + String.join("\n", errors))
+                    .setPositiveButton("知道了", (dialog, which) -> {}).show();
+            });
         }).start();
     }
 

@@ -1,3 +1,11 @@
+# 安卓 4.7.2 · ZIP 题库一次导入
+
+普通安装包 `PiggyPlayground-4.7.2-Android.apk`（40712）；旧更新器兼容包 `PiggyPlayground-4.7.2-Android-compat.apk`（40702）。原签名、nativeRevision=5，共用游戏保持 4.7.1。普通用户下载普通包覆盖安装即可，保留已有题库、成绩和设置，不要先卸载。
+
+猪猪爱学习 → 导入题库文件 → 选择一个未加密的 ZIP 压缩包，自动导入里面全部学科的 JSON 题库，无需解压。也可照常导入单个或多个 JSON；同名题库会更新，其他题库保留。题库由使用者自行准备，不随公开程序发行。
+
+[下载安卓版](https://github.com/tzlh6/piggy-playground/releases/tag/v4.7.2-android) / [功能和验证](../docs/4.7.2-android-zip.md)。已做主机 ZIP 测试、版本与签名检查、手机视口模拟原生桥验证；安卓真机安装与系统文件选择器尚未验证。生成本版双通道清单显式传入 `--native-revision 5`。
+
 # 安卓 4.7.1 · 猪猪爱学习
 
 当前共用游戏与 App 均为 **4.7.1**，23 款离线游戏。普通安装包 `PiggyPlayground-4.7.1-Android.apk`（40711），旧更新器兼容包 `PiggyPlayground-4.7.1-Android-compat.apk`（40701）；原签名、nativeRevision=4。普通包读取 `android/update-v2.json`，旧更新器读取 `android/update.json`；普通编号须高于同版兼容包，后续普通包从 40712 起递增。覆盖安装保留数据，不要先卸载。

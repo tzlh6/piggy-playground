@@ -35,6 +35,10 @@ def prepare():
     assert desktop_version == game_version, 'Update game-version.json when deliberately syncing newer game content'
     assert mobile_js.count('__PIGGY_ANDROID_VERSION__') == 1
     mobile_js = mobile_js.replace('__PIGGY_ANDROID_VERSION__', version)
+    # This is a native-only import feature; other hosts still accept JSON files.
+    study_hint = '手机上点“导入题库”，在文件管理里选中题库 .json 文件（可多选），会保存在游乐场里；卸载游乐场前请保留原文件。'
+    assert html.count(study_hint) == 1
+    html = html.replace(study_hint, '手机上点“导入题库文件”，选一个 ZIP 压缩包，就能一次导入里面所有学科的题库，无需先解压；也可选择单个或多个 JSON 文件。题库保存在游乐场里，请保留原文件。')
     # Native-only patches have their own release notes while sharing the same game content.
     seen_game = "if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);"
     assert html.count(seen_game) == 1

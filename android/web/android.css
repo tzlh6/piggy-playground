@@ -95,5 +95,14 @@ dialog button{min-height:44px}
 .android-dz-controls .dz-card{position:relative!important;left:auto!important;top:auto!important;width:44px;height:62px;border-radius:5px;flex:0 0 44px;margin-top:5px;transition:transform .12s,box-shadow .12s}
 .android-dz-controls .dz-card img{border-radius:5px}
 .android-dz-controls .dz-card.sel{transform:translateY(-6px)}
+/* Keep long bank titles and the full library within a phone's viewport. */
+body[data-game="study"] .st-wrap{width:100%;min-width:0;max-width:100%}
+body[data-game="study"] .st-lobby{grid-template-columns:minmax(0,1fr)}
+body[data-game="study"] .st-setup,body[data-game="study"] .st-library{min-width:0;max-width:100%}
+body[data-game="study"] .st-hero{min-width:0;padding:12px 12px 6px;align-items:center}
+body[data-game="study"] .st-chalk{min-width:0;overflow-wrap:anywhere}
+body[data-game="study"] .st-hero .pig-inline{width:72px;flex:0 0 72px}
+body[data-game="study"] .st-lib-actions{min-width:0}
+body[data-game="study"] .st-lib-actions button{min-height:44px}
 @media(min-width:600px){.android-game-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.game-caption{width:auto}.controls{width:auto;max-width:420px}.controls #level{width:auto}.game-toolbar{justify-content:space-between}.android-game-card{min-height:115px}}
 @media(max-width:350px){.android-hall-button{padding:8px}.pill{padding:8px;font-size:11px}.android-hall{padding:16px 12px}.android-brand img{width:44px;height:44px}.android-brand h2{font-size:18px!important}.segmented button{font-size:10px}}

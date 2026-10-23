@@ -76,7 +76,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>安卓安装包与更新</h3><p>本机已同步共用游戏 ${window.PIGGY_VERSION.version}。新游戏、完整规则和操作说明在下方详细列出。</p><p class="muted small">覆盖安装请保留数据，不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
+    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>猪猪爱学习：ZIP 一次导入题库</h3><p>打开猪猪爱学习，点“导入题库文件”，选中一个 ZIP 压缩包，就能一次导入里面全部学科的题库，无需先解压，也不用逐个选文件。仍可导入单个或多个 JSON 文件。</p><p>题库按学科保存，题图和解析一并保留；导入同名文件会更新该题库。压缩包中的说明文件会自动跳过。覆盖安装保留已有题库、成绩和设置。</p><p>本机共用游戏 ${window.PIGGY_VERSION.version} 的完整规则和操作说明在下方列出。</p><p class="muted small">不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };
