@@ -97,7 +97,7 @@ function create(ui){
  let sprites={},keys={left:false,right:false},drag=null;
  // model('pig'|'boar', 角色, 表情, 是否朝右)：SVG 转成 128px 小图缓存；还没加载好时返回 null。
  function model(kind,role,expr,flip){
-  const skin=(root.PigLook&&root.PigLook.active)||'peach',key=[kind,role,expr,flip?1:0,kind==='pig'?skin:''].join('|');
+  const skin=(root.PigLook&&root.PigLook.active)||'peach',key=[kind,role,expr,flip?1:0,kind==='pig'?skin+'+'+(root.PigLook&&root.PigLook.acc||''):''].join('|');
   let m=sprites[key];if(m)return m.ready?m.cv:null;
   m=sprites[key]={ready:false,cv:document.createElement('canvas')};
   if(!root.PigArt)return null;

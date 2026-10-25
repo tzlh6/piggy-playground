@@ -1,6 +1,6 @@
 /* 猪猪形象 · 唯一的可编辑来源
    4.2 新造型：桃粉大肚子、极短腿、弯卷耳、卷尾、短鼻、小黑眼睛，侧身朝左（参考 PigHub 的比例与气质，原创绘制）。
-   - svg(opts)：生成静态 SVG（make-pigs.cjs 用它写出 52 个造型文件与卡片）。
+   - svg(opts)：生成静态 SVG（make-pigs.cjs 用它写出 130 个造型文件与卡片）；opts.acc 加小装饰。
    - markup(opts)：生成可分层操控的 <g>，耳、腿、眼、尾、身体、头、道具各自一组（data-part）。
    - Rig：给内联 SVG 里的角色摆姿势、换表情、换服饰，供轮盘舞台、结果页等使用。
    坐标系：viewBox 0 0 160 160，脚底约 y=137。 */
@@ -11,8 +11,17 @@ const PALETTES={
  peach:{name:'奶桃团子',body:'#fddcc6',shade:'#f2bba0',belly:'#fff1e6',ear:'#d9488a',snout:'#f39a9f',leg2:'#f3aaa8',blush:'#f59aa3',line:'#b6627a',bg:'#fbf0e3',tail:'#efb59a'},
  berry:{name:'草莓糯米',body:'#ffd6e3',shade:'#f2a9c2',belly:'#fff0f5',ear:'#bf2f74',snout:'#ee7f9f',leg2:'#ee9cbb',blush:'#f07ea2',line:'#a94a72',bg:'#fcebf2',tail:'#eca0bb'},
  cream:{name:'奶油布丁',body:'#fff1d2',shade:'#efd4a2',belly:'#fffaf0',ear:'#d97a46',snout:'#f2a594',leg2:'#f0c39f',blush:'#f1a690',line:'#a87556',bg:'#faf4e5',tail:'#e9c995'},
- taro:{name:'芋泥啵啵',body:'#e9def8',shade:'#c8b4e8',belly:'#f7f2fd',ear:'#8b55c2',snout:'#e49bc9',leg2:'#d4b2e6',blush:'#e195c4',line:'#7d5f9e',bg:'#f1edf9',tail:'#c3ade4'}
+ taro:{name:'芋泥啵啵',body:'#e9def8',shade:'#c8b4e8',belly:'#f7f2fd',ear:'#8b55c2',snout:'#e49bc9',leg2:'#d4b2e6',blush:'#e195c4',line:'#7d5f9e',bg:'#f1edf9',tail:'#c3ade4'},
+ // 4.8 装扮版新增。可选字段：edge 轮廓不透明度 · eye 眼睛/眉毛 · eyeHi 眼睛高光 · nostril 鼻孔 · shadow 脚下阴影 · spots 身上花斑
+ whitechoc:{name:'白巧克力',body:'#fffdf8',shade:'#e6dccd',belly:'#ffffff',ear:'#c9ad8c',snout:'#f6ddd2',leg2:'#ece2d4',blush:'#f2c2c0',line:'#97836f',bg:'#ece5da',tail:'#ddcdb7',edge:.5},
+ darkchoc:{name:'黑巧克力',body:'#3a2b28',shade:'#1f1614',belly:'#5b4540',ear:'#9a6a58',snout:'#634641',leg2:'#2a1f1d',blush:'#a85468',line:'#ead0bd',bg:'#eee1d4',tail:'#4b3733',edge:.35,eye:'#fff2dc',eyeHi:'#3a2b28',nostril:'#1a1110',shadow:'#2a1d1b'},
+ matcha:{name:'抹茶麻薯',body:'#dcefc9',shade:'#a9d08c',belly:'#f2faea',ear:'#4f8a3a',snout:'#f0a7a2',leg2:'#b9da9f',blush:'#ee9f9a',line:'#557a44',bg:'#edf5e3',tail:'#a3cb88'},
+ soda:{name:'柠檬汽水',body:'#d6eefb',shade:'#9fcfee',belly:'#f1f9ff',ear:'#2f7fb8',snout:'#f3a8b8',leg2:'#b2d9f2',blush:'#f19db2',line:'#3f6f96',bg:'#eaf5fc',tail:'#97c9ea'},
+ caramel:{name:'焦糖拿铁',body:'#f0cfa6',shade:'#d6a26f',belly:'#fae8d2',ear:'#9a5a2c',snout:'#ef9f8f',leg2:'#e0b385',blush:'#ec9580',line:'#8b5a36',bg:'#f6ead9',tail:'#d39b65'},
+ cow:{name:'奶牛花花',body:'#fffaf4',shade:'#e4d9cf',belly:'#ffffff',ear:'#4a3a37',snout:'#f6b3bd',leg2:'#e9ded4',blush:'#f4a6b4',line:'#7d6a64',bg:'#f1ebe4',tail:'#4a3a37',edge:.45,spots:'#3d302e'}
 };
+// 小装饰：与服饰叠加，不占帽子位置
+const ACCESSORIES=[['none','不戴'],['bell','铃铛项圈'],['bowtie','小领结'],['pearls','珍珠项链'],['tailbow','尾巴蝴蝶结'],['earflower','耳边小花'],['hearts','爱心腮红'],['freckles','小雀斑'],['mustache','绅士胡子'],['wings','天使翅膀'],['sparkle','亮晶晶']];
 const ROLES=['crown','glasses','pirate','chef','space','bow','flower','music','wizard','scarf','detective','bee'];
 const EYE='#2a2326';
 // 关键点（编辑这里就能整体改造型）
@@ -38,25 +47,25 @@ function smooth(pts){
 }
 const BODY_PATH=smooth(G.body);
 
-function leg(k,fill,shade,line){const [x,w,bottom]=G.legs[k],top=bottom-28;
- return `<rect x="${x}" y="${top}" width="${w}" height="28" rx="${w*.48}" fill="${fill}" stroke="${line}" stroke-opacity=".22" stroke-width="1.4"/><path d="M${x+3} ${bottom-3.4}h${w-6}" stroke="${shade}" stroke-width="2.2" stroke-linecap="round" opacity=".6"/>`}
+function leg(k,fill,shade,line,edge){const [x,w,bottom]=G.legs[k],top=bottom-28;
+ return `<rect x="${x}" y="${top}" width="${w}" height="28" rx="${w*.48}" fill="${fill}" stroke="${line}" stroke-opacity="${edge||.22}" stroke-width="1.4"/><path d="M${x+3} ${bottom-3.4}h${w-6}" stroke="${shade}" stroke-width="2.2" stroke-linecap="round" opacity=".6"/>`}
 
 // ---- 眼睛表情（以眼睛中心为原点）----
 function eyeExpr(name,pal,scale){
- const s=scale||1,lw=2.5;
+ const s=scale||1,lw=2.5,E=pal.eye||EYE,H=pal.eyeHi||'#fff';
  switch(name){
-  case 'happy':return `<path d="M-4.6 1.6Q0 -4.2 4.6 1.6" fill="none" stroke="${EYE}" stroke-width="${lw}" stroke-linecap="round"/>`;
-  case 'shock':return `<circle r="${5.6*s}" fill="#fff" stroke="${EYE}" stroke-width="1.2"/><circle r="${2.8*s}" fill="${EYE}"/><circle cx="-1" cy="-1.2" r=".9" fill="#fff"/>`;
-  case 'dizzy':return `<path d="M-3.6 -3.6L3.6 3.6M3.6 -3.6L-3.6 3.6" stroke="${EYE}" stroke-width="2.3" stroke-linecap="round"/>`;
-  case 'sleep':return `<path d="M-4.4 -.4Q0 3.2 4.4 -.4" fill="none" stroke="${EYE}" stroke-width="2.2" stroke-linecap="round"/>`;
-  case 'smug':return `<ellipse rx="4.1" ry="4.6" fill="${EYE}"/><path d="M-5.4 -.6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 -.4H5" stroke="${EYE}" stroke-width="1.8" stroke-linecap="round"/>`;
+  case 'happy':return `<path d="M-4.6 1.6Q0 -4.2 4.6 1.6" fill="none" stroke="${E}" stroke-width="${lw}" stroke-linecap="round"/>`;
+  case 'shock':return `<circle r="${5.6*s}" fill="#fff" stroke="${E}" stroke-width="1.2"/><circle r="${2.8*s}" fill="${EYE}"/><circle cx="-1" cy="-1.2" r=".9" fill="#fff"/>`;
+  case 'dizzy':return `<path d="M-3.6 -3.6L3.6 3.6M3.6 -3.6L-3.6 3.6" stroke="${E}" stroke-width="2.3" stroke-linecap="round"/>`;
+  case 'sleep':return `<path d="M-4.4 -.4Q0 3.2 4.4 -.4" fill="none" stroke="${E}" stroke-width="2.2" stroke-linecap="round"/>`;
+  case 'smug':return `<ellipse rx="4.1" ry="4.6" fill="${E}"/><path d="M-5.4 -.6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 -.4H5" stroke="${E}" stroke-width="1.8" stroke-linecap="round"/>`;
   case 'star':return `<path d="M0 -5.6L1.6 -1.7 5.6 -1.4 2.5 1.2 3.5 5.2 0 3 -3.5 5.2 -2.5 1.2 -5.6 -1.4 -1.6 -1.7Z" fill="#ffd96a" stroke="#c89421" stroke-width=".9"/>`;
   // 4.3 轮盘新增：挤眼、眯眼、斜眼、耷拉眼皮
-  case 'tight':return `<path d="M-4.6 -3.2L2.4 0 -4.6 3.2" fill="none" stroke="${EYE}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  case 'squint':return `<path d="M-4.8 .4Q0 -2.4 4.8 .4" fill="none" stroke="${EYE}" stroke-width="2.8" stroke-linecap="round"/><path d="M-3.4 1.6Q0 3 3.4 1.6" fill="none" stroke="${EYE}" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>`;
-  case 'side':return `<ellipse rx="4.1" ry="4.7" fill="#fff" stroke="${EYE}" stroke-width="1"/><ellipse cx="-2" cy=".4" rx="2.6" ry="3.4" fill="${EYE}"/><circle cx="-2.8" cy="-.9" r=".9" fill="#fff"/>`;
-  case 'droop':return `<ellipse rx="4.1" ry="4.7" fill="${EYE}"/><path d="M-5.4 .6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 .6Q0 -1.2 5 .6" stroke="${EYE}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
-  default:return `<ellipse rx="4.1" ry="4.7" fill="${EYE}"/><circle cx="-1.3" cy="-1.7" r="1.35" fill="#fff"/>`;
+  case 'tight':return `<path d="M-4.6 -3.2L2.4 0 -4.6 3.2" fill="none" stroke="${E}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  case 'squint':return `<path d="M-4.8 .4Q0 -2.4 4.8 .4" fill="none" stroke="${E}" stroke-width="2.8" stroke-linecap="round"/><path d="M-3.4 1.6Q0 3 3.4 1.6" fill="none" stroke="${E}" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>`;
+  case 'side':return `<ellipse rx="4.1" ry="4.7" fill="#fff" stroke="${E}" stroke-width="1"/><ellipse cx="-2" cy=".4" rx="2.6" ry="3.4" fill="${EYE}"/><circle cx="-2.8" cy="-.9" r=".9" fill="#fff"/>`;
+  case 'droop':return `<ellipse rx="4.1" ry="4.7" fill="${E}"/><path d="M-5.4 .6H5.4V-6.4H-5.4Z" fill="${pal.body}"/><path d="M-5 .6Q0 -1.2 5 .6" stroke="${E}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  default:return `<ellipse rx="4.1" ry="4.7" fill="${E}"/><circle cx="-1.3" cy="-1.7" r="1.35" fill="${H}"/>`;
  }
 }
 const EXPRS=['normal','happy','shock','dizzy','sleep','smug','star','cry','angry','chew','worry','tense','wink','sick','sly','grin','burp','guilty','pain','weak','laugh','stinky'];
@@ -84,10 +93,11 @@ function mouthPath(kind,pal){
   default:return `<path d="M48 99.5Q52.5 104 57 99.5" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round"/>`;
  }
 }
-function browPath(kind){
- if(kind==='raise')return `<path d="M58.5 66Q64 61.5 70 64.5" fill="none" stroke="${EYE}" stroke-width="2" stroke-linecap="round"/>`;
- if(kind==='worry')return `<path d="M24.5 62.5L33 60.5M60 67.5L69 69.5" stroke="${EYE}" stroke-width="2" stroke-linecap="round"/>`;
- if(kind==='angry')return `<path d="M25 59.8L34.5 63.5M59.5 70L69.5 66.5" stroke="${EYE}" stroke-width="2.2" stroke-linecap="round"/>`;
+function browPath(kind,pal){
+ const E=pal&&pal.eye||EYE;
+ if(kind==='raise')return `<path d="M58.5 66Q64 61.5 70 64.5" fill="none" stroke="${E}" stroke-width="2" stroke-linecap="round"/>`;
+ if(kind==='worry')return `<path d="M24.5 62.5L33 60.5M60 67.5L69 69.5" stroke="${E}" stroke-width="2" stroke-linecap="round"/>`;
+ if(kind==='angry')return `<path d="M25 59.8L34.5 63.5M59.5 70L69.5 66.5" stroke="${E}" stroke-width="2.2" stroke-linecap="round"/>`;
  return '';
 }
 function face(pal,expr){
@@ -96,7 +106,7 @@ function face(pal,expr){
  const sick=e.sick?`<ellipse cx="44" cy="86" rx="30" ry="18" fill="#9bcf6a" opacity=".32"/><path d="M20 66q3-3 6 0M66 70q3-3 6 0" stroke="#7aa94e" stroke-width="1.6" fill="none" opacity=".7"/>`:'';
  return sick+`<g data-part="eyeF" data-pivot="${fx} ${fy}"><g transform="translate(${fx} ${fy}) scale(.92)">${eyeExpr(e.eyeF||e.eye,pal)}</g></g>`+
   `<g data-part="eyeN" data-pivot="${nx} ${ny}"><g transform="translate(${nx} ${ny})">${eyeExpr(e.eyeN||e.eye,pal)}</g></g>`+
-  `<g data-part="brow">${browPath(e.brow)}</g>`+tear+
+  `<g data-part="brow">${browPath(e.brow,pal)}</g>`+tear+
   `<g data-part="mouth"><g transform="translate(-1.5 5)">${mouthPath(e.mouth,pal)}</g></g>`;
 }
 
@@ -148,34 +158,66 @@ function costume(role,pal,uid){
  return L;
 }
 
+// ---- 小装饰：tail 跟着尾巴摆、back 在身后、torso 在身上、head 在帽子下、front 最上层 ----
+const NECK=[[83,36],[95,54],[96,98],[85,121]]; // 项圈沿“脖子”这条曲线
+function neckAt(t){const u=1-t,[a,b,c,d]=NECK;return [0,1].map(k=>u*u*u*a[k]+3*u*u*t*b[k]+3*u*t*t*c[k]+t*t*t*d[k])}
+function accessory(id,pal){
+ const L={tail:'',back:'',torso:'',head:'',front:''},neck='M83 36C95 54 96 98 85 121';
+ const star=(x,y,r,c)=>`<path d="M${x} ${y-r}Q${x+r*.18} ${y-r*.18} ${x+r} ${y}Q${x+r*.18} ${y+r*.18} ${x} ${y+r}Q${x-r*.18} ${y+r*.18} ${x-r} ${y}Q${x-r*.18} ${y-r*.18} ${x} ${y-r}Z" fill="${c}"/>`;
+ const heart=(x,y,s,c)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 3.2C-1.2 2-4.4 0-4.4-2.2C-4.4-3.8-3.2-4.8-2-4.8C-1-4.8-.3-4.2 0-3.4C.3-4.2 1-4.8 2-4.8C3.2-4.8 4.4-3.8 4.4-2.2C4.4 0 1.2 2 0 3.2Z" fill="${c}"/>`;
+ switch(id){
+  case 'bell':{const [bx,by]=neckAt(.72);L.torso=`<path d="${neck}" fill="none" stroke="#b8343a" stroke-width="7" stroke-linecap="round"/><path d="${neck}" fill="none" stroke="#e2574c" stroke-width="4.6" stroke-linecap="round"/><path d="${neck}" fill="none" stroke="#ffb3a8" stroke-width="1" stroke-dasharray="2 6" stroke-linecap="round"/>`+
+   `<g transform="translate(${bx+3.5} ${by+4})"><circle cy="-6.6" r="1.8" fill="none" stroke="#b88a1e" stroke-width="1.2"/><circle r="6" fill="#f6cd4e" stroke="#b88a1e" stroke-width="1.5"/><path d="M-5.6-.6H5.6" stroke="#b88a1e" stroke-width="1.1"/><circle cy="2.6" r="1.4" fill="#7d5a12"/><path d="M0 2.6V5.6" stroke="#7d5a12" stroke-width="1.1"/><circle cx="-2" cy="-2.6" r="1.4" fill="#fff6c8"/></g>`;break}
+  case 'bowtie':L.torso=`<g transform="translate(84 113) rotate(-8)"><path d="M0 0L-12-8Q-15 0-12 8ZM0 0L12-8Q15 0 12 8Z" fill="#5d9fe0" stroke="#2f6aa8" stroke-width="1.5" stroke-linejoin="round"/>${[[-8,-3],[-9,3.5],[8,-3],[9,3.5]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3" fill="#fff"/>`).join('')}<rect x="-3.2" y="-3.8" width="6.4" height="7.6" rx="2.2" fill="#3d7fc4" stroke="#2f6aa8" stroke-width="1.2"/></g>`;break;
+  case 'pearls':L.torso=Array.from({length:12},(_,i)=>{const [x,y]=neckAt(.05+i*.08);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${i===7?3.6:2.7}" fill="#fffaf0" stroke="#b49a72" stroke-width="1.2"/><circle cx="${(x-.9).toFixed(1)}" cy="${(y-.9).toFixed(1)}" r=".9" fill="#fff"/>`}).join('');break;
+  case 'tailbow':L.tail=`<g transform="translate(140 41) rotate(-24) scale(.62)"><path d="M0 0C-6-11-21-13-19.5-2C-18.5 7-6 4.5 0 0Z" fill="#f2789c" stroke="#c44d73" stroke-width="2.2"/><path d="M0 0C6-11 21-13 19.5-2C18.5 7 6 4.5 0 0Z" fill="#f2789c" stroke="#c44d73" stroke-width="2.2"/><circle r="4.8" fill="#e05582" stroke="#c44d73" stroke-width="1.6"/><path d="M-3 4L-7 13M3 4L8 12" stroke="#e05582" stroke-width="3.2" stroke-linecap="round"/></g>`;break;
+  case 'earflower':L.head=`<g transform="translate(92 57)">${[0,72,144,216,288].map(a=>`<ellipse cy="-4.6" rx="3.4" ry="4.6" transform="rotate(${a})" fill="#ffa3c4" stroke="#e0709a" stroke-width="1"/>`).join('')}<circle r="2.8" fill="#ffd45e" stroke="#d9a42c" stroke-width=".9"/><path d="M5 5q5 3 9 1" fill="none" stroke="#7fb57a" stroke-width="2" stroke-linecap="round"/></g>`;break;
+  case 'hearts':L.head=heart(66,89,1.35,'#ff6f91')+heart(19,81,.9,'#ff6f91')+`<circle cx="62.5" cy="86" r=".9" fill="#fff" opacity=".8"/>`;break;
+  case 'freckles':L.head=[[59,89],[64,92.5],[69,89],[64,86.5],[17,82.5],[21,85]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.25" fill="${pal.eye?'#e9b9a0':'#b77457'}" opacity=".75"/>`).join('');break;
+  case 'mustache':L.head=`<path d="M37 102.6C33 99.6 26.5 99.6 24.4 103.6C23.4 106.2 25.8 107.6 27.8 106.1C30.4 104.1 33.4 104.6 37 105.1C40.6 104.6 43.6 104.1 46.2 106.1C48.2 107.6 50.6 106.2 49.6 103.6C47.5 99.6 41 99.6 37 102.6Z" fill="${pal.eye?'#f1dcc2':'#4a3530'}"/>`;break;
+  case 'wings':{const w=`<path d="M0 0C-4-16 8-28 24-26C18-20 22-16 28-18C24-10 28-6 34-7C26 2 12 6 0 0Z" fill="#fff" stroke="#c9d6e4" stroke-width="1.8" stroke-linejoin="round"/><path d="M6-4Q14-12 22-14M8 0Q18-4 26-6" fill="none" stroke="#dbe6f0" stroke-width="1.4" stroke-linecap="round"/>`;
+   L.back=`<g transform="translate(114 52) rotate(-10) scale(1.15)" opacity=".85">${w}</g><g transform="translate(96 50) rotate(-28) scale(1.3)">${w}</g>`;break}
+  case 'sparkle':L.front=star(12,28,9,'#ffd54a')+star(12,28,3.6,'#fff6c4')+star(148,96,7,'#ffd54a')+star(132,12,6,'#ffe27c')+star(7,118,5,'#ffe27c')+star(152,128,4,'#fff1a8');break;
+ }
+ return L;
+}
 // ---- 分层角色 ----
 let counter=0;
 function markup(opts){
  opts=opts||{};const pal=opts.palette||PALETTES[opts.skin]||PALETTES.peach,role=opts.role||'pig',expr=opts.expr||'normal',uid=opts.uid||('pig'+(++counter));
- const C=costume(role,pal,uid),P=G.pivots,pv=k=>P[k].join(' ');
+ // 没指定 acc 时，玩家自己的配色自动戴上换装里选的小装饰
+ const look=root.PigLook,acc=opts.acc!==undefined?opts.acc:(look&&opts.skin&&opts.skin===look.active?look.acc:'');
+ const C=costume(role,pal,uid),A=accessory(acc,pal),P=G.pivots,pv=k=>P[k].join(' ');
  const part=(name,inner)=>`<g data-part="${name}" data-pivot="${pv(name)}">${inner}</g>`;
- return `<g class="pig-rig" data-skin="${opts.skin||'peach'}" data-role="${role}">`+
-  `<ellipse data-part="shadow" cx="80" cy="139.5" rx="54" ry="5.2" fill="${pal.line}" opacity=".13"/>`+
+ const edge=pal.edge||.22;
+ const spots=pal.spots?`<g clip-path="url(#${uid}-clip)" fill="${pal.spots}"><path d="M92 46C100 38 116 40 119 50C122 60 110 66 101 63C93 61 86 54 92 46Z"/><path d="M120 82C126 74 140 76 142 86C144 96 134 102 126 98C119 95 116 88 120 82Z"/><path d="M84 98C88 93 98 94 99 101C100 107 92 110 87 107C83 105 81 101 84 98Z"/><ellipse cx="139" cy="58" rx="6" ry="4.6" transform="rotate(-20 139 58)"/><ellipse cx="108" cy="114" rx="7" ry="4" opacity=".9"/></g>`:'';
+ const legSpot=pal.spots?`<ellipse cx="120" cy="122" rx="5" ry="4" fill="${pal.spots}"/>`:'';
+ return `<g class="pig-rig" data-skin="${opts.skin||'peach'}" data-role="${role}"${acc?` data-acc="${acc}"`:''}>`+
+  `<ellipse data-part="shadow" cx="80" cy="139.5" rx="54" ry="5.2" fill="${pal.shadow||pal.line}" opacity="${pal.shadow?.22:.13}"/>`+
   part('root',
+   `<g data-part="acc-back">${A.back}</g>`+
    `<g data-part="back">${C.back}</g>`+
-   part('tail',`<path d="${G.tail}" fill="none" stroke="${pal.tail}" stroke-width="4.2" stroke-linecap="round"/>`)+
-   part('legC',leg('c',pal.leg2,pal.line,pal.line))+part('legD',leg('d',pal.shade,pal.line,pal.line))+
-   part('legA',leg('a',pal.body,pal.shade,pal.line))+part('legB',leg('b',pal.body,pal.shade,pal.line))+
+   part('tail',`<path d="${G.tail}" fill="none" stroke="${pal.tail}" stroke-width="4.2" stroke-linecap="round"/>${A.tail}`)+
+   part('legC',leg('c',pal.leg2,pal.line,pal.line,edge))+part('legD',leg('d',pal.shade,pal.line,pal.line,edge)+legSpot)+
+   part('legA',leg('a',pal.body,pal.shade,pal.line,edge))+part('legB',leg('b',pal.body,pal.shade,pal.line,edge))+
    part('torso',
-    `<path d="${BODY_PATH}" fill="url(#${uid}-body)" stroke="${pal.line}" stroke-opacity=".22" stroke-width="1.6"/>`+
+    `<path d="${BODY_PATH}" fill="url(#${uid}-body)" stroke="${pal.line}" stroke-opacity="${edge}" stroke-width="1.6"/>`+spots+
     `<ellipse cx="78" cy="109" rx="42" ry="10.5" fill="${pal.belly}" opacity=".42"/>`+
     `<path d="M95 41Q119 40 132 52" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>`+
+    `<g data-part="acc-torso">${A.torso}</g>`+
     `<g data-part="costume-torso">${C.torso}</g>`+
     part('head',
      part('earF',`<path d="${G.earFIn}" fill="${pal.ear}" opacity=".2"/><path d="${G.earF}" fill="none" stroke="${pal.ear}" stroke-width="5" stroke-linecap="round"/>`)+
      `<ellipse cx="66" cy="88.5" rx="7.4" ry="4.2" fill="${pal.blush}" opacity=".5"/><ellipse cx="19" cy="80.5" rx="4" ry="3" fill="${pal.blush}" opacity=".42"/>`+
      part('cheek',`<ellipse cx="60" cy="93" rx="9" ry="7.2" fill="${pal.body}" opacity="0"/>`)+
      `<g data-part="face">${face(pal,expr)}</g>`+
-     part('snout',`<ellipse cx="${G.snout[0]}" cy="${G.snout[1]}" rx="${G.snout[2]}" ry="${G.snout[3]}" fill="${pal.snout}"/><ellipse cx="34.5" cy="88" rx="7" ry="2.6" fill="#fff" opacity=".28"/><ellipse cx="31.6" cy="92.5" rx="2.5" ry="3.8" fill="${EYE}"/><ellipse cx="42.4" cy="93" rx="2.5" ry="3.8" fill="${EYE}"/>`)+
+     part('snout',`<ellipse cx="${G.snout[0]}" cy="${G.snout[1]}" rx="${G.snout[2]}" ry="${G.snout[3]}" fill="${pal.snout}"/><ellipse cx="34.5" cy="88" rx="7" ry="2.6" fill="#fff" opacity=".28"/><ellipse cx="31.6" cy="92.5" rx="2.5" ry="3.8" fill="${pal.nostril||EYE}"/><ellipse cx="42.4" cy="93" rx="2.5" ry="3.8" fill="${pal.nostril||EYE}"/>`)+
      part('earN',`<path d="${G.earNIn}" fill="${pal.ear}" opacity=".2"/><path d="${G.earN}" fill="none" stroke="${pal.ear}" stroke-width="5" stroke-linecap="round"/>`)+
+     `<g data-part="acc-head">${A.head}</g>`+
      `<g data-part="costume-head">${C.head}</g>`)+
     `<g data-part="costume-front">${C.front}</g>`)+
-   part('prop',''))+
+   part('prop','')+
+   `<g data-part="acc-front">${A.front}</g>`)+
   `</g>`;
 }
 function defs(pal,uid){
@@ -216,6 +258,6 @@ const MATCH=[
  ['wizard',{body:'#e4d0fa',shade:'#ad8ae2',belly:'#f6effe',ear:'#6a3fa8',snout:'#eaa0d2',leg2:'#c2a6ea',blush:'#de8fc8',line:'#684494',bg:'#e1d1f6',tail:'#b190e2'},'m-wizard'],
  ['tiger',{body:'#ffd3a6',shade:'#f39d53',belly:'#fff0e0',ear:'#b1531b',snout:'#f6a38a',leg2:'#f2ad74',blush:'#f39270',line:'#a85220',bg:'#ffd8b4',tail:'#f0a05c'},'m-tiger']
 ];
-const api={PALETTES,ROLES,MATCH,EXPRS,G,smooth,BODY_PATH,costume,markup,defs,svg,inline,Rig,face};
+const api={PALETTES,ROLES,MATCH,EXPRS,ACCESSORIES,G,smooth,BODY_PATH,costume,accessory,markup,defs,svg,inline,Rig,face};
 if(typeof module!=='undefined')module.exports=api;root.PigArt=api;
 })(typeof window!=='undefined'?window:globalThis);

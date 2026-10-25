@@ -29,7 +29,7 @@ function create(ui){
  let session=0,debugSpeed=1;
  const token=(()=>{let v=Store.get('ddz-token','');if(!v){v=Math.random().toString(36).slice(2,12)+Date.now().toString(36);Store.set('ddz-token',v)}return v})();
  const myName=()=>{let n=Store.get('ddz-name','');if(!n){n='小猪'+(10+Math.floor(Math.random()*89));Store.set('ddz-name',n)}return N.cleanName(n)};
- const myAvatar=()=>({skin:root.PigLook?root.PigLook.active:'peach',role:'pig'});
+ const myAvatar=()=>({skin:root.PigLook?root.PigLook.active:'peach',role:'pig',acc:root.PigLook?root.PigLook.acc:''});
  const version=()=>(root.PIGGY_VERSION||{}).version||'';
  const esc=v=>String(v===undefined||v===null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

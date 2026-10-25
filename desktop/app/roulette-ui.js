@@ -17,7 +17,7 @@ const configs={
 };
 const PIG_S=1.55,LET_S=.74;
 const PARTS=['root','torso','head','earF','earN','tail','legA','legB','legC','legD','eyeF','eyeN','snout','prop'];
-const RIVAL={peach:'taro',berry:'cream',cream:'berry',taro:'peach'};
+const RIVAL={peach:'taro',berry:'cream',cream:'berry',taro:'peach',whitechoc:'darkchoc',darkchoc:'whitechoc',matcha:'berry',soda:'caramel',caramel:'soda',cow:'taro'};
 const TIER_ROLE={easy:'flower',smart:'detective',devil:'pirate',duo:'bow'};
 const TIER_NAME={easy:'悠闲猪猪',smart:'聪明猪猪',devil:'恶魔猪猪'};
 const STAGE_LABEL={1:'第一阶段',2:'第二阶段',3:'第三阶段',4:'加赛'};

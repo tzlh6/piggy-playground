@@ -128,7 +128,7 @@ function weaponArt(kind){return kind==='cleaver'
     `<g transform="translate(31 43)" fill="#9fb4c0"><ellipse rx="7" ry="5.4"/><path d="M-6-3l-3-5 5 2zM2-5l3-5 1 5z"/><ellipse cx="-6.6" cy="1" rx="2.4" ry="2" fill="#86a0ae"/></g>`
   :`<g transform="rotate(-38 31 74)"><rect x="-6" y="68" width="74" height="13" rx="6.5" fill="#e9bf86" stroke="#b9824a" stroke-width="2"/><rect x="-16" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><rect x="66" y="70.5" width="12" height="8" rx="4" fill="#c58a52"/><path d="M4 71.5H58" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/></g>`}
 // 身份头像（叫分前和名牌上用）：玩家自己的猪猪造型
-function avatar(a){a=a||{};const u='av'+(++uidN);const pal=PA.PALETTES[a.skin]||PA.PALETTES.peach;return `<svg class="dz-avatar-svg" viewBox="4 22 120 120" aria-hidden="true">${PA.defs(pal,u)}${PA.markup({uid:u,skin:a.skin,role:a.role||'pig',expr:a.expr||'normal'})}</svg>`}
+function avatar(a){a=a||{};const u='av'+(++uidN);const pal=PA.PALETTES[a.skin]||PA.PALETTES.peach;return `<svg class="dz-avatar-svg" viewBox="4 22 120 120" aria-hidden="true">${PA.defs(pal,u)}${PA.markup({uid:u,skin:a.skin,role:a.role||'pig',expr:a.expr||'normal',acc:a.acc||''})}</svg>`}
 // 神秘猪影：还没决定身份时
 function mystery(){return `<svg class="dz-art dz-mystery" viewBox="0 0 160 160" aria-hidden="true"><path d="${PA.BODY_PATH}" transform="translate(4 14)" fill="#2d3b31" opacity=".28"/><text x="84" y="104" font-size="54" font-weight="900" fill="#fff" opacity=".8" text-anchor="middle" font-family="${FONT_NUM}">?</text></svg>`}
 

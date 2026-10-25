@@ -67,7 +67,7 @@ function create(ui){
  const has=id=>id==='jump';
  const active=()=>has(get().game)&&get().state&&get().state.jump;
  function sprite(expr){
-  const key=root.PigLook.active+'-'+expr;
+  const key=root.PigLook.active+'-'+root.PigLook.acc+'-'+expr;
   if(!images[key]){
    const im=new Image();im.onload=()=>{if(active())draw()};
    // 舞台自己画会随高度变化的影子，去掉立绘自带的地面影子，翻跟头时才不会跟着转。

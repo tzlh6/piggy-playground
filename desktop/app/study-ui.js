@@ -104,7 +104,7 @@ function create(ui){
  const setPrefs=p=>Store.set('study-prefs',Object.assign(prefs(),p));
  const wrongBook=()=>{const w=Store.get('study-wrong',{});return w&&typeof w==='object'?w:{}};
  const pig=(o)=>root.PigArt?root.PigArt.inline(Object.assign({viewBox:'0 14 160 136'},o)):'';
- const teacher=expr=>pig({skin:'taro',role:'glasses',expr,cls:'st-teacher-pig'});
+ const teacher=expr=>pig({skin:'taro',role:'glasses',expr,cls:'st-teacher-pig',acc:''});
  const student=expr=>pig({skin:(root.PigLook&&root.PigLook.active)||'peach',role:'pig',expr,cls:'st-student-pig'});
  const sum2=a=>Math.round(a.reduce((s,r)=>s+(r?r.points:0),0)*10)/10;
 

@@ -11,7 +11,7 @@ const TURN_MS={bid:20000,play:30000};
 const EMOTES=['哼！','快点啦～','炸得好！','猪队友！','嘿嘿，稳了','我要哭了','再来一局','哼哼哈哈！'];
 const AI_NAMES={easy:'悠闲猪猪',smart:'聪明猪猪',devil:'恶魔猪猪'};
 const cleanName=s=>String(s||'').replace(/[<>&"'`\u0000-\u001f]/g,'').trim().slice(0,12)||'小猪';
-const cleanAvatar=a=>{a=a||{};const skins=['peach','berry','cream','taro'],roles=['pig','crown','glasses','pirate','chef','space','bow','flower','music','wizard','scarf','detective','bee'];return {skin:skins.includes(a.skin)?a.skin:'peach',role:roles.includes(a.role)?a.role:'pig'}};
+const cleanAvatar=a=>{a=a||{};const skins=['peach','berry','cream','taro','whitechoc','darkchoc','matcha','soda','caramel','cow'],roles=['pig','crown','glasses','pirate','chef','space','bow','flower','music','wizard','scarf','detective','bee'],accs=['bell','bowtie','pearls','tailbow','earflower','hearts','freckles','mustache','wings','sparkle'];return {skin:skins.includes(a.skin)?a.skin:'peach',role:roles.includes(a.role)?a.role:'pig',acc:accs.includes(a.acc)?a.acc:''}};
 // ---- 客人端：房主发来的数据先整理一遍（只保留认识的字段、数字限定范围），再交给界面 ----
 const num=(v,lo,hi)=>{v=Number(v);if(!isFinite(v))v=0;return Math.max(lo,Math.min(hi,Math.round(v)))};
 const cards=a=>Array.isArray(a)?a.slice(0,60).map(x=>num(x,0,53)):[];
