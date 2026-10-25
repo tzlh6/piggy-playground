@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.7.2",
-  "versionCode": 40712,
+  "version": "4.7.3",
+  "versionCode": 40713,
   "nativeRevision": 5,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.7.2-android/PiggyPlayground-4.7.2-Android.apk",
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.7.3-android/PiggyPlayground-4.7.3-Android.apk",
   "bytes": 951314,
-  "sha256": "d4bd17115138248d4e0c69d8d74de3f2b0564f9abb18ec9953447b83be9a5aa8",
-  "notes": "猪猪爱学习现可直接导入 ZIP：在“导入题库文件”中选择一个压缩包，即可一次导入里面全部学科的 JSON 题库，无需提前解压，也不用逐个选文件。\n\n\n\n- 支持学科子文件夹，题图、答案和解析一并保留；继续支持单个或多个 JSON 导入。\n\n- 同名题库更新，其他题库保留；修复手机窄屏被长题库名称撑宽的问题。\n\n- 压缩包中的说明文件自动跳过，损坏或加密 ZIP 会提示错误。\n\n\n\n安装：普通用户下载 **PiggyPlayground-4.7.2-Android.apk**，直接覆盖安装，**不要先卸载**，保留已有题库、成绩和设置。compat 包供旧更新器使用，无需两个都安装。\n\n\n\n这是安卓独立补丁：App 4.7.2，共用游戏保持 4.7.1。普通编号 40712，兼容编号 40702，nativeRevision=5，沿用原签名。Android 8.0 及以上，需要系统 WebView。题库由使用者自行准备。\n\n\n\n已通过 ZIP/JSON 读取及边界检查、真实六科 51 份题库与 1297 道题的完整性核对、手机视口下导入与重复导入、原签名及双包一致性、升级规则和网络回归检查。安卓真机安装与系统文件选择器尚未验证。"
+  "sha256": "cb39ec76694cbb5c8fd7a4ed0bc93ae979af8f6572b5f71e295e1ab7e000f6fa",
+  "notes": "猪猪爱学习选择资料时先只显示书名。点击书名展开章节目录，再展开章节或节，选择具体课时、专题；也可以选择整本、整章或整节练习。\n\n- 综合试卷与练习收在单独的折叠目录，按整套选择。\n- 当前选择显示完整目录路径，题型、难度、题数及实际出题都使用所选范围；调整筛选后保留目录展开状态。\n- 题库文件管理列表默认折叠，保留原书“例1”等标号。\n- 安卓继续支持ZIP一次导入，也可以导入JSON；覆盖安装保留题库、成绩和设置，不要先卸载。\n\nWindows、离线网页和安卓共用游戏均为4.7.3。Windows最低外壳仍为4.7.1；安卓普通40713、旧更新器兼容40703，原签名，nativeRevision=5。普通用户下载普通APK，无需安装两个包。\n\n题库由使用者自行准备，个人题库及压缩包不随公开程序提供。书籍分课时题库使用book/chapter/topic元数据构建目录；旧合并书籍仍可用。\n\n已完成既有游戏回归、179项学习规则、实际目录展开与整本/整章/单课时范围检查、390像素窄屏检查、版本及签名、公开源码与内置网页一致性检查。安卓真机安装、系统文件选择器和Windows 7实机尚未验收。"
 }
