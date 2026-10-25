@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.7.3",
+ "version": "4.8.0",
  "date": "2026-10-25",
- "ref": "be95d5a8892076af141d5f262b8973abd158cc60",
+ "ref": "8f321fb81ac5668524384727955cbb40fa49841a",
  "minShell": "4.7.1",
- "notes": "选题区先显示书名，点开一本书后显示目录，再逐级展开到章节、课时或专题。 可以选择整本练习、全章练习或某个具体课时；综合试卷集中在折叠的“综合试卷与练习”中，保留完整试卷。 电脑、安卓与离线网页使用相同的目录；导入题库后，原书目录信息保留。",
+ "notes": "猪猪换装新增六种配色：通体雪白的白巧克力猪猪、通体乌黑的黑巧克力猪猪，以及抹茶麻薯、柠檬汽水、焦糖拿铁和带黑色花斑的奶牛花花，共十种。 新增“小装饰”：铃铛项圈、小领结、珍珠项链、尾巴蝴蝶结、耳边小花、爱心腮红、小雀斑、绅士胡子、天使翅膀、亮晶晶，可以和服饰叠着戴。 换上的配色和装饰同步到各个游戏里你自己的小猪：卡片、棋子、轮盘、跳一跳、闯算门、黑猪8、斗地猪头像和猪猪爱学习的同学猪。",
  "files": {
   "app.js": {
-   "sha256": "01eefc3d25ef1920fa7f0f553c0c07df55b2fc3a4aec4e4d53e7b457ec29c0c9",
-   "size": 64644
+   "sha256": "384ea63d026406511b498cf0ee0614e72712a64944b4f65672dd3c881d8adec2",
+   "size": 65155
   },
   "arcade-core.js": {
    "sha256": "6997f8c9711f3a77bcb980f3eb277e3bf21f0f9b24574fc6456cd67c7ed6ef51",
@@ -24,52 +24,52 @@
    "size": 1072
   },
   "assets/cards/bee.svg": {
-   "sha256": "398dab3be87aef9c02ef62e2c52bb39332241b6330451fa466fe34c2b18bc4c4",
-   "size": 5689
+   "sha256": "be3be67fb1d14837950734387618292c1ac56d21ab6c6d5f1426a75572a806ce",
+   "size": 5809
   },
   "assets/cards/bow.svg": {
-   "sha256": "b37cd998a237f41c3b1aedeff3d1e584ef4bb08e031528182af3a31c5f1cd4d7",
-   "size": 5470
+   "sha256": "2b8bd348f5e5fb725b4762e9b91899f86ee6aabbae601ed565743e1d69484538",
+   "size": 5590
   },
   "assets/cards/chef.svg": {
-   "sha256": "70e837628520e8337e52c758dc4a70e037846c2a9895073c3b63393348bf16dd",
-   "size": 5554
+   "sha256": "64bcf0467e2b1651e802af09306bb1d2c7f5700cdd2f0cb8e323abfcbb40cf73",
+   "size": 5674
   },
   "assets/cards/crown.svg": {
-   "sha256": "0c4149b6ab345c1a41d5be69e09541ee942a9b11aea983ac17b51400a37c97e5",
-   "size": 5517
+   "sha256": "9df6f9e4f16a7a9ea2ad775d2f37ea7d73dd58258c2f000b106074f3ee899949",
+   "size": 5637
   },
   "assets/cards/detective.svg": {
-   "sha256": "6a815660c1cbd5328b2692162dfe2e3fd03bbe547af0cd22ffb86d8dfea492b9",
-   "size": 5703
+   "sha256": "a29d030ed056501ccd8fb6fd68ab71dc68ad2d8012c8289a4dc6e50db0a2cd1d",
+   "size": 5823
   },
   "assets/cards/flower.svg": {
-   "sha256": "b34c3cfbd9a597def04e28320d2ea4842b60213ad343f78636f4f47385ee3044",
-   "size": 7999
+   "sha256": "bbbe192a8665b918ac459bdcfd00b7470cd07a9b41914129be35d8561573887d",
+   "size": 8119
   },
   "assets/cards/glasses.svg": {
-   "sha256": "f20b9940c99f365259f754cc908bd9a93fc5682ba50459149bc7bfb9aa3b8ec8",
-   "size": 5327
+   "sha256": "67320b40f14e3e5ca489146abeb14e3127e0dffcd3ac48cf9b5d0afb7088bd96",
+   "size": 5447
   },
   "assets/cards/music.svg": {
-   "sha256": "bbf9b5fd387a4c4f0f65a489cc706138d5f61f0ee9849ec56d2b612668188110",
-   "size": 5493
+   "sha256": "a28003ac1608a71efffac449154a8dad98be560bb57c9a85fc6861bc8861fd41",
+   "size": 5613
   },
   "assets/cards/pirate.svg": {
-   "sha256": "0b4ec362f7bf09cdd22b39f72ef69603f8b2bd16390cb8f40afa4445a408fe27",
-   "size": 5626
+   "sha256": "05a34adf385da6dfcd66f27d9663dc8fcde2a8aba2e64da25d6a9346e0da684a",
+   "size": 5746
   },
   "assets/cards/scarf.svg": {
-   "sha256": "738bc2f0bbd6f3a3f5070cadc88ec62dc61fa8ac6c692d9c2b8f71c27a1ddb70",
-   "size": 5299
+   "sha256": "37833a9d50ca561c80b75fb73a8698165189d36134ae615abfadac1c45bc29da",
+   "size": 5419
   },
   "assets/cards/space.svg": {
-   "sha256": "78d3da7aead3a9a0970d7b06dcccc12a9f43afd8f579e1832e3b3ec6aae9fb2e",
-   "size": 5722
+   "sha256": "11000dc8c1c3fe1403113331ba046114b9672061d93d52a12db484fd88547910",
+   "size": 5842
   },
   "assets/cards/wizard.svg": {
-   "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
-   "size": 5445
+   "sha256": "0321c7132ac47feba5a973e066f6853d1aecfe399783e904ab2d7d7375e73366",
+   "size": 5565
   },
   "assets/katex/LICENSE.txt": {
    "sha256": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
@@ -204,28 +204,28 @@
    "size": 1078
   },
   "assets/match/crown.svg": {
-   "sha256": "9afccbaec9e1f4a7dc4578543a0f76c603367e24b299b0b734f5dc9de018ab06",
-   "size": 5044
+   "sha256": "75069237c5ae989944c3cbadf75b433503335d944941712c6fc1787226aacb79",
+   "size": 5164
   },
   "assets/match/diver.svg": {
-   "sha256": "7a49d38b16c3d66a84556211acf510349b643f9c95df18c99d0795b6fb9918ad",
-   "size": 5155
+   "sha256": "3980653c20dbd7ed41e062074d355c2004880e0798696951d78e0e1316d061c6",
+   "size": 5275
   },
   "assets/match/leaf.svg": {
-   "sha256": "4449ea90d5663ab1801ee017fcd4b72a4bfaf2826205f9c00010fe8a16551afe",
-   "size": 5212
+   "sha256": "7c6784e4cfa107359e5363841d931e58219602868f0e45c11384d67f893dcb59",
+   "size": 5332
   },
   "assets/match/ribbon.svg": {
-   "sha256": "a9b6a32df90eda3874a39662c3d351af684536b170c9829963fbd871f26bb287",
-   "size": 5132
+   "sha256": "bdbe4fa5bf31b5d982032a27f0e3550055a7c775e78aca79b3289a4be15fde33",
+   "size": 5252
   },
   "assets/match/tiger.svg": {
-   "sha256": "b33a50e3034b74f7059e76b1a12a588fafeb987adf9cdca447c7d22f81ce9b19",
-   "size": 5279
+   "sha256": "f405d197a39247e8d1114e33add02f79e217e8729cb0883b71317f6fb540c86c",
+   "size": 5399
   },
   "assets/match/wizard.svg": {
-   "sha256": "f89436c5e6b3f60dbe510700b8940c232e832ac841978b1604b940a2c9c9aab1",
-   "size": 5169
+   "sha256": "cfde061d4052dd50b2e060ff4c6daaa0400c0e60aabdbb6fb3de59a6929cfdc6",
+   "size": 5289
   },
   "assets/pig.ico": {
    "sha256": "d209aa581f1da0b56be9712cea5191eae2149ead2bd46bbb00067fa40658b6fa",
@@ -236,216 +236,528 @@
    "size": 24938
   },
   "assets/pig.svg": {
-   "sha256": "451415a909f208d9b669f6fbf734de542f2fe2355ec027c6c8f1f8ed1c85e560",
-   "size": 4814
+   "sha256": "a8aa8c1d6582d21c446445f8f7582023331ae8a792985a8f9d6bb65a38654926",
+   "size": 4934
   },
   "assets/skins/berry-bee.svg": {
-   "sha256": "c5a3811070b1dfe2873072ea5b29c2c6d44e7c4684dee70e5055880c4800c762",
-   "size": 5689
+   "sha256": "54cd39a26ed4140cacb9aa450b32fbb3edd49519342670bb803f6e74af70106e",
+   "size": 5809
   },
   "assets/skins/berry-bow.svg": {
-   "sha256": "9320c085b658696a8f6ffa20666981f94757e5c73ae6cbf26a69b1b5974f5ea9",
-   "size": 5470
+   "sha256": "64f778678630e5166334f3399a86f4ab2344fcfaff63319c0ab33f4da0457a47",
+   "size": 5590
   },
   "assets/skins/berry-chef.svg": {
-   "sha256": "c7de026d8cf174167cb942a8d7180b3742f2b2090a8aaaed8802d8a4d4f9623d",
-   "size": 5554
+   "sha256": "d4116027267155a84d9901f865a5ec224f66a0fc0d1ba0c72b410b55e23b5d68",
+   "size": 5674
   },
   "assets/skins/berry-crown.svg": {
-   "sha256": "18f0aa23b175aec32335c8e9c7b80b0559c406e260766a4898090824ddd7d612",
-   "size": 5517
+   "sha256": "18f648557fe9b073bd8b33487a5f6cc7c8092a440f59266757ddf9d79cede0ff",
+   "size": 5637
   },
   "assets/skins/berry-detective.svg": {
-   "sha256": "6c8bd32ddb3ab802a76a7fc7435f2bee63ae962c38d8bd2c3cfc46b8a005ad47",
-   "size": 5703
+   "sha256": "6c846c138eb420154b447416e62da655e499822b9c93094351fb0422d0ae73cf",
+   "size": 5823
   },
   "assets/skins/berry-flower.svg": {
-   "sha256": "08395d031656c564e92cad4eb2dfad69b2702bbd40034c1ec16c69fe936e35da",
-   "size": 7999
+   "sha256": "e1e6bb8f52fdf8e9536f35e15842a218c616d912354fad73a8856d9106889bc0",
+   "size": 8119
   },
   "assets/skins/berry-glasses.svg": {
-   "sha256": "e02c515d31de3ce2f88c4ae96c1cb0c03cbf2556c9febeda930d5e189add2ad0",
-   "size": 5327
+   "sha256": "030541607fb5006d555adb5a71f77fb04e38a8d4be4b66bc1ff24b71120b9dae",
+   "size": 5447
   },
   "assets/skins/berry-music.svg": {
-   "sha256": "bc2ba9b966b4d4547328c6fd29ac7f812e6f0079c742657ab760e17a24d12090",
-   "size": 5493
+   "sha256": "d3c4ac949020ad47cbdebd24ecbf3deab5c641a00fa1a8692788d400dad6ab34",
+   "size": 5613
   },
   "assets/skins/berry-pig.svg": {
-   "sha256": "ec4de2ae31a3243f014a4aef4991f4a4d867e02d708e04fb0441805ff06d0206",
-   "size": 4814
+   "sha256": "893c235b9d90c187558c9e5c7c40a03e68b59d1341c80c5b65bba88c12e2dad9",
+   "size": 4934
   },
   "assets/skins/berry-pirate.svg": {
-   "sha256": "30ef9c6110b3559fb6193034af2bcab5582e626e70ec22c71cf22c3f3e36645c",
-   "size": 5626
+   "sha256": "b7b4f9d1ebbcc64071687468149f6a30e89649e39d4c1f216849750d77817296",
+   "size": 5746
   },
   "assets/skins/berry-scarf.svg": {
-   "sha256": "beda2a30dba577c48d4f23715ea8ca43db2e281925358c67bf39294e40183b2c",
-   "size": 5299
+   "sha256": "709dd5c2c3733398d1a3d03cefa29b07a2115315e9a09a6b3b733ed37fc33713",
+   "size": 5419
   },
   "assets/skins/berry-space.svg": {
-   "sha256": "656df22795bf2a8f1aadcc6b81bfa76f84027340fb7c22472f2176aea972af45",
-   "size": 5722
+   "sha256": "ac53a44895dd9de754f31088a411d3a5cf20750727a62b4af92b9e96004d1f43",
+   "size": 5842
   },
   "assets/skins/berry-wizard.svg": {
-   "sha256": "580cf2dbe1a9aea87f427e5da279cac862a8afa58f99000bcb929aac13be53db",
-   "size": 5445
+   "sha256": "20242f44deaf9e36ae70655ce6af1a2e981a1d3e7217616af329af319568bfbe",
+   "size": 5565
+  },
+  "assets/skins/caramel-bee.svg": {
+   "sha256": "21c2bca2178643b05d33dc48d6a22fa6a407a32b2cb862779c63f319896a04ac",
+   "size": 5811
+  },
+  "assets/skins/caramel-bow.svg": {
+   "sha256": "01d3d84ce1bf436484b567dd3b3e4cdb12bc59d33d24fc258880a64fb8fb43ca",
+   "size": 5592
+  },
+  "assets/skins/caramel-chef.svg": {
+   "sha256": "628b8a4e68259317840977f18c0e467c92e6f1052fdecc0d4504cb91de566f0a",
+   "size": 5676
+  },
+  "assets/skins/caramel-crown.svg": {
+   "sha256": "8384402e79d154fff771c9d8d7d2fb1065fcfb16308c4f5d6b14c72682e56dd9",
+   "size": 5639
+  },
+  "assets/skins/caramel-detective.svg": {
+   "sha256": "d75044df23e4ba86867870dbc67d477722fa006929cea5513ed5706bcccb6511",
+   "size": 5825
+  },
+  "assets/skins/caramel-flower.svg": {
+   "sha256": "61fa3fd6953b7c16393c0b17fed6a3855f34ccbeeb686e4656424bd8804e586f",
+   "size": 8121
+  },
+  "assets/skins/caramel-glasses.svg": {
+   "sha256": "20a5a3a40d6cffec87311a22dbe62539274620a11e31ece609b5c35ed8425e12",
+   "size": 5449
+  },
+  "assets/skins/caramel-music.svg": {
+   "sha256": "893f5c307dc6a4f77f064966df10acc733625ba72c353b9b2d72fdc16650d47a",
+   "size": 5615
+  },
+  "assets/skins/caramel-pig.svg": {
+   "sha256": "faa30088ed861f0824de3eff784399c6550bc337fdee0cac9f43f5d51203117d",
+   "size": 4936
+  },
+  "assets/skins/caramel-pirate.svg": {
+   "sha256": "23bf5c6ac14e2ce5be5df9e9f2e88acf758df8195f6c6720cc1df96be28601d7",
+   "size": 5748
+  },
+  "assets/skins/caramel-scarf.svg": {
+   "sha256": "d474e7119793a11592bf19861c975ea0af2ddbf5b1e1150e82ca183fea4e4fb3",
+   "size": 5421
+  },
+  "assets/skins/caramel-space.svg": {
+   "sha256": "1c578fce081921255275e9feb165ef75b11a32b5cd2a255eb2cd01b1ce1b3e67",
+   "size": 5844
+  },
+  "assets/skins/caramel-wizard.svg": {
+   "sha256": "5acf7427924d26bed37b578b88176891d31f53d11c73c1c08d1bc7488ecd774c",
+   "size": 5567
+  },
+  "assets/skins/cow-bee.svg": {
+   "sha256": "ba462f6a1b1c05bea580ae8370c4f1ea59acc16fababf68c337a35559774ae63",
+   "size": 6283
+  },
+  "assets/skins/cow-bow.svg": {
+   "sha256": "5ba2af99d4b9750a9283e895b1df34a4f29b4f4d3b8b3c67125c776c9fd194ea",
+   "size": 6064
+  },
+  "assets/skins/cow-chef.svg": {
+   "sha256": "83e1996b1fb269b1d30766b62c7aa30365e9b9bde94316888103917a473088a4",
+   "size": 6148
+  },
+  "assets/skins/cow-crown.svg": {
+   "sha256": "de5e0b017a31e07f6aac870a4a9b289e88eac992a706bd9c59478339945484b6",
+   "size": 6111
+  },
+  "assets/skins/cow-detective.svg": {
+   "sha256": "a38203c23713543ad5efcdf91a01f7eea398561dbe2c161ecc6ba8fc57e06521",
+   "size": 6297
+  },
+  "assets/skins/cow-flower.svg": {
+   "sha256": "ca99806c3360a562e8a0223ddc16839a3279dccdc48c876d2a88b0ba564236f9",
+   "size": 8593
+  },
+  "assets/skins/cow-glasses.svg": {
+   "sha256": "412892334cb3494d98d473f99411ff526563922972233d7d8866b47554ce11d6",
+   "size": 5921
+  },
+  "assets/skins/cow-music.svg": {
+   "sha256": "fe87250f9a8b2301abe15d329e8e53d86ab3e9e97029a5a30c13362b75de3ccb",
+   "size": 6087
+  },
+  "assets/skins/cow-pig.svg": {
+   "sha256": "cef77a33e55adf1d1684af29a3e9fd526d78a2703b7b39977294b8cd9a570ac5",
+   "size": 5408
+  },
+  "assets/skins/cow-pirate.svg": {
+   "sha256": "8926713419f5a470c209b2eed32e7c2f325ac4db7d16dd7a90fc967efb544f4e",
+   "size": 6220
+  },
+  "assets/skins/cow-scarf.svg": {
+   "sha256": "203aaf6f3a3699dceb75616160bb9b60b5c79581636ed312133c76e2b670cedc",
+   "size": 5893
+  },
+  "assets/skins/cow-space.svg": {
+   "sha256": "76f6420b0c4bb5f93f2bc0787f21a609e9b5d83ab7e1e0032b53b24e0647cffa",
+   "size": 6316
+  },
+  "assets/skins/cow-wizard.svg": {
+   "sha256": "3352a3baa19a2e871b3c61a5e88e0bf828bf9b4cf71779768377e8b0a5c45c47",
+   "size": 6039
   },
   "assets/skins/cream-bee.svg": {
-   "sha256": "8ce68ec022d5a54cb5512c73b20b58480d6692977e9b99d1d439245a77dff4a0",
-   "size": 5689
+   "sha256": "713305cab09cfad2b6ddd7cf08d4a5a0ebeba172979e94891fbcf74f7cb82cd0",
+   "size": 5809
   },
   "assets/skins/cream-bow.svg": {
-   "sha256": "00829e279a735252551ba098b070d53117d0d896b6ee88da61456691fc2b3a66",
-   "size": 5470
+   "sha256": "502134c8fd77a8043b830447fef4f97f4300252daca493df1177ea1d6a76726e",
+   "size": 5590
   },
   "assets/skins/cream-chef.svg": {
-   "sha256": "e51906cbd0140eaed0e042c1d1a17e52fcd7054959e0b3d78ff2de04dd222035",
-   "size": 5554
+   "sha256": "6132ccbcfaa93c4600bd14a82d3363f2e24732e3153c130ec87a4771f7df3505",
+   "size": 5674
   },
   "assets/skins/cream-crown.svg": {
-   "sha256": "ca5ff1c3d104502a2c2833e18738e02ef609a47217d254aac7dc3ad3ebf81b08",
-   "size": 5517
+   "sha256": "a15558bad34a7baba4d4432dbf4ce9d6757b6c584c6f81da50fa9ed8a6964263",
+   "size": 5637
   },
   "assets/skins/cream-detective.svg": {
-   "sha256": "58b5e64886400d4dcf9c855e225682300974f571ce6b879a3eaef06c6f5b95e5",
-   "size": 5703
+   "sha256": "5e146ca6197fc72db5a7007dcc1e24e2ea018e331847ab9ff09e050f2aaad157",
+   "size": 5823
   },
   "assets/skins/cream-flower.svg": {
-   "sha256": "e4d6ff17e7dc302a8019a5d1db675e77da201f4d84bb6376d36a9989d87a013b",
-   "size": 7999
+   "sha256": "f2ab9a77e406db6ab489db36c8488b5ea4a8169b7b3217e9a3ade7db6339912d",
+   "size": 8119
   },
   "assets/skins/cream-glasses.svg": {
-   "sha256": "716031205b5baee99b8dd8b24ab5829c5feee2d0def32ab616a01b9bfaece4bc",
-   "size": 5327
+   "sha256": "8d12f9f4a90623e28900a086d657c56a988468b8e9dcba99e1acf4bd4f17969a",
+   "size": 5447
   },
   "assets/skins/cream-music.svg": {
-   "sha256": "e47ebd61a9f29664940f5e8bbe70657e113117c4ba5de6e5ae47243a87a7e7e3",
-   "size": 5493
+   "sha256": "03b52910f06b54c619057c5d9c2a19367b448f5bcf91027afcb3ef815167edda",
+   "size": 5613
   },
   "assets/skins/cream-pig.svg": {
-   "sha256": "22f1a4beede91a53f81f37a937996ae33ed514848ac61cf94f05d11fed803fff",
-   "size": 4814
+   "sha256": "3f17393347fc59442eacbd5e53adcd56c05b6bdf66270f65f44212424b1b036e",
+   "size": 4934
   },
   "assets/skins/cream-pirate.svg": {
-   "sha256": "a9477e15e49dd1db2172d16e24ca3678ab9afc4b02eb91be2053551d1848a852",
-   "size": 5626
+   "sha256": "5617a36afac92f9f8a12f7d7a20456b1df1af2cd5622b38ef78e8d48b38ded7f",
+   "size": 5746
   },
   "assets/skins/cream-scarf.svg": {
-   "sha256": "16db6325f7ab55f4940809036ac2ce9303b82f6b03b973ada935e16622d388c2",
-   "size": 5299
+   "sha256": "35be68481f857502df6a806c611a0b1ca6cb9996e8e639aeba9cb7e5a82bc8bd",
+   "size": 5419
   },
   "assets/skins/cream-space.svg": {
-   "sha256": "02da06ca40a47243be2f751fc01560c4a8a5277a48187e6fae09ba2a6fee5f34",
-   "size": 5722
+   "sha256": "1868700a4af1cb476cffa2064404e4d7947d88fe68a68e85925797c018d9a516",
+   "size": 5842
   },
   "assets/skins/cream-wizard.svg": {
-   "sha256": "e1dfddc9b7a37a288104b022fd3642598fb0d6abed8eb0d1cfe79cf5a901f3f7",
-   "size": 5445
+   "sha256": "24bbbf08da08b04c41dfd7fe12f27c63a05db552e3120332fa2231f396556d0d",
+   "size": 5565
+  },
+  "assets/skins/darkchoc-bee.svg": {
+   "sha256": "1281d966dd52f5ad7c78db8cd1bfe8a106a132a393e25905207f4cd132063889",
+   "size": 5818
+  },
+  "assets/skins/darkchoc-bow.svg": {
+   "sha256": "b4539ebb8dd53e985d23862da86de7319787490dc4eabb1798986e886e4ccb23",
+   "size": 5599
+  },
+  "assets/skins/darkchoc-chef.svg": {
+   "sha256": "383554ab880dcac7d91545ec0fcb8b4636a77781f5738a410d54326b00009c94",
+   "size": 5683
+  },
+  "assets/skins/darkchoc-crown.svg": {
+   "sha256": "ad26fa6b6161c05881df70ddca714a57efbb33d326b9ce197d1b177d5b5d249d",
+   "size": 5646
+  },
+  "assets/skins/darkchoc-detective.svg": {
+   "sha256": "50db5c73c189580f2fd3f4079c92b2593e3bc1a8847433de99d5212ba3a678d2",
+   "size": 5832
+  },
+  "assets/skins/darkchoc-flower.svg": {
+   "sha256": "5b27d45d39f0507745ec43baa9e0f6639fcdfa7669534f7f65abc81c00c19a22",
+   "size": 8128
+  },
+  "assets/skins/darkchoc-glasses.svg": {
+   "sha256": "244b29e0848ebdeb58602be8621a82cbdc863b97138c96f6ae5fccee251039c1",
+   "size": 5456
+  },
+  "assets/skins/darkchoc-music.svg": {
+   "sha256": "77b1d2ab164617cb645b4505f3b55e071eafd65c3e5fa65f87ab11fffbea20fc",
+   "size": 5622
+  },
+  "assets/skins/darkchoc-pig.svg": {
+   "sha256": "c8bcbd0170d4609e9d22a25c8d07499c8ebdf6dfff185b29ae5db5a41b515340",
+   "size": 4943
+  },
+  "assets/skins/darkchoc-pirate.svg": {
+   "sha256": "4d5103e9358f8fed7cb5a66b1d6320334ca36499458ac445e6f55c8924a25900",
+   "size": 5755
+  },
+  "assets/skins/darkchoc-scarf.svg": {
+   "sha256": "f38d33f0576b31c8a8e62025ece229dc21d73bbcaa105e48bb9103cd5f7515c4",
+   "size": 5428
+  },
+  "assets/skins/darkchoc-space.svg": {
+   "sha256": "287971d561fbe10fe8deebdfe39ff3fa679d8fc018eb7e11cf0d0944a48cb0d5",
+   "size": 5851
+  },
+  "assets/skins/darkchoc-wizard.svg": {
+   "sha256": "873a6be2cafa4052be0f1e56c96259c32317f3063b6221000b372cec58ae09d4",
+   "size": 5574
+  },
+  "assets/skins/matcha-bee.svg": {
+   "sha256": "66e7f34f1fba34cba6ee70f65b353514df151905ee7769bc68b0bc8130a9b09c",
+   "size": 5810
+  },
+  "assets/skins/matcha-bow.svg": {
+   "sha256": "407547cf6f53d06561c069e04ed922ab3c81be3898ad4fe11d775caba233e57a",
+   "size": 5591
+  },
+  "assets/skins/matcha-chef.svg": {
+   "sha256": "b8e067277799633ac561c9804e4485fb492b130812bce0f736542073ed6e229b",
+   "size": 5675
+  },
+  "assets/skins/matcha-crown.svg": {
+   "sha256": "2b4db674faca6a1eadf2c47c03bc6ef42f67a86b78256eb2baaf86ca249eafed",
+   "size": 5638
+  },
+  "assets/skins/matcha-detective.svg": {
+   "sha256": "94e23d3ea6c70b23411fffa7740e1980c0c97144727df3e92c81e6460a0b099a",
+   "size": 5824
+  },
+  "assets/skins/matcha-flower.svg": {
+   "sha256": "f58d0dd0920c5f79a0eff53a0c370ecbb9fd088d1a9b1fa2a57bcfa65d129b33",
+   "size": 8120
+  },
+  "assets/skins/matcha-glasses.svg": {
+   "sha256": "5eb9c97c885136da61d6e98b83c2a8df7a37b741b6c235a9fb3c8d6f55fa3d11",
+   "size": 5448
+  },
+  "assets/skins/matcha-music.svg": {
+   "sha256": "8c358b8871cbe9098a96f02f17922c70ef32e930ed51844cfac4c21b476b94e9",
+   "size": 5614
+  },
+  "assets/skins/matcha-pig.svg": {
+   "sha256": "09b9e40d0b19347f4e21ebf0109573429df6cd81ed952b59ffd745b15e72fd3e",
+   "size": 4935
+  },
+  "assets/skins/matcha-pirate.svg": {
+   "sha256": "d7e42165eb850925cc621e4c2df706ef2f283d4f91ac29a39d38e1f06c4a4185",
+   "size": 5747
+  },
+  "assets/skins/matcha-scarf.svg": {
+   "sha256": "93d02e7975cfe8e7fe93915ac447fe2654b4b9ec8f8e2854f2b927d6c019b7ab",
+   "size": 5420
+  },
+  "assets/skins/matcha-space.svg": {
+   "sha256": "9989d2d20390aa1050e01e624f67e088a45e2eb6e25a59285f6c6a9fbfe5e0df",
+   "size": 5843
+  },
+  "assets/skins/matcha-wizard.svg": {
+   "sha256": "c34fef0d2ba2c43ca4c9c46712967bc4088e4dd815992266507680ed5a76b173",
+   "size": 5566
   },
   "assets/skins/peach-bee.svg": {
-   "sha256": "398dab3be87aef9c02ef62e2c52bb39332241b6330451fa466fe34c2b18bc4c4",
-   "size": 5689
+   "sha256": "be3be67fb1d14837950734387618292c1ac56d21ab6c6d5f1426a75572a806ce",
+   "size": 5809
   },
   "assets/skins/peach-bow.svg": {
-   "sha256": "b37cd998a237f41c3b1aedeff3d1e584ef4bb08e031528182af3a31c5f1cd4d7",
-   "size": 5470
+   "sha256": "2b8bd348f5e5fb725b4762e9b91899f86ee6aabbae601ed565743e1d69484538",
+   "size": 5590
   },
   "assets/skins/peach-chef.svg": {
-   "sha256": "70e837628520e8337e52c758dc4a70e037846c2a9895073c3b63393348bf16dd",
-   "size": 5554
+   "sha256": "64bcf0467e2b1651e802af09306bb1d2c7f5700cdd2f0cb8e323abfcbb40cf73",
+   "size": 5674
   },
   "assets/skins/peach-crown.svg": {
-   "sha256": "0c4149b6ab345c1a41d5be69e09541ee942a9b11aea983ac17b51400a37c97e5",
-   "size": 5517
+   "sha256": "9df6f9e4f16a7a9ea2ad775d2f37ea7d73dd58258c2f000b106074f3ee899949",
+   "size": 5637
   },
   "assets/skins/peach-detective.svg": {
-   "sha256": "6a815660c1cbd5328b2692162dfe2e3fd03bbe547af0cd22ffb86d8dfea492b9",
-   "size": 5703
+   "sha256": "a29d030ed056501ccd8fb6fd68ab71dc68ad2d8012c8289a4dc6e50db0a2cd1d",
+   "size": 5823
   },
   "assets/skins/peach-flower.svg": {
-   "sha256": "b34c3cfbd9a597def04e28320d2ea4842b60213ad343f78636f4f47385ee3044",
-   "size": 7999
+   "sha256": "bbbe192a8665b918ac459bdcfd00b7470cd07a9b41914129be35d8561573887d",
+   "size": 8119
   },
   "assets/skins/peach-glasses.svg": {
-   "sha256": "f20b9940c99f365259f754cc908bd9a93fc5682ba50459149bc7bfb9aa3b8ec8",
-   "size": 5327
+   "sha256": "67320b40f14e3e5ca489146abeb14e3127e0dffcd3ac48cf9b5d0afb7088bd96",
+   "size": 5447
   },
   "assets/skins/peach-music.svg": {
-   "sha256": "bbf9b5fd387a4c4f0f65a489cc706138d5f61f0ee9849ec56d2b612668188110",
-   "size": 5493
+   "sha256": "a28003ac1608a71efffac449154a8dad98be560bb57c9a85fc6861bc8861fd41",
+   "size": 5613
   },
   "assets/skins/peach-pig.svg": {
-   "sha256": "451415a909f208d9b669f6fbf734de542f2fe2355ec027c6c8f1f8ed1c85e560",
-   "size": 4814
+   "sha256": "a8aa8c1d6582d21c446445f8f7582023331ae8a792985a8f9d6bb65a38654926",
+   "size": 4934
   },
   "assets/skins/peach-pirate.svg": {
-   "sha256": "0b4ec362f7bf09cdd22b39f72ef69603f8b2bd16390cb8f40afa4445a408fe27",
-   "size": 5626
+   "sha256": "05a34adf385da6dfcd66f27d9663dc8fcde2a8aba2e64da25d6a9346e0da684a",
+   "size": 5746
   },
   "assets/skins/peach-scarf.svg": {
-   "sha256": "738bc2f0bbd6f3a3f5070cadc88ec62dc61fa8ac6c692d9c2b8f71c27a1ddb70",
-   "size": 5299
+   "sha256": "37833a9d50ca561c80b75fb73a8698165189d36134ae615abfadac1c45bc29da",
+   "size": 5419
   },
   "assets/skins/peach-space.svg": {
-   "sha256": "78d3da7aead3a9a0970d7b06dcccc12a9f43afd8f579e1832e3b3ec6aae9fb2e",
-   "size": 5722
+   "sha256": "11000dc8c1c3fe1403113331ba046114b9672061d93d52a12db484fd88547910",
+   "size": 5842
   },
   "assets/skins/peach-wizard.svg": {
-   "sha256": "13955c02eb0dc076ab3074ba6b2a04dc384c393dd691e74205cfcbf1f18d387b",
-   "size": 5445
+   "sha256": "0321c7132ac47feba5a973e066f6853d1aecfe399783e904ab2d7d7375e73366",
+   "size": 5565
+  },
+  "assets/skins/soda-bee.svg": {
+   "sha256": "5b7b26a223b35a931879dc41e9c84b8cd0fe108947a9a2d9bdac7f90265f3844",
+   "size": 5808
+  },
+  "assets/skins/soda-bow.svg": {
+   "sha256": "86926e9cc696eae4e01f00b1dde09dd5a1cee9385b86c24850e44a3a25a2af00",
+   "size": 5589
+  },
+  "assets/skins/soda-chef.svg": {
+   "sha256": "70f4f4b2c9c692100f532050a0277a4ea641d635e431d78299be5bf403e4dd74",
+   "size": 5673
+  },
+  "assets/skins/soda-crown.svg": {
+   "sha256": "3d2285c03b53c6352117d0da36e76ccdbdf5ccd374fa59d5029b3a20f0eda108",
+   "size": 5636
+  },
+  "assets/skins/soda-detective.svg": {
+   "sha256": "ae5136657af1920da8b6ebe1ec33221c6dd0a2598d80665ac5a0d33cd6fe99da",
+   "size": 5822
+  },
+  "assets/skins/soda-flower.svg": {
+   "sha256": "75554fda771ccc10e1d70dd20b11c653cf24759fe1f9e61a3221318c0b179b35",
+   "size": 8118
+  },
+  "assets/skins/soda-glasses.svg": {
+   "sha256": "a634803bac21bd6484e1594dae3916af4cf05e155dc5ac7ebab4fce29ed732b2",
+   "size": 5446
+  },
+  "assets/skins/soda-music.svg": {
+   "sha256": "7d444f8140fdbf06a6d856b5d1c340a8e60253aa9384c584d84bcf389742b52e",
+   "size": 5612
+  },
+  "assets/skins/soda-pig.svg": {
+   "sha256": "8da05d08ddfe2c3bff5ba99444a8413dec827617ce5b2c1fcf84a62b4382d52e",
+   "size": 4933
+  },
+  "assets/skins/soda-pirate.svg": {
+   "sha256": "d85a9d526b188793fee888ebb2d96e2df122d53e6f615aa61ab68c4876eff904",
+   "size": 5745
+  },
+  "assets/skins/soda-scarf.svg": {
+   "sha256": "5fd0d0142ca8cfd28355b79beddccfc89dc79b06fef607cad0f1a865e1714a3b",
+   "size": 5418
+  },
+  "assets/skins/soda-space.svg": {
+   "sha256": "15be8de676b7c13619051e881218eb063f02a8a01f68d13a4ba62c0bb9d70fb6",
+   "size": 5841
+  },
+  "assets/skins/soda-wizard.svg": {
+   "sha256": "cefae4cd91b14a41bd1f8866bd05495f13989cbb53240bccadb5cb058502c3b5",
+   "size": 5564
   },
   "assets/skins/taro-bee.svg": {
-   "sha256": "9e4fa28049c1ac8fc56921846a9babecc56f4bafe5c8181cdfa16fbc115b8521",
-   "size": 5688
+   "sha256": "ed620dc8ff12a9d5892abf0d5c0557929e3aac0563b4e7015d57b78ff13208b3",
+   "size": 5808
   },
   "assets/skins/taro-bow.svg": {
-   "sha256": "4e77fed339107f39be0de666f778c9c0c695a68e4bd47d365992163498058d63",
-   "size": 5469
+   "sha256": "d9e953c766bd54c5873a8b4f24d8a7437d27a16eeea55c20833c8c515bb68b1c",
+   "size": 5589
   },
   "assets/skins/taro-chef.svg": {
-   "sha256": "17a6a798d9f517b25bba66d983ad44b2795d9381ccae8a4917e55a027f0acd25",
-   "size": 5553
+   "sha256": "96eb4af87081212e0da8da10338c06a9b4b7389a64afbf5eee94137b7fc5ac22",
+   "size": 5673
   },
   "assets/skins/taro-crown.svg": {
-   "sha256": "bdd3341de9bb5426d5f106c0811bd3826f815f98f3bf2c9887183866af654fa8",
-   "size": 5516
+   "sha256": "744d2505d2218697d1cde4da664ea7b46c3aa26bd96cc6fe4ee363ee49a57f06",
+   "size": 5636
   },
   "assets/skins/taro-detective.svg": {
-   "sha256": "df9f10da0aac1d0dc5ee7dfe71415b5997bede8baa70b706c73aea55d13c07fa",
-   "size": 5702
+   "sha256": "1726b6e2050bba0349b7ea5ae002f860a80542bd68c999c20eaae934628377fa",
+   "size": 5822
   },
   "assets/skins/taro-flower.svg": {
-   "sha256": "e18e13be200e746f3fb758cdfedf786084cbb4c5fa8f409a3641238f7a2f61d5",
-   "size": 7998
+   "sha256": "fe445977ab38d8a85eb12a9fd719ee8d41f8fd9e3dd59797589a1d0589b7429a",
+   "size": 8118
   },
   "assets/skins/taro-glasses.svg": {
-   "sha256": "34f94f520ecac6395b83b0d55bf21db873ba26bcae038de6cdff4bc851a66df6",
-   "size": 5326
+   "sha256": "668a16feb48105f8836f4188b27914df26da2c31a863ef1e38b89ce56530754c",
+   "size": 5446
   },
   "assets/skins/taro-music.svg": {
-   "sha256": "704b21c14e5a5eab80df2ca7b5dad9fdb30143dade9f76006074a052868d7837",
-   "size": 5492
+   "sha256": "9770c7b9f233ae2a72910f607342d46b5858e0c0ebb7d838792134b122e335bb",
+   "size": 5612
   },
   "assets/skins/taro-pig.svg": {
-   "sha256": "133bdfcbcdbdd6d936bb78081cbb511055a60d4f60dda4ec8e2712f31eed5859",
-   "size": 4813
+   "sha256": "a99d4235af69984a1d440f65cd44472e474caa18bbc483d9f8cfebaa0ffc1353",
+   "size": 4933
   },
   "assets/skins/taro-pirate.svg": {
-   "sha256": "7229b3ef8cefb82a29e0f9f93da1d8693e80a0a566be93d673c644681823d44e",
-   "size": 5625
+   "sha256": "e037a22138cf1bc24d9cf86e40fb9b5d8077a07d79452ef319306cceb7d833d2",
+   "size": 5745
   },
   "assets/skins/taro-scarf.svg": {
-   "sha256": "ff88aab5d6110e735213317bbe8f44470d14371e5a000263e8c556130abf0bc6",
-   "size": 5298
+   "sha256": "d30ac925889e5b10c0c6fc5d45f939bd5d1b454103d3bc665d8fb5b3c9e19b5c",
+   "size": 5418
   },
   "assets/skins/taro-space.svg": {
-   "sha256": "a734d386c39aa78f3100f35583b42d1586271f16b4f8ac9c5a03002fc61d6f7c",
-   "size": 5721
+   "sha256": "b94f779fd9e13bc04de2ca36f447544101f82f12d81dae0a7fc0768ed33ca7d5",
+   "size": 5841
   },
   "assets/skins/taro-wizard.svg": {
-   "sha256": "df9d1a374c9ccdac35e1f3c58286d5e7a31a00beb2ab82ba4d05ebf08bc70e85",
-   "size": 5444
+   "sha256": "3b5bdd57894229fc82c527a61b68f6c3dac38e41c50442e4c192cef9daa4957c",
+   "size": 5564
+  },
+  "assets/skins/whitechoc-bee.svg": {
+   "sha256": "afcd87a6edd2993272e62147380fda8fe9e728ae05a4a3797fa1df33f25bd09b",
+   "size": 5808
+  },
+  "assets/skins/whitechoc-bow.svg": {
+   "sha256": "af8e9584b0907f183da6f3d725f608d255b9bfa428cdf9dc51a5e08c68c94e60",
+   "size": 5589
+  },
+  "assets/skins/whitechoc-chef.svg": {
+   "sha256": "fe874387988d144b8bcd6c5c582e94b08b72788c78f1e23de970c3bfb628c23c",
+   "size": 5673
+  },
+  "assets/skins/whitechoc-crown.svg": {
+   "sha256": "e2822227fee7583aff3018e94828595d023a82c4b2df7d6a36dc89865004d09e",
+   "size": 5636
+  },
+  "assets/skins/whitechoc-detective.svg": {
+   "sha256": "c7883950763f43b1dd857dfc8738455f1490a7c28a36c9e1ec1d9cc288d0b824",
+   "size": 5822
+  },
+  "assets/skins/whitechoc-flower.svg": {
+   "sha256": "3c6f1c3aa7b7604365d17ce9d230f5ead54ca802a3003f2e8bbeb873b70bfc6e",
+   "size": 8118
+  },
+  "assets/skins/whitechoc-glasses.svg": {
+   "sha256": "7e511d78a40fe3ac6718c349aa673ba2af088297557142175d44b39972cde477",
+   "size": 5446
+  },
+  "assets/skins/whitechoc-music.svg": {
+   "sha256": "4efbd87e6999cbe774c850ddef7b28163ee2344ab75f265f3a5ba009beeace64",
+   "size": 5612
+  },
+  "assets/skins/whitechoc-pig.svg": {
+   "sha256": "d12f375055e1dee697fe7501acc677c245ff18c4ae16bcd99e23224a66b6895d",
+   "size": 4933
+  },
+  "assets/skins/whitechoc-pirate.svg": {
+   "sha256": "0bf3427a8721ff8a61f6285769a27c98a80e8b6884abd5c7a2bb6ccad514bda0",
+   "size": 5745
+  },
+  "assets/skins/whitechoc-scarf.svg": {
+   "sha256": "6238c58d17563c63b1474185f042f3bedd56a19593f44e88d397231654df83f2",
+   "size": 5418
+  },
+  "assets/skins/whitechoc-space.svg": {
+   "sha256": "915bb5f6858d80eb8cc901a9a9236e73968b3138aba4874a16ee278195a2bd1f",
+   "size": 5841
+  },
+  "assets/skins/whitechoc-wizard.svg": {
+   "sha256": "3f3009f55c462fa3b408e69c2ee9447c57d92ce93a72615d8a3c19c1d8e0ca88",
+   "size": 5564
   },
   "assets/voice0.mp3": {
    "sha256": "962e903e4f209aa83326cfe640a36f39f5654f70a0f3ab48570e32a456d06eb7",
@@ -484,8 +796,8 @@
    "size": 8757
   },
   "doudizhu-art.js": {
-   "sha256": "2f12d078727886d1b762740990114a545edf9ec2f65d041836c89f88decbf9f6",
-   "size": 27920
+   "sha256": "364c329223d11c3deff33d022c39afe338e32fec62539dc722da59c7cd31b57d",
+   "size": 27934
   },
   "doudizhu-core.js": {
    "sha256": "3e78db3a52efea2a2de7783445ef43ad0639a74bf3c9a8f05738c3b616088c20",
@@ -496,40 +808,40 @@
    "size": 39679
   },
   "doudizhu-net.js": {
-   "sha256": "ee62d8593c5803664aa9409e4a6e1b2c9cd07948f3a36a9f8ab56c59b59748d3",
-   "size": 20810
+   "sha256": "0223a98e529324778f6a9203d3c6c714a19de26f515653d44a28ed01b54f3843",
+   "size": 21002
   },
   "doudizhu-ui.js": {
-   "sha256": "146fc8a466afc941e39becd31d4f93a049533b5166a26cc1ee5cc811ce7ee436",
-   "size": 58584
+   "sha256": "717426d11499fad4f5d15747be6b81ab88b36c737a10c2f8450b157bb3f1b9a9",
+   "size": 58621
   },
   "gate-core.js": {
    "sha256": "505f946755ecbba432e1e6c4e34d49d634af6c565c9ab66700c192996d893dae",
    "size": 31754
   },
   "gate-ui.js": {
-   "sha256": "334fc426eb8078d643f0ef10242a417a1276ffa91c429576c4c3f10f16d4f919",
-   "size": 46264
+   "sha256": "3f2bfa55039e36dbf1372988f66bfad06e270b84411aad1ad2342ed46ce72a35",
+   "size": 46305
   },
   "help.js": {
    "sha256": "c7fbdd10e9ec019f8ba2206416877df9dd295098727ef6a4ff038f0bae8e7a95",
    "size": 24194
   },
   "index.html": {
-   "sha256": "865371e068e8103c8256c362f3eddc30b1ac675bbaaeb6c3b412cd118f58ad24",
-   "size": 25660
+   "sha256": "d249450a71ce8940ead79209b148bd8fc5f7c394754c15c0b21f3ace9e32c9a5",
+   "size": 25878
   },
   "jump-core.js": {
    "sha256": "81dcf3eedf7a485ddb12dae3ecccda65ca47cd766d80c6557eb61661e6d4d065",
    "size": 9694
   },
   "jump-ui.js": {
-   "sha256": "de1bf3e38abd63099020facb7f39d07ff511223dd55040b24352dc48e123dafc",
-   "size": 69738
+   "sha256": "027690e62a8ccf6d0e9af2d8415c659567d17e8c57ca77477d065d44184532cd",
+   "size": 69759
   },
   "look.js": {
-   "sha256": "fd7df14e0ca7b968b170bc9d7885cabf5969e1b5c79a30680359ea6d6992a3da",
-   "size": 1601
+   "sha256": "7ca0f99d3cbfe15eb64785f929ab29faa8d98e07efbf04a9c7ccb327b803b144",
+   "size": 2888
   },
   "match-core.js": {
    "sha256": "18e3e95e80a2f51b3844cc8a8f780c849a418aa4bb98398ae4bb4425e7cd2ba7",
@@ -540,8 +852,8 @@
    "size": 8230
   },
   "pig-art.js": {
-   "sha256": "53d72f7e043dde1dd76165db6897fe4748f0a2f14358863c76066a903913d455",
-   "size": 29551
+   "sha256": "c29cdb5d0147716a1388d41901a3e0a68ce36cedd9616905ac7821d29b45225c",
+   "size": 36996
   },
   "pool-core.js": {
    "sha256": "d22558ec95bfbc77fa36d50cca1b85bd8e33bd589312d7a8eec5af01f76ab99e",
@@ -560,8 +872,8 @@
    "size": 23987
   },
   "roulette-ui.js": {
-   "sha256": "eb446cccf67d9d5820b8c3ad0609612381b0a707561d8e827d24217559f2360c",
-   "size": 136666
+   "sha256": "fd129acd7a2cadb1e36b52b1ee54a73ab9d85d7e8cd561d0ffee10b4752f2b6c",
+   "size": 136764
   },
   "sounds.js": {
    "sha256": "c0f8374e536db2d41f99cafb95a324af94e607ce931623b7d97af8d86e9cadce",
@@ -576,16 +888,16 @@
    "size": 20691
   },
   "study-ui.js": {
-   "sha256": "001578024caadc367d35075602b1faee1700f0209b0d18bc3a15d80fc581dd8a",
-   "size": 48685
+   "sha256": "e2a6c84a43f808adbc3de1bcf863f86aa0fb3027c6de70856b1fc855091e6893",
+   "size": 48692
   },
   "style.css": {
-   "sha256": "f3d70761066903dca0d6bb43cff95b79f313d30335afa7a71c86ad2ceeb940d4",
-   "size": 142861
+   "sha256": "d60a699e58c6064c4983b92c51a185aaa96ebca5d3c0b245f2fd881b2e174bd1",
+   "size": 144281
   },
   "version.js": {
-   "sha256": "773df3b6220cb3662c82be597ebe65cac0601291fbf2cd4dcecdf9a0f23ff15e",
-   "size": 42359
+   "sha256": "a4fb09bd60655c19a47ccbb79578b3b2a96cb2bc17fae45b15debc0da0ae11f0",
+   "size": 44197
   }
  }
 }
