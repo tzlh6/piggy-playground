@@ -28,6 +28,7 @@ const TEACH={
  self:['对照解析，看看自己写到哪一步。','诚实打分，错题本才有用哦。']};
 const say=k=>TEACH[k][Math.floor(Math.random()*TEACH[k].length)];
 const L=k=>String.fromCharCode(65+k);
+const questionLabel=q=>q.sourceNos&&q.sourceNos.length>1?'第 '+q.sourceNos[0]+'—'+q.sourceNos[q.sourceNos.length-1]+' 题':q.label||'第 '+q.no+' 题';
 const stars=n=>'★'.repeat(n)+'☆'.repeat(3-n);
 
 // ---------- 题库来源：电脑版文件夹 / 安卓本机 / 浏览器本机 ----------
@@ -98,7 +99,7 @@ function create(ui){
  const host=makeHost();
  // 已读取的题库：file → 整理好的题库
  const lib={list:null,loading:null,full:{},counting:null};
- const prefs=()=>{const p=Object.assign({bank:'all',kinds:{},cats:S.CATS.slice(),levels:[1,2,3],count:10,mode:'new'},Store.get('study-prefs',{}));
+ const prefs=()=>{const p=Object.assign({bank:'all',source:null,kinds:{},cats:S.CATS.slice(),levels:[1,2,3],count:10,mode:'new'},Store.get('study-prefs',{}));
   if(!p.kinds||typeof p.kinds!=='object')p.kinds={};if(!Array.isArray(p.cats)||!p.cats.length)p.cats=S.CATS.slice();if(!Array.isArray(p.levels)||!p.levels.length)p.levels=[1,2,3];return p};
  const setPrefs=p=>Store.set('study-prefs',Object.assign(prefs(),p));
  const wrongBook=()=>{const w=Store.get('study-wrong',{});return w&&typeof w==='object'?w:{}};
@@ -116,7 +117,7 @@ function create(ui){
    for(const r of rows||[]){
     let head=r.head;if(head==null){try{head=await host.head(r.file)}catch(e){head=''}}
     const h=S.peekHeader(head);if(!h)continue;
-    out.push({file:r.file,size:r.size||0,id:h.id||r.file,title:h.title||r.file.replace(/\.json$/i,''),subject:S.SUBJECT_NAME[h.subject]?h.subject:'other',subjectName:h.subjectName||S.SUBJECT_NAME[h.subject]||'其他',count:h.count||0,built:h.built||''});
+    out.push({file:r.file,size:r.size||0,id:h.id||r.file,title:h.title||r.file.replace(/\.json$/i,''),subject:S.SUBJECT_NAME[h.subject]?h.subject:'other',subjectName:h.subjectName||S.SUBJECT_NAME[h.subject]||'其他',count:h.count||0,built:h.built||'',book:h.book||'',chapter:h.chapter||'',topic:h.topic||''});
    }
    out.sort((a,b)=>a.subject.localeCompare(b.subject)||a.title.localeCompare(b.title,'zh'));
    lib.list=out;lib.loading=null;return out;
@@ -138,12 +139,30 @@ function create(ui){
   $('play-toolbar').innerHTML='<span class="key-hint">选择题：数字 1–8 / 字母 A–H 选中，Enter 交卷 · 填空：输入后 Enter 交卷</span>';
   $('board').innerHTML='<div class="st-wrap" id="st-wrap"><div class="st-loading">'+teacher('normal')+'<p>眼镜猪老师正在翻题库……</p></div></div>';
   stats(0,'0/0');
-  message('选好套卷、题型和难度，点“开始上课”。题库在游戏旁边的「猪猪题库」文件夹。');
+  message('先选一本书，展开目录选择章节、课时或专题，再点“开始上课”。');
   const show=()=>{if(!active()||get().state!==t)return;lobby();if(auto&&$('st-go')&&!$('st-go').disabled)start()};
   loadList().then(show,show);
  }
  const subjOf=level=>(lib.list||[]).filter(b=>level==='all'||b.subject===level);
- const chosenOf=(level,p)=>{const subj=subjOf(level);return p.bank!=='all'&&subj.some(b=>b.id===p.bank)?subj.filter(b=>b.id===p.bank):subj};
+ const sourceKey=p=>p.source|| (p.bank&&p.bank!=='all'?'bank:'+p.bank:'all');
+ const chosenOf=(level,p)=>{const subj=subjOf(level),tree=S.libraryTree(subj),node=tree.byKey[sourceKey(p)];return node?node.entries:subj};
+ const treeOpen=new Set();
+ function sourcePanel(tree,p){
+  const selected=tree.byKey[sourceKey(p)],ids=new Set(selected?selected.entries.map(b=>b.id):[]);
+  const label=n=>n.kind==='book'?n.book.replace(/_配套课件$/,''):n.label;
+  const pick=(n,text)=>`<button type="button" class="st-tree-pick" data-pick-source="${esc(n.key)}" aria-pressed="${selected&&selected.key===n.key?'true':'false'}"><span>${esc(text||label(n))}</span><small>${n.count} 题</small></button>`;
+  const render=(n,depth)=>{
+   if(n.kind==='bank')return pick(n);
+   const open=treeOpen.has(n.key),inSelection=selected&&n.entries.some(b=>ids.has(b.id));
+   const allLabel=n.kind==='book'?'整本练习':n.kind==='chapter'?'全章练习':n.kind==='papers'?'全部试卷与练习':'本节全部练习';
+   return `<details class="st-source-node st-source-${n.kind}${inSelection?' st-source-selected':''}" data-source-node="${esc(n.key)}"${open?' open':''}><summary><span class="st-tree-arrow" aria-hidden="true">›</span><span class="st-tree-name">${esc(label(n))}</span><small>${n.count} 题</small></summary><div class="st-tree-children">${pick(n,allLabel)}${n.children.map(x=>render(x,depth+1)).join('')}</div></details>`;
+  };
+  return `<div class="st-source-panel"><div class="st-source-heading"><span>选择资料</span><button type="button" class="st-tree-reset" data-pick-source="all" aria-pressed="${!selected}">全部资料</button></div><p class="st-source-hint">先点书名展开目录，再点章节，最后选择课时或专题。也可以练习整本或整章。</p><nav class="st-source-tree" aria-label="书籍与试卷目录">${tree.roots.map(n=>render(n,0)).join('')}</nav><div class="st-source-current">当前选择：<b>${esc(selected?(selected.path||[label(selected)]).join(' › '):'全部资料')}</b>${selected?' · '+selected.count+' 题':''}</div></div>`;
+ }
+ function bindSourceTree(tree){
+  document.querySelectorAll('[data-source-node]').forEach(d=>d.ontoggle=()=>{if(d.open)treeOpen.add(d.dataset.sourceNode);else treeOpen.delete(d.dataset.sourceNode)});
+  document.querySelectorAll('[data-pick-source]').forEach(b=>b.onclick=()=>{const key=b.dataset.pickSource,node=tree.byKey[key];setPrefs({source:key,bank:node&&node.kind==='bank'?node.bankId:'all'});Sound.click();lobby(true)});
+ }
  const kindsFor=(level,p)=>level==='all'?null:(Array.isArray(p.kinds[level])&&p.kinds[level].length?p.kinds[level]:(S.KINDS[level]||S.KINDS.other).slice());
  // 选课页的题数统计要读完整题库；在后台一套一套读，读完刷新
  function countLater(entries){
@@ -153,7 +172,7 @@ function create(ui){
  }
  function lobby(keepScroll){
   const level=get().level,p=prefs(),list=lib.list||[];
-  const subj=subjOf(level),chosen=chosenOf(level,p);
+  const subj=subjOf(level),tree=S.libraryTree(subj),chosen=chosenOf(level,p),allTree=S.libraryTree(list);
   const wrongN=Object.keys(wrongBook()).length;
   const loaded=chosen.every(e=>lib.full[e.file]);
   const pool=loaded?S.filterPool(chosen.map(e=>lib.full[e.file]),{}):null;
@@ -164,10 +183,9 @@ function create(ui){
    return `<button class="st-chip" data-kind="${esc(k)}" aria-pressed="${selKinds.includes(k)}">${esc(k)}${n!=null?`<small>${n}</small>`:''}</button>`};
   const levelChip=l=>{const n=cnt(q=>q.level===l&&selKinds.includes(keyOf(q)));return `<button class="st-chip" data-lv="${l}" aria-pressed="${p.levels.includes(l)}"><span class="st-stars">${stars(l)}</span> ${S.LEVELS[l]}${n!=null?`<small>${n}</small>`:''}</button>`};
   const avail=pool?pool.filter(q=>selKinds.includes(keyOf(q))&&p.levels.includes(q.level)).length:null;
-  const bankSel=chosen.length===1&&p.bank!=='all'?p.bank:'all';
-  let html=`<div class="st-lobby"><div class="st-hero"><div class="st-chalk"><div class="st-chalk-t">今天学什么？</div><div class="st-chalk-s">${list.length?`已找到 ${list.length} 套题库，共 ${list.reduce((s,b)=>s+b.count,0)} 道题`:'还没有找到题库'}</div></div>${teacher(list.length?'happy':'worry')}</div>`;
+  let html=`<div class="st-lobby"><div class="st-hero"><div class="st-chalk"><div class="st-chalk-t">今天学什么？</div><div class="st-chalk-s">${list.length?`${allTree.books} 本书籍／专题集 · ${allTree.papers} 套试卷与练习 · ${list.reduce((s,b)=>s+b.count,0)} 道题`:'还没有找到题库'}</div></div>${teacher(list.length?'happy':'worry')}</div>`;
   if(list.length){
-   html+=`<div class="st-setup"><label class="st-field"><span>套卷</span><select id="st-bank" aria-label="选择套卷"><option value="all">${level==='all'?'全部学科':S.SUBJECT_NAME[level]}全部套卷（${subj.reduce((s,b)=>s+b.count,0)} 题）</option>${subj.map(b=>`<option value="${esc(b.id)}" ${b.id===bankSel?'selected':''}>${esc(b.subjectName)} · ${esc(b.title)}（${b.count} 题）</option>`).join('')}</select></label>
+   html+=`<div class="st-setup">${sourcePanel(tree,p)}
     <div class="st-field"><span>${level==='all'?'大类':'题型'}</span><div class="st-chips" id="st-kinds">${kindList.map(kindChip).join('')}</div></div>
     <div class="st-field"><span>难度</span><div class="st-chips" id="st-levels">${[1,2,3].map(levelChip).join('')}</div></div>
     <div class="st-field"><span>题数</span><div class="st-chips" id="st-count">${[5,10,20].map(n=>`<button class="st-chip" data-count="${n}" aria-pressed="${p.count===n}">${n} 题</button>`).join('')}</div></div>
@@ -177,7 +195,7 @@ function create(ui){
   }
   html+=libraryPanel(list)+'</div>';
   const y=window.scrollY;$('st-wrap').innerHTML=html;if(keepScroll)window.scrollTo(0,y);
-  const sel=$('st-bank');if(sel)sel.onchange=()=>{setPrefs({bank:sel.value});Sound.click();lobby(true)};
+  bindSourceTree(tree);
   document.querySelectorAll('#st-kinds [data-kind]').forEach(b=>b.onclick=()=>{const k=b.dataset.kind,pp=prefs();
    let cur=level==='all'?pp.cats.slice():kindsFor(level,pp).slice();cur=cur.includes(k)?cur.filter(x=>x!==k):cur.concat(k);
    if(!cur.length){message('至少留一种题型。','warn');return}
@@ -200,7 +218,7 @@ function create(ui){
    '<button class="secondary" id="st-import">导入题库文件</button>'+(host.canFolder?'<button class="secondary" id="st-import-dir">导入整个文件夹</button>':'')+
    '<button class="secondary" id="st-refresh">重新读取</button></div></div>'+where;
   if(!list.length)html+='<div class="st-empty">还没有题库。题库由「猪猪爱学习题库工具」从排版好的试卷生成，成品文件夹里的「猪猪题库」就是它；放到游戏旁边，或点上面的按钮导入。</div>';
-  else html+='<div class="st-lib-list">'+Object.entries(groups).map(([g,bs])=>`<div class="st-lib-group"><b>${esc(g)}</b><ul>${bs.map(b=>`<li><span>${esc(b.title)}</span><small>${b.count} 题</small>${host.canRemove?`<button class="st-x" data-remove="${esc(b.file)}" aria-label="移除 ${esc(b.title)}" title="从本机移除">×</button>`:''}</li>`).join('')}</ul></div>`).join('')+'</div>';
+  else html+=`<details class="st-library-files"><summary>管理已导入的文件（${list.length}）</summary><div class="st-lib-list">`+Object.entries(groups).map(([g,bs])=>`<div class="st-lib-group"><b>${esc(g)}</b><ul>${bs.map(b=>`<li><span>${esc(b.title)}</span><small>${b.count} 题</small>${host.canRemove?`<button class="st-x" data-remove="${esc(b.file)}" aria-label="移除 ${esc(b.title)}" title="从本机移除">×</button>`:''}</li>`).join('')}</ul></div>`).join('')+'</div></details>';
   return html+'</div>';
  }
  function bindLibrary(){
@@ -227,7 +245,7 @@ function create(ui){
   const wrong=p.mode==='wrong'?Object.keys(wrongBook()):null;
   const recent=Store.get('study-recent',[]);
   const qs=S.pickRound(pool,p.count,Math.random,Array.isArray(recent)?recent:[],wrong);
-  if(!qs.length){lobby();message(wrong?'这些套卷里没有符合条件的错题，去做新题吧！':'所选题型和难度没有题目，换一换试试。','warn');return}
+  if(!qs.length){lobby();message(wrong?'所选资料里没有符合条件的错题，去做新题吧！':'所选题型和难度没有题目，换一换试试。','warn');return}
   Store.set('study-recent',qs.map(q=>q.id).concat(Array.isArray(recent)?recent:[]).slice(0,600));
   const byId=Object.fromEntries(banks.map(b=>[b.id,b]));
   t.view='quiz';t.round={qs,byId,i:0,results:[],streak:0,best:0,mode:p.mode};
@@ -250,7 +268,7 @@ function create(ui){
   $('st-wrap').innerHTML=`<div class="st-quiz">
    <div class="st-progress"><div class="st-dots">${dots}</div><span>第 <b>${R.i+1}</b> / ${R.qs.length} 题</span><span class="st-streak" id="st-streak">${R.streak>=2?'连对 ×'+R.streak:''}</span><button class="secondary st-quit" id="st-quit">换一批</button></div>
    <div class="st-class"><div class="st-scene"><div class="st-bubble" id="st-bubble">${esc(say('idle'))}</div><div class="st-teacher" id="st-teacher">${teacher('normal')}</div><div class="st-student" id="st-student">${student('normal')}</div></div>
-   <article class="st-card"><div class="st-meta"><span class="st-tag st-${typeCls}">${esc(q.kind||S.TYPES[q.type])}</span><span class="st-lv" title="难度：${S.LEVELS[q.level]}">${stars(q.level)}</span><span class="st-src">${esc(q.bank)}${q.unit?' · '+esc(q.unit):''} · ${q.sourceNos&&q.sourceNos.length>1?'第 '+q.sourceNos[0]+'—'+q.sourceNos[q.sourceNos.length-1]+' 题':'第 '+q.no+' 题'}</span><span class="st-pts">${S.fmt(q.points)} 分</span></div>
+   <article class="st-card"><div class="st-meta"><span class="st-tag st-${typeCls}">${esc(q.kind||S.TYPES[q.type])}</span><span class="st-lv" title="难度：${S.LEVELS[q.level]}">${stars(q.level)}</span><span class="st-src">${esc(q.bank)}${q.unit?' · '+esc(q.unit):''} · ${esc(questionLabel(q))}</span><span class="st-pts">${S.fmt(q.points)} 分</span></div>
    <div class="st-stem sx" id="st-stem"></div>
    ${q.options.length&&m.mode==='choice'?`<div class="st-options ${q.options.some(o=>o.length>160||/sx-fig|sx-dm/.test(o))?'long':''}" id="st-options" role="group" aria-label="选项">${q.options.map((o,k)=>`<button class="st-opt" data-opt="${L(k)}"><b class="st-opt-l">${L(k)}</b><span class="st-opt-t sx" data-otext="${k}"></span></button>`).join('')}</div>`:''}
    <div id="st-work"></div>
@@ -482,14 +500,14 @@ function create(ui){
   // 收起长解析，换成本轮小结，成绩卡才会出现在眼前
   const icon=v=>v==='right'?'✓':v==='partial'?'◐':'✗';
   $('st-wrap').innerHTML=`<div class="st-summary"><div class="st-scene st-scene-row"><div class="st-teacher" id="st-teacher">${teacher('normal')}</div><div class="st-bubble" id="st-bubble">${esc(sum.stars>=2?'这一轮学得真好！':'错题本记下了，回头再练练。')}</div><div class="st-student" id="st-student">${student('normal')}</div></div>
-   <ol class="st-review">${R.qs.map((q,k)=>{const r=R.results[k];return `<li class="${r.verdict}"><b>${icon(r.verdict)}</b><span>${esc(q.kind||S.TYPES[q.type])} · ${stars(q.level)} · ${esc(q.bank)} ${q.sourceNos&&q.sourceNos.length>1?'第 '+q.sourceNos[0]+'—'+q.sourceNos[q.sourceNos.length-1]+' 题':'第 '+q.no+' 题'}</span><em>${S.fmt(r.points)} / ${S.fmt(r.max)}</em></li>`}).join('')}</ol></div>`;
+   <ol class="st-review">${R.qs.map((q,k)=>{const r=R.results[k];return `<li class="${r.verdict}"><b>${icon(r.verdict)}</b><span>${esc(q.kind||S.TYPES[q.type])} · ${stars(q.level)} · ${esc(q.bank)} ${esc(questionLabel(q))}</span><em>${S.fmt(r.points)} / ${S.fmt(r.max)}</em></li>`}).join('')}</ol></div>`;
   const card=document.querySelector('.game-card');if(card&&card.getBoundingClientRect().top<0)card.scrollIntoView({block:'start'});
   setPig('student',sum.stars>=2?'star':sum.stars?'happy':'cry');setPig('teacher',sum.stars>=2?'happy':'normal');
   if(sum.stars>=3&&confetti)confetti(48);
   const wrongN=R.results.filter(r=>r.verdict!=='right').length;
   result(sum.stars>=3?'学霸小猪！':sum.stars===2?'学得真扎实！':sum.stars===1?'继续加油！':'下次一定行！',
    `${'★'.repeat(sum.stars)}${'☆'.repeat(3-sum.stars)}　本轮 ${S.fmt(sum.got)} / ${S.fmt(sum.max)} 分（${pct}%），全对 ${sum.right} / ${sum.total} 题，最长连对 ${R.best}。${wrongN?'没拿满分的 '+wrongN+' 题已记进错题本。':''}${fresh?' 新纪录！':''}`,
-   sum.stars>=2,600,{actions:[{id:'st-lobby',label:'换套卷 / 题型',onclick:()=>{again=null;$('result').hidden=true;t.view='lobby';t.round=null;lobby()}}]});
+   sum.stars>=2,600,{actions:[{id:'st-lobby',label:'换书 / 章节 / 题型',onclick:()=>{again=null;$('result').hidden=true;t.view='lobby';t.round=null;lobby()}}]});
   if(sum.stars>=2)Sound.later(200,()=>Sound.win());else Sound.later(200,()=>Sound.pigOink());
  }
  function setPig(who,expr){const el=$(who==='teacher'?'st-teacher':'st-student');if(el)el.innerHTML=who==='teacher'?teacher(expr):student(expr)}

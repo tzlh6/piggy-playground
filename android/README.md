@@ -1,3 +1,9 @@
+# 安卓4.7.3 · 书籍分级目录
+
+先点书名，再展开章节、节目录，选择课时或专题；也能选择整本、整章或整节。普通包40713、旧更新器兼容包40703，沿用原签名、nativeRevision=5。覆盖安装保留题库与成绩，不要先卸载。ZIP一次导入继续可用。
+
+[下载安卓版](https://github.com/tzlh6/piggy-playground/releases/tag/v4.7.3-android) / [分级目录说明](../docs/4.7.3-study-library.md)。个人题库不随公开程序提供。安卓真机安装和系统文件选择器尚未验收。
+
 # 安卓 4.7.2 · ZIP 题库一次导入
 
 普通安装包 `PiggyPlayground-4.7.2-Android.apk`（40712）；旧更新器兼容包 `PiggyPlayground-4.7.2-Android-compat.apk`（40702）。原签名、nativeRevision=5，共用游戏保持 4.7.1。普通用户下载普通包覆盖安装即可，保留已有题库、成绩和设置，不要先卸载。

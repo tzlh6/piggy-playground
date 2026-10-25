@@ -36,7 +36,35 @@ function peekHeader(text){
  const head=String(text||'').slice(0,4096);
  if(!new RegExp('"format"\\s*:\\s*"'+FORMAT+'"').test(head))return null;
  const pick=k=>{const m=new RegExp('"'+k+'"\\s*:\\s*("(?:[^"\\\\]|\\\\.)*"|\\d+)').exec(head);if(!m)return null;try{return JSON.parse(m[1])}catch(e){return null}};
- return {id:pick('id'),title:pick('title'),subject:pick('subject'),subjectName:pick('subjectName'),count:pick('count'),built:pick('built')};
+ return {id:pick('id'),title:pick('title'),subject:pick('subject'),subjectName:pick('subjectName'),count:pick('count'),built:pick('built'),book:pick('book'),chapter:pick('chapter'),topic:pick('topic')};
+}
+
+// 选书时先列书名，再逐层展开目录；文件位置不决定目录，安卓导入后也保留同一层级。
+function libraryTree(entries){
+ const roots=[],byKey=Object.create(null),bookMap=new Map();let papers=null;
+ const make=(key,label,kind,children=[])=>{const n={key,label,kind,children,entries:[],count:0};byKey[key]=n;return n};
+ const add=(n,b)=>{n.entries.push(b);n.count+=+b.count||0};
+ for(const b of entries||[]){
+  const book=String(b.book||(/必刷题|解题觉醒|数学好题组合|晶体与配合物四组/.test(b.title||'')?b.title:''));
+  if(!book){if(!papers){papers=make('papers','综合试卷与练习','papers');roots.push(papers)}const leaf=make('bank:'+b.id,b.title,'bank');leaf.subject=b.subject;leaf.subjectName=b.subjectName;leaf.bankId=b.id;add(leaf,b);add(papers,b);papers.children.push(leaf);continue}
+  const bk=JSON.stringify([b.subject,book]);let root=bookMap.get(bk);
+  if(!root){root=make('book:'+bk,(b.title||book).split(/\s+·\s+/)[0]||book,'book');root.book=book;root.subject=b.subject;root.subjectName=b.subjectName;bookMap.set(bk,root);roots.push(root)}
+  add(root,b);
+  const chapter=String(b.chapter||'全书内容');let topic=String(b.topic||'全部内容');
+  if(topic.startsWith(chapter))topic=topic.slice(chapter.length).replace(/^[\s·]+/,'');
+  const parts=[chapter,...topic.split(/\s*·\s*|\s*[-—]\s*(?=课时\s*\d)/).filter(Boolean)];if(parts.length===1)parts.push('全部内容');
+  let parent=root;
+  for(let i=0;i<parts.length-1;i++){
+   const key='dir:'+JSON.stringify([b.subject,book,...parts.slice(0,i+1)]);let child=byKey[key];
+   if(!child){child=make(key,parts[i],i===0?'chapter':'section');child.path=[book.replace(/_配套课件$/,''),...parts.slice(0,i+1)];parent.children.push(child)}add(child,b);parent=child;
+  }
+  const leaf=make('bank:'+b.id,parts[parts.length-1],'bank');leaf.path=[book.replace(/_配套课件$/,''),...parts];leaf.subject=b.subject;leaf.subjectName=b.subjectName;leaf.bankId=b.id;add(leaf,b);parent.children.push(leaf);
+ }
+ const number=s=>{const m=/^(?:第|专题|专练|课时|专项觉醒\s*)([0-9一二三四五六七八九十百]+)/.exec(s);if(!m)return 10000;const n=m[1];if(/^\d+$/.test(n))return +n;const nums={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};if(n==='十')return 10;if(n.includes('十')){const p=n.split('十');return (nums[p[0]]||1)*10+(nums[p[1]]||0)}return nums[n]||10000};
+ const rank=s=>/^第|^课时/.test(s)?0:/^(?:专题|专练|专项)/.test(s)?1:2;
+ const sort=n=>{n.children.sort((a,b)=>rank(a.label)-rank(b.label)||number(a.label)-number(b.label)||a.label.localeCompare(b.label,'zh',{numeric:true}));n.children.forEach(sort)};roots.forEach(sort);
+ roots.sort((a,b)=>a.kind==='papers'?1:b.kind==='papers'?-1:SUBJECTS.findIndex(x=>x[0]===a.subject)-SUBJECTS.findIndex(x=>x[0]===b.subject)||a.label.localeCompare(b.label,'zh',{numeric:true}));
+ return {roots,byKey,books:bookMap.size,papers:papers?papers.entries.length:0};
 }
 
 // ---------- 题型细分 ----------
@@ -157,7 +185,7 @@ function normalizeBank(obj,fallbackName){
  if(+obj.version>2)return {error:'题库版本太新，请先更新游乐场'};
  const subject=SUBJECT_NAME[obj.subject]?obj.subject:'other';
  const bank={id:str(obj.id,64)||('b'+hash(str(obj.title)||fallbackName||'')),title:str(obj.title,120)||str(fallbackName,120)||'未命名题库',
-  subject,subjectName:str(obj.subjectName,10)||SUBJECT_NAME[subject],source:str(obj.source,300),built:str(obj.built,20),
+  subject,subjectName:str(obj.subjectName,10)||SUBJECT_NAME[subject],source:str(obj.source,300),built:str(obj.built,20),book:str(obj.book,160),chapter:str(obj.chapter,160),topic:str(obj.topic,240),
   macros:{},figures:{},units:[],questions:[]};
  if(obj.macros&&typeof obj.macros==='object')for(const [k,v] of Object.entries(obj.macros))if(/^\\[A-Za-z]+$/.test(k)&&typeof v==='string'&&v.length<400)bank.macros[k]=v;
  if(obj.figures&&typeof obj.figures==='object')for(const [k,f] of Object.entries(obj.figures)){
@@ -177,7 +205,7 @@ function normalizeBank(obj,fallbackName){
    }
    const stem=str(q.stem);if(!stem)continue;
    const id=bank.id+'/'+(str(q.id,60)||ui+'-'+q.no);
-   const item={id,bankId:bank.id,bank:bank.title,unit:name,no:+q.no||0,type:q.type,part:str(q.part,200),title:str(q.title,200),stem,options,answer,solution:str(q.solution),
+   const item={id,bankId:bank.id,bank:bank.title,unit:name,no:+q.no||0,label:str(q.label,60),type:q.type,part:str(q.part,200),title:str(q.title,200),stem,options,answer,solution:str(q.solution),
     grouped:!!q.grouped,sourceNos:Array.isArray(q.sourceNos)?q.sourceNos.map(Number).filter(Boolean).slice(0,40):null,level:[1,2,3].includes(+q.level)?+q.level:0,points:+q.points||0,kind:str(q.kind,20)};
    if(Array.isArray(q.shared))item.shared=q.shared.map(o=>str(o,4000)).slice(0,8);
    if(Array.isArray(q.subs)&&q.subs.length){item.subs=[];
@@ -309,7 +337,7 @@ function updateWrongBook(book,q,verdict,now){
  if(keys.length>400){keys.sort((a,b)=>book[a].at-book[b].at);for(const k of keys.slice(0,keys.length-400))delete book[k]}
  return book;
 }
-const api={FORMAT,SUBJECTS,SUBJECT_NAME,TYPES,KINDS,CATS,LEVELS,POINTS,DEFAULT_POINTS,fmt,plain,peekHeader,classify,pointsFor,normalizeBank,filterPool,pickRound,
+const api={FORMAT,SUBJECTS,SUBJECT_NAME,TYPES,KINDS,CATS,LEVELS,POINTS,DEFAULT_POINTS,fmt,plain,peekHeader,libraryTree,classify,pointsFor,normalizeBank,filterPool,pickRound,
  gradeChoice,gradePick,gradeSelf,selfLevels,textAnswers,gradeText,gradeMath,gradeSub,sumGroup,roundSummary,updateWrongBook};
 root.PigStudyCore=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

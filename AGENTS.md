@@ -2,7 +2,7 @@
 
 - 沟通与产品文字使用简体中文，代码及必要英文术语保留原文。
 - 本仓库维护 Windows 和安卓源码，不纳入 iOS 版本。
-- 当前游戏共用源在 `desktop/app`，安卓在 `android`。当前版本 4.7.1，23 款游戏，新增猪猪爱学习（分科题型、难度、输入判分、整篇阅读与错题本）；安卓独立补丁 4.7.2 支持 ZIP 题库一次导入，普通包 versionCode 40712、旧更新器兼容包 40702，原签名、nativeRevision=5，下一版普通包从 40713 起。普通包编号必须大于同版兼容包；Windows minShell 为 4.7.1（main / preload 新增题库接口，旧程序需下载新版）。规则与验证见 `docs/4.7.1-study.md`。题库为个人学习资料，不进仓库或发行附件；安卓真机与 Windows 7 实机尚未验收。4.7.0 从未发布，已停用的临时 4.5.1 编号继续保留为历史。
+- 当前共用游戏、Windows、离线网页和安卓均为4.7.3，23款游戏；猪猪爱学习新增书籍→章节→节→课时/专题分级目录，详见 `docs/4.7.3-study-library.md`。安卓普通40713、兼容40703，原签名、nativeRevision=5；下一版普通从40714起。Windows minShell仍为4.7.1。个人题库不进公开仓库或发行附件。安卓真机及Windows 7实机尚未验收。
 - 在线更新：Windows 便携版读取 `main` 上的 `desktop/update.json`，再按其中的 `ref`（提交号）下载 `desktop/app`。每次发布游戏内容更新：同步改 `app/version.js` 与 `package.json` 版本、写清更新说明（新规则要详细），运行 `npm test`，先提交 `desktop/app` 的改动，再运行 `npm run manifest` 并提交 `update.json`，推送 `main`。改动主进程文件（main / preload / updater / lan）时提高 `minShell` 并重建 exe；4.4.4 起 `minShell` 为 4.4.4。
 - 每次完成用户授权的更新后，运行适当检查，保持版本及文档一致，然后将更新提交并同步到 GitHub 默认分支；已有同步授权无需重复确认。
 - 同步目标是 `tzlh6/piggy-playground` 的 `main` 分支。同步前检查远端变化，发生并发修改时先合并；不得强制覆盖远端工作。完成后核对远端提交并向用户报告结果。

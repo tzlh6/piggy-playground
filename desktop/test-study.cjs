@@ -19,6 +19,29 @@ const text=JSON.stringify(bank());
 const h=S.peekHeader(text);
 ok(h&&h.title==='测试卷'&&h.subject==='math'&&h.count===5&&h.id==='t1','header peek');
 ok(S.peekHeader('{"format":"other"}')===null&&S.peekHeader('')===null,'non-bank header');
+const meta=S.peekHeader(JSON.stringify(bank({book:'物理书',chapter:'第一章',topic:'第一节 · 课时1'})));
+ok(meta.book==='物理书'&&meta.chapter==='第一章'&&meta.topic==='第一节 · 课时1','header preserves book directory metadata');
+const library=S.libraryTree([
+ {id:'l1',subject:'physics',subjectName:'物理',book:'同名书',title:'物理书 · 第一章',chapter:'第一章',topic:'第一节 · 课时1',count:3},
+ {id:'l2',subject:'physics',subjectName:'物理',book:'同名书',title:'物理书 · 第一章',chapter:'第一章',topic:'第一节 · 课时2',count:5},
+ {id:'l3',subject:'physics',subjectName:'物理',book:'同名书',title:'物理书 · 第二章',chapter:'第二章',topic:'专题1',count:7},
+ {id:'l4',subject:'math',subjectName:'数学',book:'同名书',title:'数学书 · 第一章',chapter:'第一章',topic:'第一章 · 第1节',count:2},
+ {id:'p1',subject:'physics',subjectName:'物理',title:'综合试卷',count:15}]);
+const physicsBook=library.roots.find(n=>n.kind==='book'&&n.subject==='physics'),firstChapter=physicsBook.children[0];
+ok(library.books===2&&library.papers===1&&library.roots.every(n=>n.kind!=='bank'),'top level contains books and the collapsed paper collection');
+ok(physicsBook.count===15&&firstChapter.count===8&&firstChapter.entries.map(b=>b.id).join(',')==='l1,l2','whole book and chapter selections contain exactly their own questions');
+ok(firstChapter.children[0].label==='第一节'&&firstChapter.children[0].children.map(n=>n.label).join(',')==='课时1,课时2','chapter expands to section, then individual lessons');
+ok(library.byKey['bank:l2'].entries[0].id==='l2'&&library.byKey['bank:l2'].count===5,'individual lesson selection remains exact');
+ok(library.roots.find(n=>n.subject==='math').children[0].children[0].label==='第1节','duplicate chapter prefix is removed from the leaf label');
+ok(S.libraryTree([{id:'old',subject:'physics',title:'2026秋高中必刷题',count:10}]).books===1,'older aggregated book banks remain usable');
+const lessons=S.libraryTree([
+ {id:'c2',subject:'physics',book:'解题觉醒',chapter:'第一章',topic:'第3节 磁场-课时2 有界磁场',count:4},
+ {id:'s1',subject:'physics',book:'解题觉醒',chapter:'第一章',topic:'专项觉醒 1 临界问题',count:3},
+ {id:'c1',subject:'physics',book:'解题觉醒',chapter:'第一章',topic:'第3节 磁场-课时1 匀强磁场',count:5}]);
+ok(lessons.roots[0].children[0].children.map(n=>n.label).join(',')==='第3节 磁场,专项觉醒 1 临界问题','numbered sections precede special topics');
+ok(lessons.roots[0].children[0].children[0].children.map(n=>n.label).join(',')==='课时1 匀强磁场,课时2 有界磁场','legacy hyphenated lessons expand under their section');
+ok(lessons.byKey['bank:c1'].path.join(' / ')==='解题觉醒 / 第一章 / 第3节 磁场 / 课时1 匀强磁场','selected lesson has its complete directory path');
+ok(S.normalizeBank(bank({units:[{questions:[{no:1,label:'例1',type:'solve',stem:'例题',answer:'见解析',solution:'详细解析'}]}]})).questions[0].label==='例1','original example labels survive normalization');
 // 检查与整理
 const b=S.normalizeBank(JSON.parse(text));
 ok(!b.error&&b.count===4,'keeps four valid questions');

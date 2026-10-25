@@ -76,7 +76,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>猪猪爱学习：ZIP 一次导入题库</h3><p>打开猪猪爱学习，点“导入题库文件”，选中一个 ZIP 压缩包，就能一次导入里面全部学科的题库，无需先解压，也不用逐个选文件。仍可导入单个或多个 JSON 文件。</p><p>题库按学科保存，题图和解析一并保留；导入同名文件会更新该题库。压缩包中的说明文件会自动跳过。覆盖安装保留已有题库、成绩和设置。</p><p>本机共用游戏 ${window.PIGGY_VERSION.version} 的完整规则和操作说明在下方列出。</p><p class="muted small">不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
+    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>猪猪题库：先选书，再展开目录</h3><p>选择资料时先只显示书名。点开书名出现章节目录，再点章节、节目录，选择具体课时或专题；也可以练习整本、整章或整节。综合试卷与练习收在单独的折叠目录，按整套选择。</p><p>点“导入题库文件”，选择一个 ZIP 压缩包即可一次导入全部学科，无需解压；仍可导入单个或多个 JSON。题图、答案、解析和书籍目录一并保留。覆盖安装保留已有题库、成绩和设置。</p><p>本机共用游戏 ${window.PIGGY_VERSION.version} 的完整规则和操作说明在下方列出。</p><p class="muted small">不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };
