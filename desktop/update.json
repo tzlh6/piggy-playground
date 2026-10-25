@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.7.1",
- "date": "2026-10-21",
- "ref": "0eeaced88385f2618703728163d722abcfb0b2c9",
+ "version": "4.7.3",
+ "date": "2026-10-25",
+ "ref": "be95d5a8892076af141d5f262b8973abd158cc60",
  "minShell": "4.7.1",
- "notes": "题型按学科细分（英语阅读 / 七选五 / 完形 / 语法填空 / 写作，语文文言文 / 诗歌 / 语用等），新增难度筛选（基础 / 中档 / 较难）。 选择题改为先选中、再点“交卷”才判分；数学填空、英语语法填空直接输入答案自动判分，数学有符号键盘，等价写法都算对。 语文、英语阅读整篇出题，每个小题直接点选或填写；分值改按原卷（英语阅读每题 2.5、完形 1、语法填空 1.5 等）。",
+ "notes": "选题区先显示书名，点开一本书后显示目录，再逐级展开到章节、课时或专题。 可以选择整本练习、全章练习或某个具体课时；综合试卷集中在折叠的“综合试卷与练习”中，保留完整试卷。 电脑、安卓与离线网页使用相同的目录；导入题库后，原书目录信息保留。",
  "files": {
   "app.js": {
    "sha256": "01eefc3d25ef1920fa7f0f553c0c07df55b2fc3a4aec4e4d53e7b457ec29c0c9",
@@ -512,8 +512,8 @@
    "size": 46264
   },
   "help.js": {
-   "sha256": "11537e8de43382d8ec7e1b933167e6a318236e8c53c649ba04a37aa5b543d272",
-   "size": 24059
+   "sha256": "c7fbdd10e9ec019f8ba2206416877df9dd295098727ef6a4ff038f0bae8e7a95",
+   "size": 24194
   },
   "index.html": {
    "sha256": "865371e068e8103c8256c362f3eddc30b1ac675bbaaeb6c3b412cd118f58ad24",
@@ -568,24 +568,24 @@
    "size": 42904
   },
   "study-core.js": {
-   "sha256": "b898c2a126a200ef45049ed8152279714224281d53c71870bbb14c2d405c42d8",
-   "size": 20502
+   "sha256": "c52f3675b83b0c1dc10d6493a19d6eb94005b9ec456e987b487ea0a2b8a4146b",
+   "size": 23660
   },
   "study-math.js": {
    "sha256": "83f584dbd7016edb62fe632717602a8f238d27edb5e387aade767f9a2cb7b4b9",
    "size": 20691
   },
   "study-ui.js": {
-   "sha256": "aec74eb0da7ebe62e359454edef56651f11d896621e3179000aefecbca9b9761",
-   "size": 46630
+   "sha256": "001578024caadc367d35075602b1faee1700f0209b0d18bc3a15d80fc581dd8a",
+   "size": 48685
   },
   "style.css": {
-   "sha256": "2d1529ce9b6b671081ba771baaaf32fd93c3728bec420bc5dada74f8fb760db4",
-   "size": 140240
+   "sha256": "f3d70761066903dca0d6bb43cff95b79f313d30335afa7a71c86ad2ceeb940d4",
+   "size": 142861
   },
   "version.js": {
-   "sha256": "5917a178e4b7fae8b0593521cf72ab9d337c40f81ed4a3072946cc647f7ffc53",
-   "size": 40758
+   "sha256": "773df3b6220cb3662c82be597ebe65cac0601291fbf2cd4dcecdf9a0f23ff15e",
+   "size": 42359
   }
  }
 }
