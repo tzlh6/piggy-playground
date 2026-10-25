@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.7.3",
-  "versionCode": 40703,
+  "version": "4.8.0",
+  "versionCode": 40800,
   "nativeRevision": 5,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.7.3-android/PiggyPlayground-4.7.3-Android-compat.apk",
-  "bytes": 951314,
-  "sha256": "f31d96291d361715a135f7c13d2fab8b35d7182fdd77736bc2f8240fcf1a70c6",
-  "notes": "猪猪爱学习选择资料时先只显示书名。点击书名展开章节目录，再展开章节或节，选择具体课时、专题；也可以选择整本、整章或整节练习。\n\n- 综合试卷与练习收在单独的折叠目录，按整套选择。\n- 当前选择显示完整目录路径，题型、难度、题数及实际出题都使用所选范围；调整筛选后保留目录展开状态。\n- 题库文件管理列表默认折叠，保留原书“例1”等标号。\n- 安卓继续支持ZIP一次导入，也可以导入JSON；覆盖安装保留题库、成绩和设置，不要先卸载。\n\nWindows、离线网页和安卓共用游戏均为4.7.3。Windows最低外壳仍为4.7.1；安卓普通40713、旧更新器兼容40703，原签名，nativeRevision=5。普通用户下载普通APK，无需安装两个包。\n\n题库由使用者自行准备，个人题库及压缩包不随公开程序提供。书籍分课时题库使用book/chapter/topic元数据构建目录；旧合并书籍仍可用。\n\n已完成既有游戏回归、179项学习规则、实际目录展开与整本/整章/单课时范围检查、390像素窄屏检查、版本及签名、公开源码与内置网页一致性检查。安卓真机安装、系统文件选择器和Windows 7实机尚未验收。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.8.0-android/PiggyPlayground-4.8.0-Android-compat.apk",
+  "bytes": 1000466,
+  "sha256": "c6f3b15f8cec4b1e8a6baa4f285cb9f01e9faf73091a2986f95d790ce3b75016",
+  "notes": "4.8.0 装扮版：新增白巧克力、黑巧克力、抹茶麻薯、柠檬汽水、焦糖拿铁、奶牛花花六种配色；十种小装饰可与服饰叠戴，配色和装饰同步到自己的小猪并自动保存。沿用原签名，覆盖安装保留题库、成绩和设置，请不要先卸载。"
 }
