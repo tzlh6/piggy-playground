@@ -38,19 +38,23 @@ function createSound(opts){
   stop(){this.generation++;this.timers.forEach(clearTimeout);this.timers=[];[...this.voices,...this.effects].forEach(v=>{try{v.g.gain.cancelScheduledValues(0);v.g.gain.setTargetAtTime(0,this.ctx.currentTime,.015);v.src.stop(this.ctx.currentTime+.08)}catch(e){}});this.voices=[];this.effects=[]},
   later(ms,fn){const gen=this.generation,id=setTimeout(()=>{this.timers=this.timers.filter(x=>x!==id);if(gen===this.generation)fn()},ms);this.timers.push(id);return id},
   now(){return this.ctx?this.ctx.currentTime:0},
+  // Map the sound reaching the speakers back to the audio timeline. Supported
+  // output timestamps account for device latency; the existing offset slider
+  // remains available when a device cannot report it or needs manual tuning.
+  audibleTime(){const c=this.ctx;if(!c)return 0;if(c.getOutputTimestamp&&root.performance){try{const stamp=c.getOutputTimestamp(),age=(root.performance.now()-stamp.performanceTime)/1000,projected=stamp.contextTime+age;if(stamp.contextTime>0&&age>=0&&age<1&&Number.isFinite(projected))return Math.max(0,Math.min(c.currentTime,projected))}catch(e){}}return c.currentTime},
 
   // Shuffled bag: every round uses all four pigs, never the same pig twice in a row.
   choose(){if(!this.bag.length){this.bag=PigCore.shuffle([0,1,2,3]);if(this.bag[3]===this.last){const t=this.bag[0];this.bag[0]=this.bag[3];this.bag[3]=t}}this.last=this.bag.pop();return this.last},
 
   // ---- primitives ----
-  voice(i,o){o=o||{};if(!this.live)return null;if(i===undefined||i===null)i=this.choose();const buf=this.buffers[i];if(!buf)return null;const c=this.ctx,t=c.currentTime+(o.delay||0);
+  voice(i,o){o=o||{};if(!this.live)return null;if(i===undefined||i===null)i=this.choose();const buf=this.buffers[i];if(!buf)return null;const c=this.ctx,t=Math.max(c.currentTime,Number.isFinite(o.at)?o.at:c.currentTime+(o.delay||0));
    while(this.voices.length>=this.maxVoices){const old=this.voices.shift();try{old.g.gain.setTargetAtTime(0,c.currentTime,.02);old.src.stop(c.currentTime+.1)}catch(e){}}
    const src=c.createBufferSource(),g=c.createGain();src.buffer=buf;src.playbackRate.value=o.rate||1;g.gain.value=o.gain===undefined?1:o.gain;let node=src;
    if(c.createStereoPanner&&o.pan){const p=c.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,o.pan));src.connect(p);node=p}
    node.connect(g);g.connect(this.pigBus);const v={src,g,i};this.voices.push(v);src.onended=()=>{this.voices=this.voices.filter(x=>x!==v);if(this.onvoice)this.onvoice(i,false)};if(o.dur){const end=t+o.dur/(o.rate||1),g0=g.gain.value;g.gain.setValueAtTime(g0,Math.max(t,end-.05));g.gain.linearRampToValueAtTime(0.0001,end);src.start(t,o.offset||0,o.dur+.02)}else src.start(t,o.offset||0);if(this.onvoice)this.onvoice(i,true);return v},
-  tone(f,o){o=o||{};if(!this.live)return;const retro=this.profile==='retro',fairy=this.profile==='fairy',pitch=fairy?1.18:retro?.93:1,c=this.ctx,t=c.currentTime+(o.delay||0),d=(o.dur||.12)*(fairy?1.22:1),a=o.attack||.004;const osc=c.createOscillator(),g=c.createGain();osc.type=retro?'square':fairy?'sine':o.type||'sine';osc.frequency.setValueAtTime(f*pitch,t);if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to*pitch,t+d);
+  tone(f,o){o=o||{};if(!this.live)return;const retro=this.profile==='retro',fairy=this.profile==='fairy',pitch=fairy?1.18:retro?.93:1,c=this.ctx,t=Math.max(c.currentTime,Number.isFinite(o.at)?o.at:c.currentTime+(o.delay||0)),d=(o.dur||.12)*(fairy?1.22:1),a=o.attack||.004;const osc=c.createOscillator(),g=c.createGain();osc.type=retro?'square':fairy?'sine':o.type||'sine';osc.frequency.setValueAtTime(f*pitch,t);if(o.to)osc.frequency.exponentialRampToValueAtTime(o.to*pitch,t+d);
    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime((o.gain||.2)*(retro?.55:1),t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+d);osc.connect(g);g.connect(this.fxBus);const tracked={src:osc,g,i:-1};this.effects.push(tracked);osc.onended=()=>{this.effects=this.effects.filter(v=>v!==tracked)};osc.start(t);osc.stop(t+d+.02)},
-  noise(o){o=o||{};if(!this.live||!this.noiseBuf)return;const c=this.ctx,t=c.currentTime+(o.delay||0),d=o.dur||.08;const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=this.noiseBuf;f.type=o.filter||'bandpass';f.frequency.setValueAtTime(o.freq||1800,t);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+d);f.Q.value=o.q||1;
+  noise(o){o=o||{};if(!this.live||!this.noiseBuf)return;const c=this.ctx,t=Math.max(c.currentTime,Number.isFinite(o.at)?o.at:c.currentTime+(o.delay||0)),d=o.dur||.08;const src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=this.noiseBuf;f.type=o.filter||'bandpass';f.frequency.setValueAtTime(o.freq||1800,t);if(o.to)f.frequency.exponentialRampToValueAtTime(o.to,t+d);f.Q.value=o.q||1;
    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.gain||.15,t+(o.attack||.003));g.gain.exponentialRampToValueAtTime(0.0001,t+d);src.connect(f);f.connect(g);g.connect(this.fxBus);const tracked={src,g,i:-1};this.effects.push(tracked);src.onended=()=>{this.effects=this.effects.filter(v=>v!==tracked)};src.start(t,Math.random()*.5);src.stop(t+d+.02)},
 
   // 黑猪8：沿用声音工坊的四段录音，完整原速播放；物理击声走独立提示音层。
@@ -155,7 +159,8 @@ function createSound(opts){
   starPop(){this.tone(640,{dur:.09,gain:.04,to:1400});this.noise({freq:2200,dur:.035,gain:.025})},
   starHit(){this.noise({freq:1800,to:200,dur:.22,gain:.08});this.voice(3,{gain:.4,rate:1.1,dur:.25});this.pigYelp({delay:.1,rate:1.1})},
   starShield(){[262,392,523,784].forEach((f,k)=>this.tone(f,{dur:.3,gain:.05,delay:k*.045,to:f*1.5}));this.voice(2,{gain:.35,dur:.25})},
-  rhythmBeat(beat,bpm){const melody=[0,4,7,4,2,5,9,5,4,7,11,7,2,5,7,2];this.tone(note(262,melody[beat%16]),{dur:Math.min(.3,45/bpm),gain:.042,type:'triangle'});if(beat%4===0){this.tone(70,{dur:.12,gain:.085,to:38});this.tone(note(131,[0,0,5,7][Math.floor(beat/4)%4]),{dur:.2,gain:.05,type:'triangle'})}else this.noise({freq:5200,dur:.025,gain:.025,filter:'highpass'})},
+  rhythmBeat(beat,bpm,when){const at=Number.isFinite(when)?when:undefined,chord=Math.max(0,Math.floor((beat-4)/4))%4,bass=[130.81,110,174.61,196][chord];if(beat%4===0){this.tone(78,{at,dur:.13,gain:.085,to:36,type:'sine'});this.tone(bass,{at,dur:Math.min(.3,40/bpm),gain:.045,type:'triangle'})}else if(beat%2===1){this.noise({at,freq:1900,to:900,dur:.07,gain:.035});this.tone(175,{at,dur:.045,gain:.018,to:110})}this.noise({at,freq:6500,dur:.022,gain:beat%4===0?.022:.015,filter:'highpass'});if(beat<4)this.tone(beat===0?1047:784,{at,dur:.045,gain:.045,type:'sine'})},
+  rhythmNote(lane,bpm,when,beat){const chords=[[523.25,659.25,783.99,1046.5],[440,523.25,659.25,880],[349.23,440,523.25,698.46],[392,493.88,587.33,783.99]],chord=Math.max(0,Math.floor((beat-4)/4))%4;this.tone(chords[chord][lane],{at:when,dur:Math.min(.25,30/bpm),gain:.04,type:'triangle'})},
   rhythmHit(lane,perfect,combo){this.tone([659,784,988,1175][lane],{dur:.09,gain:perfect?.065:.04,type:'triangle'});if(combo>0&&combo%16===0)this.voice(lane,{gain:.3,rate:1.4,dur:.15})},
   rhythmMiss(){this.tone(185,{dur:.085,gain:.035,to:120})},
   // ---- 合成猪叫库：本地 Web Audio 生成，走“猪叫”音量层，暂停 / 静音 / 切换游戏一并停止 ----

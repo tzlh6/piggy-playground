@@ -34,18 +34,7 @@ class Shooter{
   if(this.boss&&this.boss.hp<=0){this.bossKills++;this.score+=1500*this.stage;this.bullets=[];this.boss=null;this.hp=Math.min(3,this.hp+1);this.cooldown=0;events.push('bossWin');if(this.stage>=3){this.over=true;this.won=true}else{this.stage++;this.waveAt=this.time+2;this.bossAt=this.time+24}}
   return events}
 }
-// Authored procedural four-lane chart: no adjacent tap intrudes into a hold.
-function chart(level){const hard=level==='hard',easy=level==='easy',bpm=easy?104:hard?148:124,beat=60/bpm,bars=easy?16:hard?24:20,notes=[],busy=Array(4).fill(0);let id=0;for(let b=4;b<bars*4;b++){const lane=(b*3+Math.floor(b/8))%4,t=b*beat;if(t>=busy[lane]){const hold=!easy&&b%12===6?beat*(hard?2:1.5):0;notes.push({id:++id,lane,t,end:t+hold,hold,done:false,started:false});busy[lane]=t+hold+beat*.4}if(hard&&b%4===1){const l=(lane+2)%4;if(t>=busy[l])notes.push({id:++id,lane:l,t,end:t,hold:0,done:false,started:false})}if(!easy&&b%8===3){const l=(lane+1)%4,at=t+beat*.5;if(at>=busy[l])notes.push({id:++id,lane:l,t:at,end:at,hold:0,done:false,started:false})}}notes.sort((a,b)=>a.t-b.t||a.lane-b.lane);return {bpm,beat,notes,duration:bars*4*beat+1}}
-class Rhythm{
- constructor(level){Object.assign(this,chart(level||'normal'));this.time=0;this.offset=0;this.score=0;this.combo=0;this.maxCombo=0;this.health=100;this.perfect=0;this.good=0;this.miss=0;this.pressed=new Set();this.over=false;this.won=false;this.feedback=[];this.lastBeat=-1;this.window=.15;this.assist=false}
- judgement(n,kind,tail){const points=kind==='perfect'?100:kind==='good'?65:0;if(kind==='miss'){this.miss++;this.combo=0;this.health=Math.max(0,this.health-9)}else{this[kind]++;this.combo++;this.maxCombo=Math.max(this.combo,this.maxCombo);this.health=Math.min(100,this.health+2);this.score+=points+Math.min(50,this.combo*2)}if(tail||!n.hold||kind==='miss')n.done=true;else n.started=true;const ev={type:kind,lane:n.lane,tail:!!tail,at:this.time};this.feedback.push(ev);return ev}
- press(lane,offset){if(this.over||this.pressed.has(lane))return null;this.pressed.add(lane);const at=this.time+(offset===undefined?this.offset:offset),n=this.notes.find(n=>n.lane===lane&&!n.done&&!n.started&&Math.abs(n.t-at)<=this.window);if(!n)return {type:'empty',lane};const kind=Math.abs(n.t-at)<=.055?'perfect':'good';
-  // 单击模式：同一拍的和弦伙伴一起判定，只用一个指针也能完成双键
-  if(this.assist)for(const m of this.notes)if(m!==n&&m.lane!==lane&&!m.done&&!m.started&&Math.abs(m.t-n.t)<.03)this.judgement(m,kind,false);
-  return this.judgement(n,kind,false)}
- release(lane){this.pressed.delete(lane);const n=this.notes.find(n=>n.lane===lane&&n.started&&!n.done);if(!n||this.assist)return null;return this.judgement(n,this.time+this.offset>=n.end-.1?'perfect':'miss',true)}
- updateTo(time){if(this.over)return [];this.time=Math.max(this.time,time);const at=this.time+this.offset,events=[];for(const n of this.notes){if(n.done)continue;if(n.started&&at>=n.end){events.push(this.judgement(n,this.pressed.has(n.lane)||this.assist?'perfect':'miss',true))}else if(!n.started&&at>n.t+this.window)events.push(this.judgement(n,'miss',false))}const beat=Math.floor(this.time/this.beat);if(beat>this.lastBeat){this.lastBeat=beat;events.push({type:'beat',beat})}this.feedback=this.feedback.filter(f=>this.time-f.at<.65);if(this.health<=0||this.time>=this.duration){this.over=true;this.won=this.health>0}return events}
- get accuracy(){return this.perfect+this.good+this.miss?Math.round((this.perfect+this.good*.65)/(this.perfect+this.good+this.miss)*100):100}
-}
+// Shared, independently testable chart, judgement and transport.
+const {Rhythm,chart}=typeof module!=='undefined'&&module.exports?require('./rhythm-core.js'):root.PigRhythmCore;
 const api={segmentCircle,Slice,Shooter,Rhythm,chart};if(typeof module!=='undefined')module.exports=api;root.PigChallengeCore=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -6,13 +6,13 @@ A=str(Path(__file__).resolve().parent / 'app') + os.sep
 def uri(p,mime):return f"data:{mime};base64,"+base64.b64encode(open(A+p,'rb').read()).decode()
 html=open(A+'index.html',encoding='utf8').read()
 # 与 index.html 的脚本顺序一致；新增模块在这里登记
-SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','challenge-core.js','jump-core.js','pool-core.js','gate-core.js','study-core.js','study-math.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','jump-ui.js','pool-ui.js','gate-ui.js','assets/katex/katex.min.js','assets/katex/mhchem.min.js','study-ui.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
+SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','vendor/chess.js','vendor/xiangqi.js','board-core.js','battleship-core.js','board-session.js','rhythm-core.js','challenge-core.js','jump-core.js','pool-core.js','gate-core.js','study-core.js','study-math.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','jump-ui.js','pool-ui.js','gate-ui.js','assets/katex/katex.min.js','assets/katex/mhchem.min.js','study-ui.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
 for n in SCRIPTS:assert f'<script src="{n}"></script>' in html, n+' 未在 index.html 中引用'
 html=re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>','',html)
-license_details='<details class="github-licenses"><summary>GitHub 参考项目 MIT 许可证（4.1 起）</summary>'
+license_details='<details class="github-licenses"><summary>GitHub 参考项目许可证（MIT / BSD-2-Clause）</summary>'
 for f in sorted(os.listdir(A+'assets/licenses')):
-    if f.endswith('-MIT.txt'):
-        name=f[:-8].replace('_','/',1)
+    if f.endswith(('-MIT.txt','-BSD-2-Clause.txt')):
+        name=re.sub(r'-(MIT|BSD-2-Clause)\.txt$', '', f).replace('_','/',1)
         license_details+='<h4>'+escape(name)+'</h4><pre>'+escape(open(A+'assets/licenses/'+f,encoding='utf8').read())+'</pre>'
 license_details+='</details>'
 assert html.count('<pre id="license"></pre>')==1
@@ -36,6 +36,11 @@ def js(n):
 skins={f[:-4]:uri('assets/skins/'+f,'image/svg+xml') for f in sorted(os.listdir(A+'assets/skins')) if f.endswith('.svg')}
 match_art={f[:-4]:uri('assets/match/'+f,'image/svg+xml') for f in sorted(os.listdir(A+'assets/match')) if f.endswith('.svg')}
 scripts='<script>window.PIG_MATCH_URI='+json.dumps(match_art)+';window.CARD_URI='+json.dumps(cards)+';window.PIG_SKIN_URI='+json.dumps(skins)+';</script>'+''.join(js(n) for n in SCRIPTS)
+# Embed the optional background AI in the offline edition as well.
+worker_modules=['vendor/chess.js','vendor/xiangqi.js','board-core.js','battleship-core.js','board-session.js']
+worker_source='\n'.join(open(A+n,encoding='utf8').read() for n in worker_modules)
+worker_source+='\n'+re.sub(r"importScripts\([^;]+;",'',open(A+'board-worker.js',encoding='utf8').read())
+scripts='<script>window.PIG_BOARD_WORKER_SOURCE='+json.dumps(worker_source,ensure_ascii=False).replace('</script','<\\/script')+';</script>'+scripts
 html=re.sub(r'<script src="version.js"></script>.*?<script src="app.js"></script>',lambda m:scripts,html,flags=re.S)
 html=html.replace('assets/pig.svg',pig)
 assert 'src="assets/' not in html and "href=\"assets/" not in html, 'unbundled asset left'
