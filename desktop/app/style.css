@@ -1267,3 +1267,42 @@ body[data-game="study"] .arena{min-height:0}
 @media(max-width:560px){.st-sub-opts.short{grid-template-columns:repeat(2,minmax(0,1fr))}.st-keypad{grid-template-columns:repeat(6,1fr)}.st-key{font-size:13px;padding:6px 2px}.st-in-col{min-width:0}}
 .st-subs.grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}.st-subs.grid .st-sub{padding:8px 10px}.st-subs.grid .st-sub-opts.short{grid-template-columns:repeat(2,minmax(0,1fr))}.st-subs.grid .st-in-row{flex-wrap:nowrap}.st-subs.grid .st-sub-ans{font-size:13px}
 .st-sub-in{flex:1;min-width:0}.st-preview{overflow-y:hidden;padding-bottom:6px}
+
+/* ---------- 棋类六款（board-ui.js） ---------- */
+.bd-shell{display:flex;flex-direction:column;gap:10px;width:100%;align-items:center}
+.bd-match{display:grid;grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);gap:10px;width:100%;max-width:880px}
+.bd-player{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;background:#f6f0e9;border:1px solid #e6dccf;border-radius:16px;min-width:0;position:relative;transition:background .25s,border-color .25s,transform .25s,box-shadow .25s}
+.bd-player.current{background:linear-gradient(125deg,#fff1e4,#fbe9ee);border-color:#e0a8b4;box-shadow:0 3px 0 #efc6cf;transform:translateY(-2px)}
+.bd-player.winner{background:linear-gradient(125deg,#fff6d8,#ffeccc);border-color:#e8c06a;box-shadow:0 3px 0 #f0d494}
+.bd-ava{flex:0 0 64px;width:64px;height:66px;display:flex;align-items:center;justify-content:center}
+.bd-avatar{width:70px;height:72px;overflow:visible;filter:drop-shadow(0 3px 2px #85617622)}
+#bd-p1 .bd-avatar{transform:scaleX(-1)}
+.bd-player.current .bd-avatar{animation:bd-bob 1.6s ease-in-out infinite}
+.bd-info{min-width:0;flex:1}.bd-info b{display:block;font-size:14px;color:#7a5a52;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bd-info small{display:block;font-size:11px;color:#9b8b7c;margin:2px 0 3px}
+.bd-tray{display:flex;flex-wrap:wrap;gap:1px;min-height:16px}
+.bd-cap{font-style:normal;display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;font-size:11px;line-height:1}
+.bd-cap.xq{background:#f3dcae;border:1px solid #b98a52;font-family:"KaiTi","STKaiti","楷体",serif;font-weight:700}.bd-cap.xq.p1{color:#c3312c}.bd-cap.xq.p2{color:#2f2a28}
+.bd-cap.ch{font-family:"Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",serif;font-size:15px}.bd-cap.ch.p1{color:#f4d9c8;text-shadow:0 0 1px #8a5a50,0 0 1px #8a5a50}.bd-cap.ch.p2{color:#3a2b28}
+.bd-flag{position:absolute;right:10px;top:8px;font-style:normal;font-size:11px;color:#a08c7e;background:#fffaf4;border-radius:10px;padding:2px 8px;border:1px solid #eadfd2}
+.bd-player.current .bd-flag{color:#b6476a;border-color:#efc0cb}
+.bd-player.thinking .bd-flag::after{content:'';display:inline-block;width:14px;text-align:left;animation:bd-dots 1.2s steps(4) infinite}
+.bd-vs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.bd-vs b{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#f3a6b8;color:#fff;font:800 13px sans-serif;box-shadow:0 3px 0 #d6849a}.bd-vs small{font-size:10px;color:#a59b89;white-space:nowrap}
+.bd-stage{position:relative;display:flex;justify-content:center;width:100%}
+.bd-stage canvas{display:block;border-radius:22px;box-shadow:0 10px 24px #8a5a3a26,0 2px 0 #e7d6c2;touch-action:manipulation;outline:none}
+.bd-stage canvas:focus-visible{box-shadow:0 0 0 3px #8ab6d6,0 10px 24px #8a5a3a26}
+.bd-status{font-size:14px;color:#7a5a52;background:#fff7ef;border:1px solid #efdfcf;border-radius:999px;padding:6px 16px;min-height:20px;text-align:center;transition:background .2s,color .2s}
+.bd-status.alert{background:#ffe6e3;color:#c43d3d;border-color:#f3b4ad;animation:bd-pulse .9s ease-in-out infinite}
+.bd-pick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:14px 16px;background:#fffaf4;border:2px solid #e8b4c0;border-radius:18px;box-shadow:0 12px 30px #5a3a2a40;z-index:5;max-width:92%;animation:bd-pop .22s ease-out}
+.bd-pick b{width:100%;text-align:center;color:#8a5a52;font-size:14px}
+.bd-pick button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px;padding:6px 8px;border-radius:12px;border:1px solid #ead6c6;background:#fff;color:#7a5a52;font-size:12px;cursor:pointer}
+.bd-pick button:hover,.bd-pick button:focus-visible{background:#fdeef2;border-color:#e0a0b0}
+.bd-pick-glyph{font:34px "Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",serif;line-height:1}.bd-pick-glyph.p1{color:#f6dccd;text-shadow:0 0 1px #8a5a50,0 0 1px #8a5a50,0 0 1px #8a5a50}.bd-pick-glyph.p2{color:#3a2b28}
+.bd-pick .bd-pick-cancel{justify-content:center;min-width:48px}
+#play-toolbar button.danger{background:#ffe3df;border-color:#e99a90;color:#b33a2f}
+#play-toolbar button:disabled{opacity:.45;cursor:not-allowed}
+@keyframes bd-bob{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes bd-dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
+@keyframes bd-pulse{0%,100%{box-shadow:0 0 0 0 #f3b4ad00}50%{box-shadow:0 0 0 4px #f3b4ad66}}
+@keyframes bd-pop{from{transform:translate(-50%,-50%) scale(.85);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@media (max-width:640px){.bd-match{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:6px}.bd-ava{flex-basis:44px;width:44px;height:48px}.bd-avatar{width:50px;height:52px}.bd-vs small{display:none}.bd-vs b{width:30px;height:30px;font-size:11px}.bd-player{padding:6px 8px 6px 4px;gap:4px}.bd-flag{display:none}.bd-info small{font-size:10px}}
+@media (prefers-reduced-motion:reduce){.bd-player.current .bd-avatar,.bd-status.alert{animation:none}}

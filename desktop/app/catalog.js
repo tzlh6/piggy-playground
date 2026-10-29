@@ -1,7 +1,7 @@
 /* 游戏目录：编号、名称、一句话、图标、分类。侧栏、搜索、分类与排序都从这里生成。 */
 (function(root){
 'use strict';
-const CATS=[['all','全部'],['puzzle','益智'],['action','敏捷'],['arcade','街机'],['versus','对战'],['study','学习']];
+const CATS=[['all','全部'],['puzzle','益智'],['action','敏捷'],['arcade','街机'],['versus','对战'],['board','棋类'],['study','学习']];
 const GAMES=[
  {id:'mine',no:1,name:'扫猪',desc:'嘘，别吵醒小猪',icon:'i-flag',cat:'puzzle',keys:'扫雷 推理'},
  {id:'memory',no:2,name:'记忆翻翻乐',desc:'把好朋友配成对',icon:'i-cards',cat:'puzzle',keys:'翻牌 记忆 配对'},
@@ -25,7 +25,13 @@ const GAMES=[
  {id:'jump',no:20,name:'猪猪跳一跳',desc:'按住蓄力，松开向前跳',icon:'i-run',cat:'action',keys:'跳一跳 蓄力 跳跃 平台 中心 连跳',badge:'新游戏',badgeVer:'4.4.4'},
  {id:'pool',no:21,name:'黑猪8',desc:'碰一下，哼唧一声',icon:'i-pool',cat:'versus',keys:'台球 八球 黑八 黑8 黑猪8 8ball 桌球 球杆 人机 双人 练球',badge:'新游戏',badgeVer:'4.4.5'},
  {id:'mathgate',no:22,name:'猪猪闯算门',desc:'选对门，带队打猪王',icon:'i-gate',cat:'action',keys:'算门 数学门 加减乘除 平方 开方 微积分 导数 积分 极限 混合运算 四则 跑酷 人群 猪群 boss 猪王 count masters',badge:'新游戏',badgeVer:'4.6.0'},
- {id:'study',no:23,name:'猪猪爱学习',desc:'眼镜猪老师出真题',icon:'i-book',cat:'study',keys:'学习 刷题 题库 真题 试卷 答案 解析 数学 物理 化学 生物 语文 英语 选择题 填空题 解答题 阅读 完形填空 七选五 语法填空 文言文 作文 难度 错题本 高考 模拟 联考',badge:'新游戏',badgeVer:'4.7.0'}
+ {id:'study',no:23,name:'猪猪爱学习',desc:'眼镜猪老师出真题',icon:'i-book',cat:'study',keys:'学习 刷题 题库 真题 试卷 答案 解析 数学 物理 化学 生物 语文 英语 选择题 填空题 解答题 阅读 完形填空 七选五 语法填空 文言文 作文 难度 错题本 高考 模拟 联考',badge:'新游戏',badgeVer:'4.7.0'},
+ {id:'xiangqi',no:24,name:'猪猪象棋',desc:'楚河汉界，粉猪对黑猪',icon:'i-xiangqi',cat:'board',keys:'中国象棋 象棋 楚河汉界 将军 车马炮 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'chess',no:25,name:'猪猪国际象棋',desc:'小猪骑士冲向国王',icon:'i-chess',cat:'board',keys:'国际象棋 chess 王车易位 升变 将死 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'gomoku',no:26,name:'猪猪五子棋',desc:'五只小猪排一排',icon:'i-gomoku',cat:'board',keys:'五子棋 五子连珠 gomoku 连五 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'reversi',no:27,name:'猪猪黑白棋',desc:'夹住它，翻成自己的猪',icon:'i-reversi',cat:'board',keys:'黑白棋 翻转棋 奥赛罗 othello reversi 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'battleship',no:28,name:'猪猪海战',desc:'藏好舰队，轮流开炮',icon:'i-battle',cat:'board',keys:'海战棋 战舰 battleship 布舰 开炮 击沉 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'dots',no:29,name:'猪猪围栏',desc:'画栅栏，把小猪圈起来',icon:'i-dots',cat:'board',keys:'点格棋 点格围地 围格子 dots and boxes 栅栏 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
 root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};

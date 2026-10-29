@@ -1,10 +1,12 @@
 # 项目维护约定
 
+- 4.9.0 棋类大礼包：六款棋类前端、动画与菜单均已实现，共 29 款。共用源码与本地成品统一为 4.9.0；Windows minShell 仍 4.7.1，安卓普通 40910 / 兼容 40900、原签名、nativeRevision=5，下一版普通从 40911 起。发布状态以 Releases 为准，勿将旧的“仅后端、23 款”记录作为当前状态。规则与验证边界见 `docs/4.9.0-board-games.md`；安卓真机、Windows 7 实机未验收。
+
 - 2026-10-28 新增仅源码后端：`desktop/app/board-session.js` 提供中国象棋、国际象棋、五子棋、黑白棋、战舰棋、点格围地六种独立规则、电脑与存档接口；`rhythm-core.js` 和 challenge/audio 接口实现提前排程、乐句谱面及无音频设备兜底。未制作新游戏界面、形象、动画或菜单，仍为 23 款可见游戏；发行、版本文件和更新清单继续保持 4.8.0。新增 26 组棋类、14 组节奏测试，详见 `desktop/docs/headless-games.md`。这批后端不得误称已在正式 EXE/APK 中上线。
 
 - 沟通与产品文字使用简体中文，代码及必要英文术语保留原文。
 - 本仓库维护 Windows 和安卓源码，不纳入 iOS 版本。
-- 当前共用游戏、Windows、离线网页和安卓均为 4.8.0，23 款游戏；装扮版新增六配色、十种小装饰，十配色共 130 个造型 SVG，详见 `docs/4.8.0-dress-up.md`。安卓普通 40810、兼容 40800，原签名、nativeRevision=5；下一版普通从 40811 起。Windows minShell 仍为 4.7.1。个人题库不进公开仓库或发行附件。安卓真机、Windows 7 实机及与旧版玩家混合联机的实机表现尚未验收。
+- 历史 4.8.0：共用游戏、Windows、离线网页和安卓为 4.8.0，23 款游戏；装扮版新增六配色、十种小装饰，十配色共 130 个造型 SVG，详见 `docs/4.8.0-dress-up.md`。安卓普通 40810、兼容 40800，原签名、nativeRevision=5；下一版普通从 40811 起。Windows minShell 仍为 4.7.1。个人题库不进公开仓库或发行附件。安卓真机、Windows 7 实机及与旧版玩家混合联机的实机表现尚未验收。
 - 在线更新：Windows 便携版读取 `main` 上的 `desktop/update.json`，再按其中的 `ref`（提交号）下载 `desktop/app`。每次发布游戏内容更新：同步改 `app/version.js` 与 `package.json` 版本、写清更新说明（新规则要详细），运行 `npm test`，先提交 `desktop/app` 的改动，再运行 `npm run manifest` 并提交 `update.json`，推送 `main`。改动主进程文件（main / preload / updater / lan）时提高 `minShell` 并重建 exe；4.4.4 起 `minShell` 为 4.4.4。
 - 每次完成用户授权的更新后，运行适当检查，保持版本及文档一致，然后将更新提交并同步到 GitHub 默认分支；已有同步授权无需重复确认。
 - 同步目标是 `tzlh6/piggy-playground` 的 `main` 分支。同步前检查远端变化，发生并发修改时先合并；不得强制覆盖远端工作。完成后核对远端提交并向用户报告结果。

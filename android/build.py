@@ -46,7 +46,7 @@ def prepare():
     html = html.replace('</head>', '<style>' + mobile_css + '</style></head>')
     # Block navigation and web requests even though the native updater has INTERNET.
     # Native bridge capabilities stay limited to updater actions on our packaged page.
-    html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
+    html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; worker-src blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
     html = html.replace('</body>', '<script>' + mobile_js.replace('</script', '<\\/script') + '</script></body>')
     assert 'src="assets/' not in html and 'src="http' not in html
     output.write_text(html, encoding='utf-8', newline='\n')
