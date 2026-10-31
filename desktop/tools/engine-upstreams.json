@@ -1,0 +1,100 @@
+[
+  {
+    "path": "stockfish/LICENSE",
+    "url": "https://raw.githubusercontent.com/nmrugg/stockfish.js/v19.0.1/Copying.txt",
+    "size": 35821,
+    "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b"
+  },
+  {
+    "path": "rapfi/rapfi.js",
+    "url": "https://raw.githubusercontent.com/CyanXLab/GomokuAI/822be514c7fa563ed2a735628cb60868b913c792/public/build/rapfi-single-simd128.js",
+    "size": 38345,
+    "sha256": "06375f5560a2c0b897c3332942d7c2c2422d365f793dfb8d68c45eebed74b131"
+  },
+  {
+    "path": "rapfi/LICENSE",
+    "url": "https://raw.githubusercontent.com/dotb1ue/rapfi/master/Copying.txt",
+    "size": 35141,
+    "sha256": "6bab265559d5ebe9f259f2f54e9640bb4c8c8535bacd37c18125231f6fa9acf7"
+  },
+  {
+    "path": "rapfi/NETWORK-LICENSE",
+    "url": "https://raw.githubusercontent.com/dotb1ue/rapfi-networks/main/LICENSE",
+    "size": 6669,
+    "sha256": "084bc2aebf95358b73255bd38213fdb27bfd19c6819ae7c1d0679400cf01cea1"
+  },
+  {
+    "path": "rapfi/rapfi.wasm",
+    "url": "https://raw.githubusercontent.com/CyanXLab/GomokuAI/822be514c7fa563ed2a735628cb60868b913c792/public/build/rapfi-single-simd128.wasm",
+    "size": 1206527,
+    "sha256": "4df97769f01338bcbf6b293c9a4e7bc55a318fcc9b670b35d5d54d7b4b92f677"
+  },
+  {
+    "path": "stockfish/stockfish.js",
+    "url": "https://github.com/nmrugg/stockfish.js/releases/download/v19.0.1/stockfish-19-lite-single.js",
+    "size": 28230,
+    "sha256": "ccb130d7ff29408531c47d859a49f91d59d4f482d05a53eb1a3231a4f624c91a"
+  },
+  {
+    "path": "egaroucid/egaroucid.js",
+    "url": "https://raw.githubusercontent.com/Nyanyan/Egaroucid/67aa89f18bfd22fa35730cdc0a9f4e7501c2239a/docs/en/web/ai.js",
+    "size": 69308,
+    "sha256": "4d7cd0553b416efabd7043132bd69eff80b9617e4f9315a42c02ff971f0fee2b"
+  },
+  {
+    "path": "egaroucid/LICENSE",
+    "url": "https://raw.githubusercontent.com/Nyanyan/Egaroucid/67aa89f18bfd22fa35730cdc0a9f4e7501c2239a/LICENSE",
+    "size": 35149,
+    "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+  },
+  {
+    "path": "egaroucid/egaroucid.wasm",
+    "url": "https://raw.githubusercontent.com/Nyanyan/Egaroucid/67aa89f18bfd22fa35730cdc0a9f4e7501c2239a/docs/en/web/ai.wasm",
+    "size": 1452839,
+    "sha256": "e6b5684ec4ceb5a40e26a445c09b8292e74907e6ed96aaab54ec79f9791e6f1e"
+  },
+  {
+    "path": "stockfish/stockfish.wasm",
+    "url": "https://github.com/nmrugg/stockfish.js/releases/download/v19.0.1/stockfish-19-lite-single.wasm",
+    "size": 1845971,
+    "sha256": "ee4f115bdb2d32cadf96cada104a05b5ec257d7ad6f57582190b49bc71f096de"
+  },
+  {
+    "path": "rapfi/rapfi.data",
+    "url": "https://raw.githubusercontent.com/CyanXLab/GomokuAI/822be514c7fa563ed2a735628cb60868b913c792/public/build/rapfi.data",
+    "size": 40306406,
+    "sha256": "2fa58b1c9e005a7b39bbddb798097a8f1ff9ceaba4c9339d87ba7d324b9d846d"
+  },
+  {
+    "path": "pikafish/pikafish.js",
+    "url": "https://github.com/ousc/Pikafish-wasm/releases/download/Pikafish-2023-03-05/Pikafish-wasm.2023-03-05.zip",
+    "archiveMember": "Pikafish-wasm.2023-03-05/wasm-single-simd128/pikafish.js",
+    "archiveSHA256": "61f70e8042c0d949e7422dc56e798bf5786b04f2217639e1df7a0c84f32d8f99",
+    "sha256": "f3771bcdbd344d1efa9b17092b0b72bca708633a66eb7d7a0add248049c5a4d5",
+    "size": 174106
+  },
+  {
+    "path": "pikafish/pikafish.wasm",
+    "url": "https://github.com/ousc/Pikafish-wasm/releases/download/Pikafish-2023-03-05/Pikafish-wasm.2023-03-05.zip",
+    "archiveMember": "Pikafish-wasm.2023-03-05/wasm-single-simd128/pikafish.wasm",
+    "archiveSHA256": "61f70e8042c0d949e7422dc56e798bf5786b04f2217639e1df7a0c84f32d8f99",
+    "sha256": "e3125b2adde5f59dcb5ed3c794e4d0248a0c9df2219a5afad46a3107f4c274d8",
+    "size": 590053
+  },
+  {
+    "path": "pikafish/pikafish.data",
+    "url": "https://github.com/ousc/Pikafish-wasm/releases/download/Pikafish-2023-03-05/Pikafish-wasm.2023-03-05.zip",
+    "archiveMember": "Pikafish-wasm.2023-03-05/wasm-single-simd128/pikafish.data",
+    "archiveSHA256": "61f70e8042c0d949e7422dc56e798bf5786b04f2217639e1df7a0c84f32d8f99",
+    "sha256": "9bed5ed4f2f356d361c859728c68b1f9103fa982e5d9fe658b38f71dcbcec0a9",
+    "size": 18070595
+  },
+  {
+    "path": "pikafish/LICENSE",
+    "url": "https://github.com/ousc/Pikafish-wasm/releases/download/Pikafish-2023-03-05/Pikafish-wasm.2023-03-05.zip",
+    "archiveMember": "Pikafish-wasm.2023-03-05/Copying.txt",
+    "archiveSHA256": "61f70e8042c0d949e7422dc56e798bf5786b04f2217639e1df7a0c84f32d8f99",
+    "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b",
+    "size": 35821
+  }
+]

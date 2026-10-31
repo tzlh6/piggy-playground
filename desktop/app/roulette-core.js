@@ -235,17 +235,8 @@ function chooseAction(v,rng,tier){
  rng=rng||Math.random;tier=tier||'smart';
  const me=v.me,opp=1-me,has=it=>legal(v,it),a=analyze(v),p0=a.p0,dmg=v.boosted?2:1;
  const item=it=>({type:'item',item:it}),shoot=t=>({type:'shoot',target:t});
- if(tier==='easy'){
-  const usable=ITEMS.filter(has);
-  if(usable.length&&rng()<.35)return item(usable[pick(rng,usable.length)]);
-  // 悠闲猪猪记性一般：只看自己的线索，数量凭感觉
-  const guess=v.clues[0]==='real'?1:v.clues[0]==='fake'?0:.5;
-  if(guess===1)return shoot(rng()<.85?'opp':'self');
-  if(guess===0)return shoot(rng()<.7?'self':'opp');
-  return shoot(rng()<.55?'opp':'self');
- }
- if(tier==='devil')return devilSearch(v);
- // ---- 聪明档 ----
+ if(tier!=='easy')return devilSearch(v,tier);
+ // 基础档也完整记数、使用线索及道具，不随机放水。
  if(has('hoof')&&v.items[opp].some(it=>it!=='hoof'||v.items[opp].length>1))return item('hoof');
  if(has('meat')&&v.hp[me]<=v.maxHp-1)return item('meat');
  if(has('rotten')&&v.hp[me]<=v.maxHp-2&&v.hp[me]>=2)return item('rotten');
@@ -266,7 +257,8 @@ function chooseAction(v,rng,tier){
  return shoot('self');
 }
 
-// ---- 恶魔档：在公开局面 + 自己的线索上做小型期望搜索，只看自己连续行动的几步 ----
+// 公开信息期望搜索：连续道具组合与对手反击。对手按能作出最强
+// 应对的保守上界估计；不读取真实隐藏队列或对手私密线索。
 // r / f：剩余部分的原始构成；flip：下一颗盖过魔术布；clues：实际真假
 function toState(v){return {me:v.me,turn:v.me,hp:v.hp.slice(),maxHp:v.maxHp,nd:v.nearDeathCells||0,items:v.items.map(x=>x.slice()),clues:v.clues.slice(),r:v.realLeft,f:v.fakeLeft,boosted:v.boosted,mud:v.mud.slice(),flip:!!v.flipNext}}
 function cloneS(s){return {me:s.me,turn:s.turn,hp:s.hp.slice(),maxHp:s.maxHp,nd:s.nd,items:s.items.map(x=>x.slice()),clues:s.clues.slice(),r:s.r,f:s.f,boosted:s.boosted,mud:s.mud.slice(),flip:s.flip}}
@@ -277,8 +269,8 @@ function takeAt(s,i,shell){s.clues.splice(i,1);const o=i===0&&s.flip?flipOf(shel
 function hurt(s,v,d){s.hp[v]=near(s,v)?0:Math.max(0,s.hp[v]-d)}
 function use(s,it){const b=s.items[s.turn];b.splice(b.indexOf(it),1)}
 function sCandidates(s){
- const v=sView(s),out=[{type:'shoot',target:'opp'},{type:'shoot',target:'self'}],seen=new Set();
- for(const it of s.items[s.turn]){if(seen.has(it))continue;seen.add(it);if(legal(v,it))out.push({type:'item',item:it})}
+ const v=sView(s),a=analyze(v),out=[{type:'shoot',target:'opp'},{type:'shoot',target:'self'}],seen=new Set();
+ for(const it of s.items[s.turn]){if(seen.has(it))continue;seen.add(it);if(it==='xray'&&(a.p0===0||a.p0===1)||it==='book'&&!a.unknownLater)continue;if(legal(v,it))out.push({type:'item',item:it})}
  return out;
 }
 function outcomes(s,act){
@@ -289,8 +281,8 @@ function outcomes(s,act){
    res.push([p,n])}return res}
  const it=act.item;
  if(it==='xray'){for(const [p,shell] of odds(s,0)){const n=cloneS(s);use(n,it);n.clues[0]=shell;res.push([p,n])}return res}
- if(it==='book'){const i=s.clues.findIndex((k,j)=>j>0&&!k);if(i<0){const n=cloneS(s);use(n,it);return [[1,n]]}
-  for(const [p,shell] of odds(s,i)){const n=cloneS(s);use(n,it);n.clues[i]=shell;res.push([p,n])}return res}
+ if(it==='book'){const fresh=s.clues.map((k,j)=>j>0&&!k?j:-1).filter(j=>j>0);if(!fresh.length){const n=cloneS(s);use(n,it);return [[1,n]]}
+  for(const i of fresh)for(const [p,shell] of odds(s,i)){const n=cloneS(s);use(n,it);n.clues[i]=shell;res.push([p/fresh.length,n])}return res}
  if(it==='plunger'){for(const [p,shell] of odds(s,0)){const n=cloneS(s);use(n,it);takeAt(n,0,shell);res.push([p,n])}return res}
  if(it==='cloth'){const n=cloneS(s);use(n,it);n.flip=true;if(n.clues[0])n.clues[0]=flipOf(n.clues[0]);return [[1,n]]}
  if(it==='rotten'){const a=cloneS(s);use(a,it);a.hp[me]=Math.min(a.maxHp,a.hp[me]+2);const b=cloneS(s);use(b,it);hurt(b,me,1);return [[.5,a],[.5,b]]}
@@ -309,16 +301,19 @@ function staticValue(s,me){
  else{v-=2+12*dmg*Math.max(p,1-p)*.6;if((s.hp[me]<=dmg||near(s,me))&&p>0)v-=40*p}
  return v;
 }
-function searchValue(s,me,depth){
- if(s.hp[0]<=0||s.hp[1]<=0||s.turn!==me||depth<=0||!s.clues.length)return staticValue(s,me);
- let best=-Infinity;for(const a of sCandidates(s)){const e=expectValue(s,a,me,depth);if(e>best)best=e}return best;
+const decisionCache=new Map();
+const stateKey=s=>[s.me,s.turn,s.maxHp,s.nd,s.hp.join(','),s.r,s.f,Number(s.boosted),s.mud.map(Number).join(''),Number(s.flip),s.items.map(a=>a.slice().sort().join(',')).join('/'),s.clues.map(k=>k==='real'?'r':k==='fake'?'f':'?').join('')].join('|');
+function searchValue(s,me,depth,ctx){
+ if(++ctx.nodes>ctx.limit)throw ctx.stop;if(s.hp[0]<=0||s.hp[1]<=0||depth<=0||!s.clues.length||ctx.ownOnly&&s.turn!==me)return staticValue(s,me);
+ const key=depth+':'+stateKey(s),cached=ctx.memo.get(key);if(cached!==undefined)return cached;const max=s.turn===me;let best=max?-Infinity:Infinity;
+ for(const a of sCandidates(s)){const e=expectValue(s,a,me,depth,ctx);best=max?Math.max(best,e):Math.min(best,e)}ctx.memo.set(key,best);return best;
 }
-function expectValue(s,a,me,depth){let sum=0;for(const [p,n] of outcomes(s,a))sum+=p*searchValue(n,me,depth-1);return sum}
-function devilSearch(v){
- const s=toState(v);let best=null,score=-Infinity;
- if(!s.clues.length)return {type:'shoot',target:'opp'};
- for(const a of sCandidates(s)){const e=expectValue(s,a,v.me,3);if(e>score+1e-9){score=e;best=a}}
- return best||{type:'shoot',target:'opp'};
+function expectValue(s,a,me,depth,ctx){let sum=0;for(const [p,n] of outcomes(s,a))sum+=p*searchValue(n,me,depth-1,ctx);return sum*.999}
+function devilSearch(v,tier){
+ const s=toState(v),cacheKey=tier+':'+stateKey(s),cached=decisionCache.get(cacheKey);if(cached)return {...cached};let best={type:'shoot',target:'opp'};if(!s.clues.length)return best;
+ const ctx={nodes:0,limit:tier==='devil'?24000:9000,stop:{},memo:new Map(),ownOnly:tier==='smart'},list=sCandidates(s),maxDepth=tier==='devil'?7:6;
+ for(let depth=1;depth<=maxDepth;depth++){let next=best,score=-Infinity;try{for(const a of list){const e=expectValue(s,a,v.me,depth,ctx);if(e>score+1e-9){score=e;next=a}}best=next}catch(e){if(e!==ctx.stop)throw e;break}if(score>990)break}
+ if(decisionCache.size>=15000)decisionCache.clear();decisionCache.set(cacheKey,best);return {...best};
 }
 
 const api={ITEMS,ITEM_INFO,STAGES,FIXED,BAG_RECIPE,MAX_ITEMS,createRng,shuffle,Game,analyze,chooseAction,legal};

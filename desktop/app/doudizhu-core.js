@@ -5,7 +5,7 @@
      四带二（两张单牌或两对）、炸弹、王炸。花色不影响大小。
    - 倍数：底分 = 叫分；炸弹、王炸、春天、反春各 ×2。邪恶猪猪赢：自己 +2×底分×倍数，两位屠夫各 −底分×倍数；屠夫赢反之。
    - Game 只做规则，所有改动都产生事件（events），界面按事件播放动画；view(seat) 只给某个座位它该看到的信息（联机信息隐藏）。
-   - AI 只读 view(seat)：悠闲（贪小）、聪明（拆牌估值 + 配合）、恶魔（另外记牌，知道哪些牌已经出过）。 */
+   - AI 只读 view(seat)：三档都拆牌和配合，高档增加公开记牌、抽样推演及小残局团队搜索。 */
 (function(root){
 'use strict';
 const RANK={3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A',15:'2',16:'小王',17:'大王'};
@@ -342,7 +342,6 @@ class AI{
  }
  bid(view){
   let s=this.strength(view.hand);
-  if(this.tier==='easy')s+=this.rng()*4-2;
   if(this.tier==='devil')s+=.4;
   let want=s>=10?3:s>=7.5?2:s>=5.5?1:0;
   if(want<=view.highest)want=0;
@@ -362,28 +361,32 @@ class AI{
   const all=hints(hand,prev);
   const m=prev?this.follow(view,all):this.lead(view,all);
   const pickA=m?{type:'play',cards:m.ids}:{type:'pass'};
-  if(this.tier==='devil'&&!this.rollout&&all.length&&this.endgame(view))return this.search(view,all,pickA);
+  if(this.tier!=='easy'&&!this.rollout&&all.length&&!(m&&m.ids.length===hand.length)&&this.endgame(view))return this.search(view,all,pickA);
   return pickA;
  }
- endgame(view){const R=this.roleInfo(view),total=view.counts.reduce((a,b)=>a+b,0);return total<=34&&(view.hand.length<=9||R.enemyMin<=6)}
+ endgame(view){const R=this.roleInfo(view),total=view.counts.reduce((a,b)=>a+b,0),hard=this.tier==='devil';return total<=(hard?38:30)&&(view.hand.length<=(hard?11:8)||R.enemyMin<=(hard?7:5))}
  // 恶魔的残局推演：把看不见的牌（记牌后）随机分给对手，用“聪明”打法推演到底，挑胜率最高的一手
  search(view,all,fallback){
   const me=view.seat,key=a=>a.type==='pass'?'pass':a.cards.slice().sort((x,y)=>x-y).join(',');
-  const cand=[fallback],seen=new Set([key(fallback)]);
-  const add=a=>{const k=key(a);if(!seen.has(k)&&cand.length<9){seen.add(k);cand.push(a)}};
+  const hard=this.tier==='devil',worlds=hard?enumerateWorlds(view):null,cand=[fallback],seen=new Set([key(fallback)]),limit=worlds?40:hard?12:8;
+  const add=a=>{const k=key(a);if(!seen.has(k)&&cand.length<limit){seen.add(k);cand.push(a)}};
   if(view.last)add({type:'pass'});
+  const R=this.roleInfo(view),c=counts(view.hand),unseen=unseenCounts(view,true),maxOpp=Math.max(...R.enemies.map(s=>view.counts[s]));
+  const ranked=all.map(m=>{const rest=c.slice();for(const id of m.ids)rest[val(id)]--;const pl=this.planner.plan(rest),boss=!canBeBeaten(m.p,unseen,maxOpp);let score=pl.score+(m.p.type==='bomb'||m.p.type==='rocket'?8:0)-m.ids.length*.3-(boss?9:0);if(R.enemyMin<=2&&m.p.type==='single')score+=m.p.main<14?12:-5;return {m,score}}).sort((a,b)=>a.score-b.score);
+  for(const {m} of ranked.slice(0,hard?6:3))add({type:'play',cards:m.ids});
   const byType={};for(const m of all){const t=m.p.type+m.p.len;(byType[t]=byType[t]||[]).push(m)}
   for(const t in byType){const list=byType[t];add({type:'play',cards:list[0].ids});add({type:'play',cards:list[list.length-1].ids})}
   for(const m of all)add({type:'play',cards:m.ids});
   if(cand.length<2)return fallback;
-  // 每次思考最多约 0.15 秒（老电脑上也不会卡）；每个样本对所有候选都推演一遍，比较才公平
-  const samples=this.samples||18,wins=cand.map(()=>0),t0=Date.now(),budget=this.budget||150;
+  // 同一样本比较全部候选，避免给不同出牌分到不同的运气。
+  const samples=worlds?worlds.length:this.samples||(hard?64:20),wins=cand.map(()=>0),t0=Date.now(),budget=this.budget||(hard?480:160);let completed=0;
   for(let k=0;k<samples;k++){
-   const hands=sampleWorld(view,this.rng);
-   cand.forEach((a,i)=>{if(rollout(view,hands,a,me))wins[i]++});
-   if(k>=5&&Date.now()-t0>budget)break;
+   const hands=worlds?worlds[k]:sampleWorld(view,this.rng);
+   cand.forEach((a,i)=>{if(rollout(view,hands,a,me,hard))wins[i]++});
+   completed++;
+   if(!worlds&&k>=3&&Date.now()-t0>budget)break;
   }
-  let best=0;for(let i=1;i<cand.length;i++)if(wins[i]>wins[best])best=i;
+  const margin=worlds?1:Math.max(1,Math.ceil(completed*.08));let best=0;for(let i=1;i<cand.length;i++)if(wins[i]>=wins[0]+margin&&wins[i]>wins[best])best=i;
   return cand[best];
  }
  // ---- 领出 ----
@@ -391,12 +394,7 @@ class AI{
   const hand=view.hand,c=counts(hand);
   // 一手能出完
   const whole=all.find(m=>m.ids.length===hand.length);if(whole)return whole;
-  if(this.tier==='easy'){
-   const pl=this.planner.plan(c);const gs=pl.groups.filter(g=>g.type!=='wing');
-   gs.sort((a,b)=>a.main-b.main);const g=this.rng()<.25?gs[Math.floor(this.rng()*gs.length)]:gs[0];
-   return this.groupMove(hand,g,all,pl)||all[0];
-  }
-  const R=this.roleInfo(view),unseen=unseenCounts(view,this.tier==='devil');
+  const R=this.roleInfo(view),unseen=unseenCounts(view,this.tier!=='easy');
   const maxOpp=Math.max(...R.enemies.map(s=>view.counts[s]));
   const pl=this.planner.plan(c),gs=pl.groups.filter(g=>g.type!=='wing');
   const info=gs.map(g=>{const m=this.groupMove(hand,g,all,pl);return m?{g,m,boss:!canBeBeaten(m.p,unseen,maxOpp)}:null}).filter(Boolean);
@@ -434,15 +432,8 @@ class AI{
   if(!all.length)return null;
   const finish=all.find(m=>m.ids.length===hand.length);if(finish)return finish;
   const R=this.roleInfo(view);
-  if(this.tier==='easy'){
-   const normal=all.filter(m=>m.p.type!=='bomb'&&m.p.type!=='rocket');
-   if(!R.isL&&last.seat===R.mate&&this.rng()<.85)return null;
-   if(normal.length&&this.rng()<.82)return normal[0];
-   if(!normal.length&&R.enemyMin<=3&&this.rng()<.6)return all[0];
-   return null;
-  }
   const c=counts(hand),base=this.planner.plan(c).score;
-  const devil=this.tier==='devil',unseen=unseenCounts(view,devil);
+  const devil=this.tier!=='easy',unseen=unseenCounts(view,devil);
   const fromMate=!R.isL&&last.seat===R.mate;
   const evals=all.map(m=>{const r=c.slice();for(const id of m.ids)r[val(id)]--;const pl=this.planner.plan(r);return {m,pl,delta:pl.score-(base-12),bomb:m.p.type==='bomb'||m.p.type==='rocket'}});
   // 队友出的牌：一般让队友走；只有自己能马上走完，或者地主就在下家且队友的牌太小时才接
@@ -477,6 +468,9 @@ class AI{
 }
 
 // ---- 推演工具 ----
+function enumerateWorlds(view){if(view.counts.reduce((a,b)=>a+b,0)>13)return null;const me=view.seat,mine=new Set(view.hand),played=new Set(view.played),others=[0,1,2].filter(s=>s!==me),hands=[[],[],[]];hands[me]=view.hand.slice();let pool=[];for(let id=0;id<54;id++)if(!mine.has(id)&&!played.has(id))pool.push(id);
+ if(view.landlord!==me&&view.bottom){const forced=view.bottom.filter(id=>!played.has(id)&&!mine.has(id));hands[view.landlord]=forced.slice();const set=new Set(forced);pool=pool.filter(id=>!set.has(id))}const first=others[0],second=others[1],need=view.counts[first]-hands[first].length;if(pool.length>8||need<0||need>pool.length||pool.length-need!==view.counts[second]-hands[second].length)return null;let count=1;for(let k=1;k<=need;k++)count=count*(pool.length-k+1)/k;if(count>24)return null;
+ const worlds=[];function select(start,chosen){if(chosen.length===need){const selected=new Set(chosen),h=hands.map(a=>a.slice());h[first].push(...chosen);h[second].push(...pool.filter(id=>!selected.has(id)));worlds.push(h);return}for(let k=start;k<=pool.length-(need-chosen.length);k++)select(k+1,chosen.concat(pool[k]))}select(0,[]);return worlds.length?worlds:null}
 function sampleWorld(view,rng){
  const me=view.seat,mine=new Set(view.hand),played=new Set(view.played);
  let pool=[];for(let id=0;id<54;id++)if(!mine.has(id)&&!played.has(id))pool.push(id);
@@ -495,10 +489,17 @@ function gameFrom(view,hands){
  return g;
 }
 const ROLL={planner:new Planner(),ais:null};
-function rollout(view,hands,action,me){
+function solveCards(g,me){const hands=g.hands.map(h=>h.slice()),landlord=g.landlord,side=s=>(s===landlord)===(me===landlord),memo=new Map(),stop={};let nodes=0;
+ function search(turn,last,passes){if(++nodes>6000)throw stop;for(let s=0;s<3;s++)if(!hands[s].length)return side(s);const key=turn+'|'+passes+'|'+(last?last.seat+':'+last.p.type+':'+last.p.main+':'+last.p.len:'-')+'|'+hands.map(h=>counts(h).slice(3).join('')).join('/');if(memo.has(key))return memo.get(key);
+  const mine=side(turn),all=hints(hands[turn],last&&last.p).sort((a,b)=>b.ids.length-a.ids.length||a.p.main-b.p.main);if(all.some(m=>m.ids.length===hands[turn].length))return mine;
+  for(const m of all){const before=hands[turn],used=new Set(m.ids);hands[turn]=before.filter(id=>!used.has(id));let result;try{result=search((turn+1)%3,{seat:turn,p:m.p},0)}finally{hands[turn]=before}if(result===mine){memo.set(key,mine);return mine}}
+  if(last){const result=passes===1?search(last.seat,null,0):search((turn+1)%3,last,passes+1);if(result===mine){memo.set(key,mine);return mine}}memo.set(key,!mine);return !mine}
+ try{return search(g.turn,g.last,g.passes)}catch(e){if(e!==stop)throw e;return null}}
+function rollout(view,hands,action,me,exact){
  const g=gameFrom(view,hands);
  if(!ROLL.ais){ROLL.ais=[0,1,2].map(()=>{const a=new AI('smart',createRng(1));a.planner=ROLL.planner;a.rollout=true;return a})}
  let r=g.act(me,action);if(!r.ok)return false;let guard=0;
+ if(exact&&g.phase!=='end'&&g.hands.reduce((n,h)=>n+h.length,0)<=13){const solved=solveCards(g,me);if(solved!==null)return solved}
  while(g.phase!=='end'&&guard++<120){const s=g.turn;r=g.act(s,ROLL.ais[s].decide(g.view(s)));if(!r.ok)return false;if(g.events.length>40)g.events=[]}
  if(g.phase!=='end')return false;
  const L=g.result.landlord;return (me===L)===g.result.landlordWin;

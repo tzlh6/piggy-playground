@@ -1,9 +1,9 @@
 {
-  "version": "4.9.0",
+  "version": "4.9.1",
   "build": {
     "appId": "local.piggy.playground",
     "portable": {
-      "artifactName": "猪猪游乐场-4.9.0-Win7兼容.exe"
+      "artifactName": "猪猪游乐场-4.9.1-Win7兼容.exe"
     },
     "directories": {
       "output": "dist"
@@ -38,14 +38,15 @@
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs && node test-study.cjs && node test-board.cjs && node test-rhythm.cjs",
-    "build:web": "python build-single.py ../build/猪猪游乐场v4.9.0.html",
+    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs && node test-study.cjs && node test-board.cjs && node test-rhythm.cjs && node test-ai.cjs && node test-engine-packs.cjs",
+    "build:web": "python build-single.py ../build/猪猪游乐场v4.9.1.html",
     "build:pigs": "node make-pigs.cjs",
     "build:win": "electron-builder --win portable --ia32 --publish never",
     "playtest": "node tools/playtest-click.cjs",
     "manifest": "node tools/make-update-manifest.cjs",
     "test:board": "node test-board.cjs",
-    "test:rhythm": "node test-rhythm.cjs"
+    "test:rhythm": "node test-rhythm.cjs",
+    "test:ai": "node test-ai.cjs && node test-engine-packs.cjs"
   },
   "name": "piggy-playground",
   "author": "Piggy Playground",

@@ -6,7 +6,7 @@ A=str(Path(__file__).resolve().parent / 'app') + os.sep
 def uri(p,mime):return f"data:{mime};base64,"+base64.b64encode(open(A+p,'rb').read()).decode()
 html=open(A+'index.html',encoding='utf8').read()
 # 与 index.html 的脚本顺序一致；新增模块在这里登记
-SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','vendor/chess.js','vendor/xiangqi.js','board-core.js','battleship-core.js','board-session.js','rhythm-core.js','challenge-core.js','jump-core.js','pool-core.js','gate-core.js','study-core.js','study-math.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','jump-ui.js','pool-ui.js','gate-ui.js','assets/katex/katex.min.js','assets/katex/mhchem.min.js','study-ui.js','board-ui.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
+SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','vendor/chess.js','vendor/xiangqi.js','board-core.js','battleship-core.js','board-session.js','rhythm-core.js','challenge-core.js','jump-core.js','pool-core.js','gate-core.js','study-core.js','study-math.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','jump-ui.js','pool-ui.js','gate-ui.js','assets/katex/katex.min.js','assets/katex/mhchem.min.js','study-ui.js','engine-catalog.js','strong-ai.js','board-ui.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
 for n in SCRIPTS:assert f'<script src="{n}"></script>' in html, n+' 未在 index.html 中引用'
 html=re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>','',html)
 license_details='<details class="github-licenses"><summary>GitHub 参考项目许可证（MIT / BSD-2-Clause）</summary>'
@@ -41,6 +41,21 @@ worker_modules=['vendor/chess.js','vendor/xiangqi.js','board-core.js','battleshi
 worker_source='\n'.join(open(A+n,encoding='utf8').read() for n in worker_modules)
 worker_source+='\n'+re.sub(r"importScripts\([^;]+;",'',open(A+'board-worker.js',encoding='utf8').read())
 scripts='<script>window.PIG_BOARD_WORKER_SOURCE='+json.dumps(worker_source,ensure_ascii=False).replace('</script','<\\/script')+';</script>'+scripts
+# Independent engines remain entirely offline, including WASM and neural nets.
+# Non-executable JSON nodes avoid initializing or parsing unused engines at boot.
+engine_nodes=[]
+engine_catalog=Path(A+'assets/engines/catalog.json')
+if engine_catalog.is_file():
+    for engine,info in json.loads(engine_catalog.read_text(encoding='utf-8')).items():
+        parts=[]
+        for part in info['parts']:
+            source=Path(A+part).read_text(encoding='utf-8')
+            chunk=source.split('/*PIG_ENGINE_PART*/',1)[1].split('/*END_PART*/',1)[0]
+            parts.append(json.loads(chunk))
+        payload=''.join(parts)
+        assert json.loads(payload)['id']==engine
+        engine_nodes.append('<script type="application/json" id="pig-engine-'+engine+'">'+payload.replace('</script','<\\/script')+'</script>')
+scripts=''.join(engine_nodes)+scripts
 html=re.sub(r'<script src="version.js"></script>.*?<script src="app.js"></script>',lambda m:scripts,html,flags=re.S)
 html=html.replace('assets/pig.svg',pig)
 assert 'src="assets/' not in html and "href=\"assets/" not in html, 'unbundled asset left'

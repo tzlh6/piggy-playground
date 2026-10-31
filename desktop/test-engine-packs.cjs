@@ -1,0 +1,8 @@
+// Integrity and delivery compatibility of the independent offline engines.
+const fs=require('fs'),path=require('path'),vm=require('vm'),crypto=require('crypto'),assert=require('node:assert/strict');
+const app=path.join(__dirname,'app'),catalog=JSON.parse(fs.readFileSync(path.join(app,'assets/engines/catalog.json'),'utf8')),box={};box.globalThis=box;vm.createContext(box);let total=0,count=0;
+for(const [id,info]of Object.entries(catalog)){
+ for(const file of info.parts){const data=fs.readFileSync(path.join(app,file));assert(data.length<12*1024*1024,'updater per-file limit');vm.runInContext(data.toString(),box)}
+ const pack=JSON.parse(box.PIG_ENGINE_PARTS[id].join(''));assert.equal(pack.id,id);const wasm=Buffer.from(pack.wasm,'base64'),data=Buffer.from(pack.data,'base64'),hash=b=>crypto.createHash('sha256').update(b).digest('hex');assert(WebAssembly.validate(wasm),id+' invalid wasm');assert.equal(hash(wasm),info.wasmSHA256);assert.equal(wasm.length,info.wasmBytes);assert.equal(data.length,info.dataBytes);if(info.dataSHA256)assert.equal(hash(data),info.dataSHA256);assert(fs.readFileSync(path.join(app,'assets/licenses',id+'-GPL-3.0.txt'),'utf8').includes('GENERAL PUBLIC LICENSE'));count++;console.log('PASS',id,'offline pack integrity');
+}
+function walk(dir){for(const n of fs.readdirSync(dir)){const p=path.join(dir,n),s=fs.statSync(p);if(s.isDirectory())walk(p);else{assert(s.size<=12*1024*1024,'updater file limit '+n);total+=s.size}}}walk(app);assert(total<=60*1024*1024,'updater total limit');assert.equal(count,4);assert.equal(Object.keys(catalog).map(id=>catalog[id].game).sort().join(','),'chess,gomoku,reversi,xiangqi');console.log('PASS all four engine packs and existing content-updater limits:',total,'bytes');

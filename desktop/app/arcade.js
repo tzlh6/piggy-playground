@@ -70,7 +70,7 @@ function create(ui){
   if(id==='breakout'){const events=g.update(dt/1000,(keys.has('right')?1:0)-(keys.has('left')?1:0));if(events.includes('brick'))Sound.brickPop();else if(events.includes('bounce'))Sound.paddleBounce();if(events.includes('wide')){Sound.gold();message('接板加宽啦，持续 12 秒。')}if(events.includes('life')){Sound.miss();Sound.pigYelp({delay:.12});message(g.lives?'漏了一球，还有 '+g.lives+' 条生命。点击或空格重新发球。':'三条生命用完啦。')}if(events.includes('round')){Sound.milestone();message('第 '+g.round+' 座牧场！点击或空格发球。')}if(g.over)end(g.won?'彩虹牧场，全部打开！':'小球去散步啦。','本局 '+g.score+' 分，打到第 '+g.round+' 座牧场。',g.won,g.score);status()}
   if(id==='flappy'){const events=g.update(dt/1000);if(events.includes('point')){Sound.gatePass(g.score);message('穿过 '+g.score+' 扇拱门，稳住！')}if(g.over)end('小猪降落啦。','穿过 '+g.score+' 扇拱门，飞了 '+Math.floor(g.distance/20)+' 米。',false,g.score);status()}
   if(id==='stack')g.update(dt/1000);
-  if(id==='connect'&&t.aiAt&&elapsed>=t.aiAt&&!g.over){t.aiAt=0;const col=A.chooseConnect(g.board,2,get().level==='hard'?4:1);g.drop(col);Sound.chessDrop(2);renderConnect();status();connectEnd()}
+  if(id==='connect'&&t.aiAt&&elapsed>=t.aiAt&&!g.over){t.aiAt=0;const col=A.chooseConnect(g.board,2,get().level==='hard'?10:6,Math.random,{maxMs:get().level==='hard'?650:250});g.drop(col);Sound.chessDrop(2);renderConnect();status();connectEnd()}
   if(id==='match')Match.tick();
   draw()
  }

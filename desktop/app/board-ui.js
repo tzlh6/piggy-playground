@@ -21,7 +21,7 @@ const configs={
 const OPTIONS={gomoku:()=>({size:15}),dots:()=>({width:5,height:5}),battleship:()=>({seed:Math.floor(Math.random()*4294967295)})};
 const SIDES={xiangqi:['红方','黑方'],chess:['白方','黑方'],gomoku:['先手','后手'],reversi:['先手','后手'],battleship:['一号舰队','二号舰队'],dots:['先手','后手']};
 const ROLES={xiangqi:['scarf','wizard'],chess:['crown','pirate'],gomoku:['glasses','detective'],reversi:['flower','music'],battleship:['pirate','space'],dots:['chef','bee']};
-const AI_NAMES={easy:'小黑 · 慢吞吞',normal:'小黑 · 动脑筋',hard:'黑猪大师'};
+const AI_NAMES={easy:'小黑 · 认真下',normal:'小黑 · 深思熟虑',hard:'黑猪大师'};
 const REASONS={checkmate:'将死','stalemate':'逼和',threefold:'三次重复局面','insufficient-material':'双方子力都不足以将死','fifty-move':'五十回合没有吃子或动兵','king-captured':'老将被吃','stalemate-loss':'困毙，无棋可走','perpetual-check-loss':'长将判负','threefold-casual':'重复局面','sixty-move':'六十回合没有吃子',five:'五子连珠','board-full':'棋盘下满','no-moves':'双方都无处落子','fleet-sunk':'全部舰只被击沉','all-boxes':'所有格子都围完了',resignation:'认输'};
 const XQ={1:{k:'帥',a:'仕',b:'相',n:'傌',r:'俥',c:'炮',p:'兵'},2:{k:'將',a:'士',b:'象',n:'馬',r:'車',c:'砲',p:'卒'}};
 const CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
@@ -74,6 +74,7 @@ function create(ui){
 
  // ---------- 初始化与 DOM ----------
  function init(id){
+  if(t)cancelAI();
   if(t&&t.timer)clearTimeout(t.timer);
   const mode=ui.get().level;
   t={boardGame:true,id,mode,human:id==='battleship'||mode==='local'?1:Store.get('board-side-'+id,1)===2?2:1,clock:0,fx:[],sel:null,hover:null,cursor:null,lockUntil:0,aiPending:false,aiReply:null,aiToken:null,aiJob:null,aiAt:0,finishAt:0,finished:false,horizontal:true,viewer:1,curtain:null,handoff:0,pick:null,dirty:true,portrait:false,exprs:{},resignArm:0,avatarKey:''};
@@ -222,6 +223,7 @@ function create(ui){
  function banner(text,color,at){fx({k:'banner',text,color:color||'#b6476a',at,dur:1300,lock:false})}
  function floatText(text,x,y,color,at){fx({k:'float',text,x,y,color:color||'#b6476a',at,dur:900,lock:false})}
  function after(ev,actor,before){
+  t.hintPending=false;
   t.sel=null;t.hover=t.id==='battleship'?t.hover:null;
   const speed=reduce()?.35:1,now=t.clock;
   if(ev.type==='resign'){Sound.pigWhimper&&Sound.pigWhimper();banner(playerName(actor)+'认输了','#7d6a64')}
@@ -280,27 +282,21 @@ function create(ui){
  // ---------- 电脑对手 ----------
  function getWorker(){if(workerBroken)return null;if(worker)return worker;try{worker=G.createWorker('board-worker.js');worker.onmessage=e=>{const d=e.data;if(!t||!t.aiPending||d.token!==t.aiToken)return;t.aiReply=d.ok?d:{fallback:true}};worker.onerror=e=>{if(e&&e.preventDefault)e.preventDefault();workerBroken=true;try{worker.terminate()}catch(err){}worker=null;if(t&&t.aiPending&&t.aiJob&&!t.aiReply)solveLater(t.aiJob)}}catch(e){workerBroken=true;worker=null}return worker}
  function solveLater(job){setTimeout(()=>{if(!t||t.aiToken!==job.token)return;try{t.aiReply=G.solveJob(job)}catch(e){t.aiReply={fallback:true}}},16)}
- function cancelAI(){if(!t)return;t.aiPending=false;t.aiReply=null;t.aiToken=null;t.aiJob=null}
+ function cancelAI(){if(root.PigStrongAI)root.PigStrongAI.cancel();if(!t)return;t.aiPending=false;t.aiReply=null;t.aiToken=null;t.aiJob=null;t.hintPending=false}
  function maybeAI(){
   if(!t||local()||t.m.status.over||t.m.turn===t.human||t.aiPending)return;
   t.aiPending=true;t.aiAt=t.clock;t.aiReply=null;panel();
-  if(t.id==='battleship'){t.aiReply={sea:true};return}
-  const job=t.m.aiJob({level:t.mode,maxMs:{easy:250,normal:700,hard:1500}[t.mode]});t.aiToken=job.token;t.aiJob=job;
+  const job=t.m.aiJob({level:t.mode,maxMs:{easy:600,normal:1600,hard:3200}[t.mode],seed:Math.floor(Math.random()*4294967296)});t.aiToken=job.token;t.aiJob=job;
+  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t;root.PigStrongAI.think(t.m,job.options).then(reply=>{if(t===state&&t.aiPending&&t.aiToken===job.token)t.aiReply=reply}).catch(error=>{if(t!==state||!t.aiPending||t.aiToken!==job.token)return;t.aiReply={fallback:true};if(!t.engineWarned){t.engineWarned=true;message('强引擎未能完成，正在使用兼容对手。','warn')}if(root.console)root.console.warn('Strong AI:',error.message)});return}
   const w=getWorker();if(w){try{w.postMessage(job)}catch(e){workerBroken=true;solveLater(job)}}else solveLater(job);
  }
- function seaShot(){const v=t.m.view(2);if(v.phase==='placement')return {type:'auto-place'};
-  const unknown=[];v.target.forEach((s,i)=>{if(!s)unknown.push(i)});const hunting=v.target.some(s=>s===2);
-  if(t.mode==='easy'&&(!hunting||Math.random()<.45)){const i=unknown[Math.floor(Math.random()*unknown.length)];return {type:'fire',x:i%v.size,y:Math.floor(i/v.size)}}
-  if(t.mode==='normal'&&!hunting&&Math.random()<.3){const i=unknown[Math.floor(Math.random()*unknown.length)];return {type:'fire',x:i%v.size,y:Math.floor(i/v.size)}}
-  return BS.chooseShot(v,{level:'normal'})}
  function runAI(){
   const reply=t.aiReply,actor=t.m.turn,before=t.view;t.aiPending=false;t.aiReply=null;
   let res;
-  if(reply.sea)res=t.m.dispatch(actor,seaShot());
-  else if(reply.fallback){try{res=t.m.applyAI(t.m.suggest({level:t.mode,maxMs:500}))}catch(e){res={ok:false}}}
+  if(reply.fallback){try{res=t.m.applyAI(t.m.suggest({level:t.mode,maxMs:500}))}catch(e){res={ok:false}}}
   else res=t.m.applyAI(reply);
   t.aiToken=null;t.aiJob=null;
-  if(!res||!res.ok){panel();maybeAI();return}
+  if(!res||!res.ok){try{res=t.m.applyAI(t.m.suggest({level:t.mode,maxMs:500}))}catch(e){}if(!res||!res.ok){panel();maybeAI();return}}
   after(res.event,actor,before);
  }
 
@@ -317,8 +313,13 @@ function create(ui){
  }
  function hint(){
   if(!humanTurn())return notYet();
-  if(t.id==='battleship'){if(placing())return randomFleet();const s=BS.chooseShot(t.m.view(t.m.turn),{level:'normal'});if(!s)return;const b=t.g.big;fx({k:'hint',x:b.x+(s.x+.5)*b.S,y:b.y+(s.y+.5)*b.S,r:b.S*.5,dur:1400,lock:false});Sound.hintSpark();return message('亮圈处命中的可能最大。')}
-  let s;try{s=t.m.suggest({level:'normal',maxMs:450})}catch(e){return}
+  if(t.hintPending)return;
+  if(t.id==='battleship'){if(placing())return randomFleet();const s=BS.chooseShot(t.m.view(t.m.turn),{level:'hard'});if(!s)return;const b=t.g.big;fx({k:'hint',x:b.x+(s.x+.5)*b.S,y:b.y+(s.y+.5)*b.S,r:b.S*.5,dur:1400,lock:false});Sound.hintSpark();return message('亮圈处命中的可能最大。')}
+  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t,token=t.m.token();t.hintPending=true;message('正在想提示……');root.PigStrongAI.think(t.m,{level:'hard',maxMs:1600}).then(reply=>{if(t!==state||t.m.token()!==token)return;t.hintPending=false;showHint(reply)}).catch(()=>{if(t!==state||t.m.token()!==token)return;t.hintPending=false;try{showHint(t.m.suggest({level:'hard',maxMs:500}))}catch(e){}});return}
+  let s;try{s=t.m.suggest({level:'hard',maxMs:800})}catch(e){return}
+  showHint(s);
+ }
+ function showHint(s){
   if(!s||!s.move)return;const m=s.move;Sound.hintSpark();
   if(m.from){const a=sqXY(m.from),b=sqXY(m.to),pa=pos(a.x,a.y),pb=pos(b.x,b.y);fx({k:'hint',x:pa.x,y:pa.y,r:t.g.S*.45,dur:1400,lock:false});fx({k:'hint',x:pb.x,y:pb.y,r:t.g.S*.45,dur:1400,lock:false,arrow:pa});t.sel=m.from;t.dirty=true;message('建议：走亮圈里的这步。已经帮你选中了棋子。')}
   else if(m.orientation){const g=t.g,x=g.ox+(m.x+(m.orientation==='h'?.5:0))*g.S,y=g.oy+(m.y+(m.orientation==='v'?.5:0))*g.S;fx({k:'hint',x,y,r:g.S*.3,dur:1400,lock:false});message('建议画亮圈里的这条栅栏。')}

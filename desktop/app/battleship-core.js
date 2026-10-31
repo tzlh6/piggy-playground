@@ -18,8 +18,9 @@ class Battleship{
  legalMoves(){if(this.status.over)return [];if(this.phase==='placement')return [...this.placements(this.turn),{type:'auto-place'}];const out=[],shots=this.shots[this.turn-1];for(let y=0;y<this.size;y++)for(let x=0;x<this.size;x++)if(!shots[y*this.size+x])out.push({type:'fire',x,y});return out}
  play(m){if(!m||this.status.over)return null;const player=this.turn,p=player-1;if(this.phase==='placement'){
    if(m.type!=='place'&&m.type!=='auto-place')return null;
+   if(m.type==='auto-place'&&m.placements!==undefined&&(!Array.isArray(m.placements)||m.placements.length!==this.fleet.length-this.ships[p].length))return null;
    if(m.type==='place'){const length=this.fleet[this.ships[p].length],cells=this.cells(m,length);if(!length||!cells||cells.some(i=>this.boards[p][i]))return null}
-   this.remember();let cells;if(m.type==='auto-place'){if(!this.autoPlace(player)){this.undo();return null}cells=this.ships[p].flatMap(s=>s.cells)}else cells=this.place(player,m);
+   this.remember();let cells;if(m.type==='auto-place'){if(m.placements){for(const placement of m.placements)if(!this.place(player,placement)){this.undo();return null}}else if(!this.autoPlace(player)){this.undo();return null}cells=this.ships[p].flatMap(s=>s.cells)}else cells=this.place(player,m);
    if(this.ships[p].length===this.fleet.length){if(player===1)this.turn=2;else{this.phase='battle';this.turn=1}}
    this.lastMove={type:m.type,player};return {type:'placement',private:true,player,cells:cells.map(i=>({x:i%this.size,y:Math.floor(i/this.size)})),ready:this.ships[p].length===this.fleet.length,phase:this.phase}
   }
@@ -35,10 +36,22 @@ class Battleship{
 
 // Only the visible shot grid and the publicly known remaining ship lengths
 // enter this function. No enemy placement or private save is consulted.
-function chooseShot(view,options){options=options||{};if(!view||view.phase!=='battle'||view.status.over||!Array.isArray(view.target))return null;const n=view.size,b=view.target,heat=Array(n*n).fill(0),hits=b.filter(v=>v===2).length;
- for(const length of view.remainingFleet)for(const horizontal of [true,false])for(let y=0;y<n;y++)for(let x=0;x<n;x++){const cells=[];for(let k=0;k<length;k++){const nx=x+(horizontal?k:0),ny=y+(horizontal?0:k);if(nx>=n||ny>=n)break;cells.push(ny*n+nx)}if(cells.length!==length||cells.some(i=>b[i]===1||b[i]===3))continue;const covered=cells.filter(i=>b[i]===2).length;if(hits&&!covered)continue;for(const i of cells)if(!b[i])heat[i]+=1+covered*50}
- let best=-1,value=-1;for(let i=0;i<b.length;i++)if(!b[i]){const score=options.level==='easy'?0:heat[i];if(score>value){best=i;value=score}}return best<0?null:{type:'fire',x:best%n,y:Math.floor(best/n)}
+function chooseShot(view,options){options=options||{};if(!view||view.phase!=='battle'||view.status.over||!Array.isArray(view.target))return null;
+ const n=view.size,b=view.target,level=options.level||'normal',heat=Array(n*n).fill(0),posterior=Array(n*n).fill(0),hits=[];b.forEach((v,i)=>{if(v===2)hits.push(i)});
+ const placements=new Map();for(const length of new Set(view.remainingFleet)){const list=[];for(const horizontal of length===1?[true]:[true,false])for(let y=0;y<n;y++)for(let x=0;x<n;x++){const cells=[];for(let k=0;k<length;k++){const nx=x+(horizontal?k:0),ny=y+(horizontal?0:k);if(nx>=n||ny>=n)break;cells.push(ny*n+nx)}if(cells.length!==length||cells.some(i=>b[i]===1||b[i]===3))continue;const covered=cells.filter(i=>b[i]===2).length;list.push({cells,covered});for(const i of cells)if(!b[i]&&(!hits.length||covered))heat[i]+=1+covered*50}placements.set(length,list)}
+ // The higher tiers enumerate complete compatible fleets in small endgames.
+ // This accounts for ship overlap and ALL hits, including touching ships.
+ let accepted=0;const fleet=view.remainingFleet,combinations=fleet.reduce((v,len)=>v*placements.get(len).length,1),canSolve=level==='normal'?fleet.length<=1:level==='hard'&&fleet.length<=3&&combinations<=250000;
+ if(canSolve){const occupied=Array(n*n).fill(false);function enumerate(k){if(k===fleet.length){if(hits.some(i=>!occupied[i]))return;accepted++;occupied.forEach((yes,i)=>{if(yes&&!b[i])posterior[i]++});return}for(const p of placements.get(fleet[k])){if(p.cells.some(i=>occupied[i]))continue;for(const i of p.cells)occupied[i]=true;enumerate(k+1);for(const i of p.cells)occupied[i]=false}}enumerate(0)}
+ let best=-1,value=-Infinity;for(let i=0;i<b.length;i++)if(!b[i]){const score=accepted?posterior[i]*10000+heat[i]:heat[i];if(score>value){best=i;value=score}}
+ return best<0?null:{type:'fire',x:best%n,y:Math.floor(best/n)}
 }
-function chooseMove(game,options){if(game.status.over)return {move:null,nodes:0,depth:0};return {move:game.phase==='placement'?{type:'auto-place'}:chooseShot(game.view(game.turn),options),nodes:0,depth:1}}
-const api={Battleship,chooseShot,chooseMove};if(typeof module!=='undefined')module.exports=api;root.PigBattleshipCore=api;
+function deploymentCost(ships,size,fleet){const board=Array(size*size).fill(0),target=Array(size*size).fill(0),damage=ships.map(()=>0),remaining=fleet.slice();ships.forEach((s,k)=>s.cells.forEach(i=>board[i]=k+1));let shots=0;
+ while(remaining.length&&shots<size*size){const m=chooseShot({phase:'battle',status:{over:false},size,target,remainingFleet:remaining},{level:'easy'}),i=m.y*size+m.x,k=board[i]-1;shots++;target[i]=k<0?1:2;if(k>=0&&++damage[k]===ships[k].length){ships[k].cells.forEach(i=>target[i]=3);remaining.splice(remaining.indexOf(ships[k].length),1)}}return shots}
+function chooseDeployment(view,options){options=options||{};const count={easy:1,normal:10,hard:40}[options.level||'normal']||10;let seed=(options.seed===undefined?20261031:options.seed)>>>0,best=null,score=-Infinity;for(const v of view.ownBoard)seed=Math.imul(seed^v,16777619)>>>0;
+ for(let k=0;k<count;k++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const probe=new Battleship({size:view.size,fleet:view.fleet,seed});probe.boards[0]=view.ownBoard.slice();probe.ships[0]=copy(view.ownShips);if(!probe.autoPlace(1))continue;const value=deploymentCost(probe.ships[0],view.size,view.fleet);if(value>score){score=value;best=probe.ships[0].slice(view.ownShips.length).map(s=>({x:s.cells[0]%view.size,y:Math.floor(s.cells[0]/view.size),horizontal:s.length===1||s.cells[1]===s.cells[0]+1}))}}
+ return best?{type:'auto-place',placements:best}:{type:'auto-place'};
+}
+function chooseMove(game,options){if(game.status.over)return {move:null,nodes:0,depth:0};const view=game.view(game.turn);return {move:game.phase==='placement'?chooseDeployment(view,options):chooseShot(view,options),nodes:0,depth:1}}
+const api={Battleship,chooseShot,chooseMove,chooseDeployment,deploymentCost};if(typeof module!=='undefined')module.exports=api;root.PigBattleshipCore=api;
 })(typeof window!=='undefined'?window:globalThis);

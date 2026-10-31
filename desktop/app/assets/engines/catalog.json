@@ -1,0 +1,100 @@
+{
+  "stockfish": {
+    "game": "chess",
+    "name": "Stockfish 19 Lite",
+    "version": "19.0.1",
+    "source": "https://github.com/nmrugg/stockfish.js/tree/v19.0.1",
+    "license": "GPL-3.0",
+    "parts": [
+      "assets/engines/stockfish/part-0.js",
+      "assets/engines/stockfish/part-1.js",
+      "assets/engines/stockfish/part-2.js"
+    ],
+    "wasmBytes": 1845971,
+    "dataBytes": 0,
+    "wasmSHA256": "ee4f115bdb2d32cadf96cada104a05b5ec257d7ad6f57582190b49bc71f096de",
+    "dataSHA256": null
+  },
+  "pikafish": {
+    "game": "xiangqi",
+    "name": "皮卡鱼 Pikafish",
+    "version": "2023-03-05 (single-thread SIMD128 NNUE)",
+    "source": "https://github.com/ousc/Pikafish-wasm/tree/Pikafish-2023-03-05",
+    "buildSource": "https://github.com/ousc/Pikafish-wasm/releases/tag/Pikafish-2023-03-05",
+    "license": "GPL-3.0",
+    "parts": [
+      "assets/engines/pikafish/part-0.js",
+      "assets/engines/pikafish/part-1.js",
+      "assets/engines/pikafish/part-2.js",
+      "assets/engines/pikafish/part-3.js",
+      "assets/engines/pikafish/part-4.js",
+      "assets/engines/pikafish/part-5.js",
+      "assets/engines/pikafish/part-6.js",
+      "assets/engines/pikafish/part-7.js",
+      "assets/engines/pikafish/part-8.js",
+      "assets/engines/pikafish/part-9.js",
+      "assets/engines/pikafish/part-10.js",
+      "assets/engines/pikafish/part-11.js",
+      "assets/engines/pikafish/part-12.js",
+      "assets/engines/pikafish/part-13.js",
+      "assets/engines/pikafish/part-14.js",
+      "assets/engines/pikafish/part-15.js",
+      "assets/engines/pikafish/part-16.js",
+      "assets/engines/pikafish/part-17.js",
+      "assets/engines/pikafish/part-18.js",
+      "assets/engines/pikafish/part-19.js",
+      "assets/engines/pikafish/part-20.js",
+      "assets/engines/pikafish/part-21.js",
+      "assets/engines/pikafish/part-22.js",
+      "assets/engines/pikafish/part-23.js"
+    ],
+    "wasmBytes": 590053,
+    "dataBytes": 18070595,
+    "wasmSHA256": "e3125b2adde5f59dcb5ed3c794e4d0248a0c9df2219a5afad46a3107f4c274d8",
+    "dataSHA256": "9bed5ed4f2f356d361c859728c68b1f9103fa982e5d9fe658b38f71dcbcec0a9"
+  },
+  "rapfi": {
+    "game": "gomoku",
+    "name": "Rapfi NNUE",
+    "version": "0.43.02 (freestyle NNUE)",
+    "source": "https://github.com/dotb1ue/rapfi/tree/3aedf3a",
+    "buildSource": "https://github.com/CyanXLab/GomokuAI/tree/822be514c7fa563ed2a735628cb60868b913c792/public/build",
+    "license": "GPL-3.0; network CC0-1.0",
+    "parts": [
+      "assets/engines/rapfi/part-0.js",
+      "assets/engines/rapfi/part-1.js",
+      "assets/engines/rapfi/part-2.js",
+      "assets/engines/rapfi/part-3.js",
+      "assets/engines/rapfi/part-4.js",
+      "assets/engines/rapfi/part-5.js",
+      "assets/engines/rapfi/part-6.js",
+      "assets/engines/rapfi/part-7.js",
+      "assets/engines/rapfi/part-8.js",
+      "assets/engines/rapfi/part-9.js",
+      "assets/engines/rapfi/part-10.js",
+      "assets/engines/rapfi/part-11.js",
+      "assets/engines/rapfi/part-12.js",
+      "assets/engines/rapfi/part-13.js",
+      "assets/engines/rapfi/part-14.js"
+    ],
+    "wasmBytes": 1206527,
+    "dataBytes": 10131515,
+    "wasmSHA256": "4df97769f01338bcbf6b293c9a4e7bc55a318fcc9b670b35d5d54d7b4b92f677",
+    "dataSHA256": "8ac384c3ed5fcdb954535cdd93794d618b990234480ddd206bf1a9d7d68683a9"
+  },
+  "egaroucid": {
+    "game": "reversi",
+    "name": "Egaroucid for Web",
+    "version": "web build 67aa89f",
+    "source": "https://github.com/Nyanyan/Egaroucid/tree/67aa89f18bfd22fa35730cdc0a9f4e7501c2239a/src/web",
+    "license": "GPL-3.0",
+    "parts": [
+      "assets/engines/egaroucid/part-0.js",
+      "assets/engines/egaroucid/part-1.js"
+    ],
+    "wasmBytes": 1452839,
+    "dataBytes": 0,
+    "wasmSHA256": "e6b5684ec4ceb5a40e26a445c09b8292e74907e6ed96aaab54ec79f9791e6f1e",
+    "dataSHA256": null
+  }
+}

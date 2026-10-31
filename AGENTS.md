@@ -1,5 +1,7 @@
 # 项目维护约定
 
+- 4.9.1 人机升级：十款对手增强；四套固定离线引擎在 desktop/app/assets/engines，重建入口 tools/vendor-engines.py，详细版本/许可见 docs/4.9.1-ai.md。Windows minShell仍4.7.1；安卓本地普通40911、兼容40901、nativeRevision=5、原签名。18组回归及真实浏览器、Chromium 108引擎检查通过；安卓真机和Windows 7实机未验收。GitHub Releases尚未上传4.9.1，不得更新安卓安装包清单到不存在的附件。单个引擎数据文件必须小于12MiB、总游戏内容小于60MiB，适配既有更新器。保留GPL-3.0/CC0及对应源码来源，自有代码沿用MIT。
+
 - 4.9.0 棋类大礼包：六款棋类前端、动画与菜单均已实现，共 29 款。共用源码与本地成品统一为 4.9.0；Windows minShell 仍 4.7.1，安卓普通 40910 / 兼容 40900、原签名、nativeRevision=5，下一版普通从 40911 起。发布状态以 Releases 为准，勿将旧的“仅后端、23 款”记录作为当前状态。规则与验证边界见 `docs/4.9.0-board-games.md`；安卓真机、Windows 7 实机未验收。
 
 - 2026-10-28 新增仅源码后端：`desktop/app/board-session.js` 提供中国象棋、国际象棋、五子棋、黑白棋、战舰棋、点格围地六种独立规则、电脑与存档接口；`rhythm-core.js` 和 challenge/audio 接口实现提前排程、乐句谱面及无音频设备兜底。未制作新游戏界面、形象、动画或菜单，仍为 23 款可见游戏；发行、版本文件和更新清单继续保持 4.8.0。新增 26 组棋类、14 组节奏测试，详见 `desktop/docs/headless-games.md`。这批后端不得误称已在正式 EXE/APK 中上线。

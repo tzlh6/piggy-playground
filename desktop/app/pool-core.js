@@ -223,29 +223,31 @@ function candidates(g){
  return out.sort((a,b)=>b.quality-a.quality);
 }
 function placeForAI(g){
- // Try the extension of a target-to-pocket line; never bypass placement checks.
+ let best=null;const q=g.balls[0],origin={x:q.x,y:q.y};
  for(const id of g.targets(g.turn))for(const p of POCKETS){
-  const b=g.balls[id],d=Math.hypot(b.x-p.x,b.y-p.y),pos={x:b.x+(b.x-p.x)/d*135,y:b.y+(b.y-p.y)/d*135};
-  if(g.validCue(pos.x,pos.y)){g.placeCue(pos.x,pos.y);return true}
- }
- return false;
+  const b=g.balls[id],d=Math.hypot(b.x-p.x,b.y-p.y);if(!d||!clearPath(g,b,p,[0,id],.5))continue;
+  for(const distance of [85,140,220]){const pos={x:b.x+(b.x-p.x)/d*distance,y:b.y+(b.y-p.y)/d*distance};if(!g.validCue(pos.x,pos.y))continue;const ghost={x:b.x+(b.x-p.x)/d*R*2,y:b.y+(b.y-p.y)/d*R*2};if(!clearPath(g,pos,ghost,[0,id],1))continue;const quality=1/(d+distance*.5+60);if(!best||quality>best.quality)best={...pos,quality}}
+ }if(best)return g.placeCue(best.x,best.y);Object.assign(q,origin);return false;
 }
+function simulateShot(g,shot){const sim=Object.assign(Object.create(Pool.prototype),JSON.parse(JSON.stringify(g)));sim.rng=()=>.5;if(!sim.shoot(shot.angle,shot.power))return null;let steps=0;while(sim.phase==='moving'&&steps++<3600)sim.step();if(sim.phase==='moving')return null;return sim}
+function kickCandidates(g){const q=g.balls[0],out=[];for(const id of g.targets(g.turn)){const b=g.balls[id];for(const [axis,wall] of [['x',R+1],['x',W-R-1],['y',R+1],['y',H-R-1]]){const mirror={x:b.x,y:b.y};mirror[axis]=2*wall-b[axis];const t=(wall-q[axis])/(mirror[axis]-q[axis]);if(!(t>0&&t<1))continue;const contact={x:q.x+(mirror.x-q.x)*t,y:q.y+(mirror.y-q.y)*t};if(!g.validCue(contact.x,contact.y)||!clearPath(g,q,contact,[0,id],0)||!clearPath(g,contact,b,[0,id],0))continue;const distance=Math.hypot(contact.x-q.x,contact.y-q.y)+Math.hypot(b.x-contact.x,b.y-contact.y);out.push({angle:Math.atan2(contact.y-q.y,contact.x-q.x),power:clamp(Math.sqrt(2*DRAG*(distance+300))/(MAX_SPEED-80)*1.25,.25,.95),id,pocket:0,quality:0})}}return out}
 function plan(g,difficulty,rng){
  rng=rng||Math.random;if(g.over||g.phase!=='aim')return null;
  if(g.ballInHand)placeForAI(g);
  if(g.break)return {angle:Math.atan2(250-g.balls[0].y,716-g.balls[0].x)+(rng()-.5)*.008,power:.96,pocket:0};
  const options=candidates(g),easy=difficulty==='easy',hard=difficulty==='hard';
  let shot=options[0];
- if(options.length&&easy)shot=options[Math.floor(clamp(rng(),0,.9999)*Math.min(3,options.length))];
  if(!shot){
   const q=g.balls[0],legal=g.targets(g.turn),visible=legal.filter(id=>clearPath(g,q,g.balls[id],[0,id],0));
   const ids=visible.length?visible:legal;let best=null;
   for(const id of ids){const b=g.balls[id],dist=Math.hypot(b.x-q.x,b.y-q.y);if(!best||dist<best.dist)best={angle:Math.atan2(b.y-q.y,b.x-q.x),power:clamp(Math.sqrt(2*DRAG*(dist+550))/MAX_SPEED,.32,.85),pocket:POCKETS.reduce((a,p,i)=>Math.hypot(b.x-p.x,b.y-p.y)<Math.hypot(b.x-POCKETS[a].x,b.y-POCKETS[a].y)?i:a,0),dist}}
   shot=best||{angle:0,power:.5,pocket:0};
  }
- const noise=easy?.024:hard?.0015:.007;
- return {...shot,angle:shot.angle+(rng()-.5)*noise*2,power:clamp(shot.power*(1+(rng()-.5)*(easy?.13:hard?.025:.065)),.03,1)};
+ const list=options.length?options.slice(0,easy?3:hard?8:5):[shot,...kickCandidates(g).slice(0,hard?12:4)],powers=easy?[.95,1.05]:hard?[.82,.94,1.06,1.2]:[.9,1,1.12];let best=null,bestScore=-Infinity;
+ for(const candidate of list)for(const factor of powers){const test={...candidate,power:clamp(candidate.power*factor,.03,1)},sim=simulateShot(g,test);if(!sim)continue;let score=0;if(sim.over)score=sim.winner===g.turn?100000:-100000;else{const own=sim.groups[g.turn],pots=sim.last.pots;score+=pots.filter(b=>b.id&&group(b.id)===own).length*1200;score-=pots.filter(b=>b.id&&b.id!==8&&own&&group(b.id)!==own).length*160;if(sim.last.foul)score-=3200;if(sim.turn===g.turn)score+=220;const next=candidates(sim);if(next.length)score+=(sim.turn===g.turn?1:-1)*Math.min(180,next[0].quality*70000);score-=test.power*3}if(score>bestScore){bestScore=score;best=test}}
+ shot=best||shot;const noise=easy?.0025:hard?.0001:.0007;
+ return {...shot,angle:shot.angle+(rng()-.5)*noise*2,power:clamp(shot.power*(1+(rng()-.5)*(easy?.016:hard?0:.005)),.03,1)};
 }
-const api={Pool,W,H,R,STEP,MAX_SPEED,DRAG,POCKETS,RAILS,group,trace,clearPath,candidates,plan,placeForAI,rayCircle};
+const api={Pool,W,H,R,STEP,MAX_SPEED,DRAG,POCKETS,RAILS,group,trace,clearPath,candidates,plan,placeForAI,simulateShot,rayCircle};
 if(typeof module==='object'&&module.exports)module.exports=api;root.PigPoolCore=api;
 })(typeof window!=='undefined'?window:globalThis);
