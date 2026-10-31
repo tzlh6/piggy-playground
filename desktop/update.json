@@ -20,8 +20,8 @@
    "size": 27395
   },
   "assets/LICENSE-MIT.txt": {
-   "sha256": "24bb6713b73aa8993610c3f96347abcb04fbd37006497eaef1bb5212be59c083",
-   "size": 1072
+   "sha256": "7310ca992e89a3c2609e563471380894eeb18ee2cb538bf52780d8226b776537",
+   "size": 1065
   },
   "assets/cards/bee.svg": {
    "sha256": "be3be67fb1d14837950734387618292c1ac56d21ab6c6d5f1426a75572a806ce",
@@ -392,8 +392,8 @@
    "size": 1380
   },
   "assets/licenses/neuralsorcerer_8ballpool-MIT.txt": {
-   "sha256": "b69307db82472b733f378b898c40a9ce084ab372f5e171ef4103bd5ae4f01292",
-   "size": 1094
+   "sha256": "aa36750c173569a346312d68c45c582b5612503cdf741f806f0c07a78dc6e999",
+   "size": 1073
   },
   "assets/licenses/pikafish-GPL-3.0.txt": {
    "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b",
@@ -412,8 +412,8 @@
    "size": 1070
   },
   "assets/licenses/shenmaxg_web-jump-MIT.txt": {
-   "sha256": "5504fb7900a7df40db063f9f826373a016abe8061b59d4e6a25e57b6382f9e8d",
-   "size": 1100
+   "sha256": "30812d9d54174485c75c356123d270ed325c6cb7baad152aaf82a087b3d62b95",
+   "size": 1078
   },
   "assets/licenses/stockfish-GPL-3.0.txt": {
    "sha256": "0b383d5a63da644f628d99c33976ea6487ed89aaa59f0b3257992deac1171e6b",
@@ -1088,8 +1088,8 @@
    "size": 2888
   },
   "match-core.js": {
-   "sha256": "18e3e95e80a2f51b3844cc8a8f780c849a418aa4bb98398ae4bb4425e7cd2ba7",
-   "size": 8475
+   "sha256": "1d0578fd2d7e6a73c2c8efe208ce159644980c71f072e2e15d284db920b41739",
+   "size": 8443
   },
   "match-ui.js": {
    "sha256": "d48d6c4b50de487f0854e6e3804af919e485d76195b901400990c6596eae6f25",
@@ -1144,8 +1144,8 @@
    "size": 48692
   },
   "style.css": {
-   "sha256": "52a73696fbb4c4937b413f3556f3e8ce638d0c1aa1e304c471544992fdb106a1",
-   "size": 150667
+   "sha256": "862b95757ece654217e37392c3b07a192e85ae2602e6119c2ced36a2d1401d08",
+   "size": 149398
   },
   "vendor/chess.js": {
    "sha256": "e7187f7ed50c6cecd4ac048ccdeae394491792ba6b87d9a02ee35ed28b6341cc",
