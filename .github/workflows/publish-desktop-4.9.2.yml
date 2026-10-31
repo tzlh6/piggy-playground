@@ -1,0 +1,86 @@
+name: Publish desktop 4.9.2
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/publish-desktop-4.9.2.yml
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'publish-desktop-4.9.2')
+    runs-on: windows-2022
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the verified release source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: eac68cc98d3e00b5fe705cea42203b5b8eb582f0
+          persist-credentials: false
+
+      - name: Install pinned desktop dependencies
+        working-directory: desktop
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify engine integration
+        working-directory: desktop
+        run: |
+          node test-stockfish-elo.cjs
+          node test-engine-packs.cjs
+
+      - name: Build Windows portable package
+        working-directory: desktop
+        run: npm run build:win
+
+      - name: Verify the built executable and prepare attachments
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(Get-ChildItem -LiteralPath desktop/dist -Filter *.exe -File)
+          if ($files.Count -ne 1) { throw 'Expected one portable EXE' }
+          $env:ELECTRON_RUN_AS_NODE = $null
+          $process = Start-Process -FilePath $files[0].FullName -ArgumentList '--smoke-test' -Wait -PassThru -WindowStyle Hidden
+          if ($process.ExitCode -ne 0) { throw 'The portable application failed to start' }
+          $result = Get-Content -LiteralPath (Join-Path $env:TEMP 'piggy-smoke.json') -Raw | ConvertFrom-Json
+          if ($result.version -ne '4.9.2' -or $result.games -ne 29 -or $result.clips -ne 4 -or -not $result.updater) { throw 'Application startup verification failed' }
+          New-Item -ItemType Directory -Path release | Out-Null
+          Copy-Item -LiteralPath $files[0].FullName -Destination release/PiggyPlayground-4.9.2-Windows.exe
+          python -X utf8 desktop/build-single.py release/PiggyPlayground-4.9.2-Offline.html
+          if ($LASTEXITCODE -ne 0) { throw 'Offline web build failed' }
+          $result | ConvertTo-Json | Write-Output
+          Get-FileHash -Path release/* -Algorithm SHA256 | Format-List
+
+      - name: Upload verified attachments and publish the existing draft
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: tzlh6/piggy-playground
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $release = gh api repos/tzlh6/piggy-playground/releases/429940293 | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or $release.tag_name -ne 'v4.9.2') { throw 'Release identity mismatch' }
+          $known = @{
+            'PiggyPlayground-4.9.2-Windows.exe' = '94c3681ce61be3e024c7615c1eac808ba92dd85191f199f743d682397e3f98b4'
+            'PiggyPlayground-4.9.2-Offline.html' = 'd0c1de49e22c992ad7bb23c3428c2c856bba25b7754ccb69289c54ae8cf0b8dc'
+          }
+          foreach ($asset in Get-ChildItem -LiteralPath release -File) {
+            $existing = @($release.assets | Where-Object name -eq $asset.Name)
+            if ($existing.Count -gt 0) {
+              $newDigest = 'sha256:' + (Get-FileHash -LiteralPath $asset.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              $knownDigest = 'sha256:' + $known[$asset.Name]
+              if ($existing.Count -ne 1 -or $existing[0].state -ne 'uploaded' -or $existing[0].digest -notin @($newDigest, $knownDigest)) { throw ('Unexpected existing asset: ' + $asset.Name) }
+              Write-Output ('Keeping verified existing attachment: ' + $asset.Name)
+              continue
+            }
+            gh release upload v4.9.2 $asset.FullName --repo tzlh6/piggy-playground
+            if ($LASTEXITCODE -ne 0) { throw ('Upload failed: ' + $asset.Name) }
+          }
+          $confirmed = gh api repos/tzlh6/piggy-playground/releases/429940293 | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify uploaded attachments' }
+          foreach ($name in $known.Keys) {
+            $asset = @($confirmed.assets | Where-Object name -eq $name)
+            if ($asset.Count -ne 1 -or $asset[0].state -ne 'uploaded' -or -not $asset[0].digest.StartsWith('sha256:')) { throw ('Missing uploaded attachment: ' + $name) }
+          }
+          gh api --method PATCH repos/tzlh6/piggy-playground/releases/429940293 -F draft=false -f make_latest=true -f target_commitish=eac68cc98d3e00b5fe705cea42203b5b8eb582f0 --jq '{html_url,tag_name,draft,assets:[.assets[]|{name,size,digest,state}]}'
+          if ($LASTEXITCODE -ne 0) { throw 'Publication failed' }
