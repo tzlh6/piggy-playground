@@ -1300,6 +1300,8 @@ body[data-game="study"] .arena{min-height:0}
 .bd-pick .bd-pick-cancel{justify-content:center;min-width:48px}
 #play-toolbar button.danger{background:#ffe3df;border-color:#e99a90;color:#b33a2f}
 #play-toolbar button:disabled{opacity:.45;cursor:not-allowed}
+.bd-strength{flex:1 0 100%;display:grid;grid-template-columns:auto minmax(60px,1fr) 78px;align-items:center;gap:8px 12px;padding:10px 12px;border:1px solid #efdfcf;border-radius:14px;background:#fff8f3;box-sizing:border-box;min-width:0}
+.bd-strength label{font-size:13px;font-weight:700;color:#7a5a52;white-space:nowrap}.bd-strength input[type=range]{width:100%;min-width:0;accent-color:#e9779a;cursor:pointer}.bd-strength input[type=number]{box-sizing:border-box;width:78px;min-width:0;border:1px solid #e9c6cb;border-radius:8px;padding:6px;font:inherit;font-size:14px;background:#fff;color:#563b3d}.bd-strength input:focus-visible{outline:2px solid #d95f85;outline-offset:2px}.bd-strength small{grid-column:1/-1;font-size:11px;color:#896e65;line-height:1.5}
 @keyframes bd-bob{0%,100%{translate:0 0}50%{translate:0 -3px}}
 @keyframes bd-dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
 @keyframes bd-pulse{0%,100%{box-shadow:0 0 0 0 #f3b4ad00}50%{box-shadow:0 0 0 4px #f3b4ad66}}

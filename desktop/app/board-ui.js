@@ -7,7 +7,7 @@ const VS=[['easy','人机 · 入门'],['normal','人机 · 聪明'],['hard','人
 const configs={
  xiangqi:{name:'猪猪象棋',icon:'i-xiangqi',title:'楚河汉界，粉猪对黑猪。',subtitle:'马走日，象走田，炮要隔一子——困住对面的老将就赢。',tag:'中国象棋 · 三档人机 · 同屏双人 · 悔棋与提示',eyebrow:'24 / THE RIVER DUEL',note:'红方先走。点一枚棋子，亮点就是它能去的地方。',defaultLevel:'normal',levels:VS,labels:['手数','吃子','胜场'],
   tips:[['点子再点点','先点自己的棋子，棋盘上会亮出它能走的点，再点亮点落子；点空处取消。'],['蹩马腿、塞象眼','马被紧挨着的棋子挡住不能走，象的田字中心有子也不能走；炮吃子必须隔一枚。'],['将死或困毙就赢','对方被将军且无法解围，或者无棋可走，都算你赢。一方一直将军造成重复局面判负。']]},
- chess:{name:'猪猪国际象棋',icon:'i-chess',title:'小猪骑士，冲向对面的国王。',subtitle:'王车易位、吃过路兵、兵到底线变身——规则一个不少。',tag:'国际象棋 · 三档人机 · 同屏双人 · 升变自选',eyebrow:'25 / THE PIGGY KNIGHTS',note:'白方先走。兵走到底线时，自己选变成后、车、象或马。',defaultLevel:'normal',levels:VS,labels:['手数','吃子','胜场'],
+ chess:{name:'猪猪国际象棋',icon:'i-chess',title:'小猪骑士，冲向对面的国王。',subtitle:'王车易位、吃过路兵、兵到底线变身——规则一个不少。',tag:'国际象棋 · Elo可调 · 同屏双人 · 升变自选',eyebrow:'25 / THE PIGGY KNIGHTS',note:'白方先走。拖动棋力滑块或输入目标Elo，选择适合你的对手。',defaultLevel:'normal',levels:[['easy','人机 · 快想'],['normal','人机 · 标准'],['hard','人机 · 深思'],['local','同屏双人']],labels:['手数','吃子','胜场'],
   tips:[['点子再点格','先点自己的棋子，能走的格子会亮出小圆点，能吃的格子亮出圆圈。'],['特殊走法','王车易位：点王再点向车方向两格。吃过路兵、兵的升变也都支持，升变时会弹出四个选项。'],['将死获胜','对方国王被将军且无路可逃即获胜；逼和、三次重复、五十回合无吃子和子力不足都是和棋。']]},
  gomoku:{name:'猪猪五子棋',icon:'i-gomoku',title:'五只小猪，排成一排。',subtitle:'横、竖、斜都算。先连成五只就赢，也别忘了堵住对面。',tag:'15 路自由五子 · 三档人机 · 同屏双人',eyebrow:'26 / FIVE IN A ROW',note:'先手先下。电脑会抢五、挡四，冲四要小心。',defaultLevel:'normal',levels:VS,labels:['手数','轮到','胜场'],
   tips:[['点交叉点落子','把小猪放在线的交叉点上。鼠标移上去会先显示半透明的预览。'],['五连就赢','横、竖、斜任意方向连成五只（或更多）同色小猪立即获胜。'],['先堵再攻','对方出现活三、冲四时先挡住；自己做出两个活三，对方就挡不过来了。']]},
@@ -69,7 +69,7 @@ function create(ui){
  const pal=p=>P()[skins()[p]];
  const flipped=()=>(t.id==='chess'||t.id==='xiangqi')&&!local()&&t.human===2;
  const disp=(x,y)=>flipped()?[t.g.W-1-x,t.g.H-1-y]:[x,y];
- function playerName(p){return local()?['一号猪手','二号猪手'][p-1]:p===t.human?'你':AI_NAMES[t.mode]}
+ function playerName(p){return local()?['一号猪手','二号猪手'][p-1]:p===t.human?'你':t.id==='chess'?'小黑 · Elo '+t.elo:AI_NAMES[t.mode]}
  function humanTurn(){if(!active()||ui.get().paused||t.m.status.over||t.clock<t.lockUntil||t.curtain||t.pick)return false;if(t.id==='battleship'&&local())return t.m.turn===t.viewer&&!t.handoff;return local()||t.m.turn===t.human}
 
  // ---------- 初始化与 DOM ----------
@@ -78,6 +78,7 @@ function create(ui){
   if(t&&t.timer)clearTimeout(t.timer);
   const mode=ui.get().level;
   t={boardGame:true,id,mode,human:id==='battleship'||mode==='local'?1:Store.get('board-side-'+id,1)===2?2:1,clock:0,fx:[],sel:null,hover:null,cursor:null,lockUntil:0,aiPending:false,aiReply:null,aiToken:null,aiJob:null,aiAt:0,finishAt:0,finished:false,horizontal:true,viewer:1,curtain:null,handoff:0,pick:null,dirty:true,portrait:false,exprs:{},resignArm:0,avatarKey:''};
+  t.elo=root.PigStrongAI.normalizeChessElo(Store.get('board-elo-chess',root.PigStrongAI.chessElo.default));
   t.m=G.create(id,OPTIONS[id]?OPTIONS[id]():undefined);
   ui.setState(t);ui.setRunning(true);
   const card=p=>`<div class="bd-player" id="bd-p${p}"><div class="bd-ava" id="bd-ava${p}"></div><div class="bd-info"><b id="bd-name${p}"></b><small id="bd-side${p}"></small><span class="bd-tray" id="bd-tray${p}"></span></div><i class="bd-flag" id="bd-flag${p}"></i></div>`;
@@ -98,11 +99,21 @@ function create(ui){
   else if(!local())html+=b('bd-side',t.human===1?'我先手 · '+SIDES[t.id][0]:'我后手 · '+SIDES[t.id][1],'切换先后手，重新开始');
   html+=b('bd-resign','认输');
   if(saved&&saved.save&&saved.save.actions&&saved.save.actions.length)html+='<button class="primary" id="bd-resume">接着上一局 · '+saved.save.actions.length+' 步</button>';
+  if(t.id==='chess'&&!local()){const range=root.PigStrongAI.chessElo;html+=`<div class="bd-strength"><label for="bd-elo-number">目标Elo</label><input id="bd-elo-range" type="range" min="${range.min}" max="${range.max}" step="1" value="${t.elo}" aria-label="调整人机Elo" aria-describedby="bd-elo-note"><input id="bd-elo-number" type="number" inputmode="numeric" min="${range.min}" max="${range.max}" step="1" value="${t.elo}" aria-label="输入人机Elo" aria-describedby="bd-elo-note"><small id="bd-elo-note">${range.min}–${range.max} · 自动记住选择，电脑下一步和提示使用新等级。Elo为练习目标。</small></div>`}
   $('play-toolbar').innerHTML=html;
   $('bd-undo').onclick=undo;$('bd-hint').onclick=hint;$('bd-resign').onclick=resign;
   if($('bd-rotate')){$('bd-rotate').onclick=rotate;$('bd-random').onclick=randomFleet}
   if($('bd-side'))$('bd-side').onclick=()=>{Store.set('board-side-'+t.id,t.human===1?2:1);Sound.click();ui.nextLevel(t.mode)};
   if($('bd-resume'))$('bd-resume').onclick=resume;
+  if($('bd-elo-range')){const slider=$('bd-elo-range'),number=$('bd-elo-number');slider.oninput=()=>{number.value=slider.value};slider.onchange=()=>setChessElo(slider.value);number.oninput=()=>{if(number.value!==''&&Number.isFinite(+number.value))slider.value=number.value};number.onchange=()=>setChessElo(number.value);number.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();number.blur()}}}
+ }
+ function setChessElo(value){
+  if(!active()||t.id!=='chess'||local())return;
+  const valid=String(value).trim()!==''&&Number.isFinite(+value),next=valid?root.PigStrongAI.normalizeChessElo(value):t.elo;
+  $('bd-elo-range').value=$('bd-elo-number').value=String(next);
+  if(!valid)return message('请输入支持范围内的Elo数字。','warn');
+  Store.set('board-elo-chess',next);if(next===t.elo)return;
+  t.elo=next;cancelAI();refresh();message('目标Elo已设为 '+next+'，电脑下一步和提示使用新等级。','ok');maybeAI();
  }
  function resume(){const saved=Store.get(saveKey(),null);if(!saved)return;try{const m=G.restore(saved.save);cancelAI();t.m=m;t.human=saved.human===2?2:1;t.fx=[];t.sel=null;t.finished=false;t.finishAt=0;t.viewer=t.m.turn;t.curtain=null;$('bd-resume').remove();refresh();resize();Sound.chessDrop(1);message('接着上一局，已经走了 '+t.m.actions.length+' 步。','ok');maybeAI()}catch(e){Store.set(saveKey(),null);$('bd-resume').remove();message('上一局的存档读不出来了，已经清掉。','warn')}}
  function persist(){if(t.m.status.over||!t.m.actions.length)Store.set(saveKey(),null);else Store.set(saveKey(),{save:t.m.save(),human:t.human,at:Date.now()})}
@@ -282,12 +293,12 @@ function create(ui){
  // ---------- 电脑对手 ----------
  function getWorker(){if(workerBroken)return null;if(worker)return worker;try{worker=G.createWorker('board-worker.js');worker.onmessage=e=>{const d=e.data;if(!t||!t.aiPending||d.token!==t.aiToken)return;t.aiReply=d.ok?d:{fallback:true}};worker.onerror=e=>{if(e&&e.preventDefault)e.preventDefault();workerBroken=true;try{worker.terminate()}catch(err){}worker=null;if(t&&t.aiPending&&t.aiJob&&!t.aiReply)solveLater(t.aiJob)}}catch(e){workerBroken=true;worker=null}return worker}
  function solveLater(job){setTimeout(()=>{if(!t||t.aiToken!==job.token)return;try{t.aiReply=G.solveJob(job)}catch(e){t.aiReply={fallback:true}}},16)}
- function cancelAI(){if(root.PigStrongAI)root.PigStrongAI.cancel();if(!t)return;t.aiPending=false;t.aiReply=null;t.aiToken=null;t.aiJob=null;t.hintPending=false}
+ function cancelAI(){if(root.PigStrongAI)root.PigStrongAI.cancel();if(!t)return;t.aiPending=false;t.aiReply=null;t.aiToken=null;t.aiJob=null;t.hintPending=false;t.hintTicket=null}
  function maybeAI(){
   if(!t||local()||t.m.status.over||t.m.turn===t.human||t.aiPending)return;
   t.aiPending=true;t.aiAt=t.clock;t.aiReply=null;panel();
-  const job=t.m.aiJob({level:t.mode,maxMs:{easy:600,normal:1600,hard:3200}[t.mode],seed:Math.floor(Math.random()*4294967296)});t.aiToken=job.token;t.aiJob=job;
-  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t;root.PigStrongAI.think(t.m,job.options).then(reply=>{if(t===state&&t.aiPending&&t.aiToken===job.token)t.aiReply=reply}).catch(error=>{if(t!==state||!t.aiPending||t.aiToken!==job.token)return;t.aiReply={fallback:true};if(!t.engineWarned){t.engineWarned=true;message('强引擎未能完成，正在使用兼容对手。','warn')}if(root.console)root.console.warn('Strong AI:',error.message)});return}
+  const job=t.m.aiJob({level:t.mode,maxMs:{easy:600,normal:1600,hard:3200}[t.mode],elo:t.id==='chess'?t.elo:undefined,seed:Math.floor(Math.random()*4294967296)});t.aiToken=job.token;t.aiJob=job;
+  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t;root.PigStrongAI.think(t.m,job.options).then(reply=>{if(t===state&&t.aiPending&&t.aiJob===job&&t.aiToken===job.token)t.aiReply=reply}).catch(error=>{if(t!==state||!t.aiPending||t.aiJob!==job||t.aiToken!==job.token)return;t.aiReply={fallback:true};if(!t.engineWarned){t.engineWarned=true;message(t.id==='chess'?'本次使用兼容对手，所选Elo未生效。':'强引擎未能完成，正在使用兼容对手。','warn')}if(root.console)root.console.warn('Strong AI:',error.message)});return}
   const w=getWorker();if(w){try{w.postMessage(job)}catch(e){workerBroken=true;solveLater(job)}}else solveLater(job);
  }
  function runAI(){
@@ -315,7 +326,7 @@ function create(ui){
   if(!humanTurn())return notYet();
   if(t.hintPending)return;
   if(t.id==='battleship'){if(placing())return randomFleet();const s=BS.chooseShot(t.m.view(t.m.turn),{level:'hard'});if(!s)return;const b=t.g.big;fx({k:'hint',x:b.x+(s.x+.5)*b.S,y:b.y+(s.y+.5)*b.S,r:b.S*.5,dur:1400,lock:false});Sound.hintSpark();return message('亮圈处命中的可能最大。')}
-  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t,token=t.m.token();t.hintPending=true;message('正在想提示……');root.PigStrongAI.think(t.m,{level:'hard',maxMs:1600}).then(reply=>{if(t!==state||t.m.token()!==token)return;t.hintPending=false;showHint(reply)}).catch(()=>{if(t!==state||t.m.token()!==token)return;t.hintPending=false;try{showHint(t.m.suggest({level:'hard',maxMs:500}))}catch(e){}});return}
+  if(root.PigStrongAI&&root.PigStrongAI.supports(t.m)){const state=t,token=t.m.token(),ticket={};t.hintPending=true;t.hintTicket=ticket;message('正在想提示……');root.PigStrongAI.think(t.m,{level:'hard',maxMs:1600,elo:t.id==='chess'?t.elo:undefined}).then(reply=>{if(t!==state||t.hintTicket!==ticket||t.m.token()!==token)return;t.hintPending=false;t.hintTicket=null;showHint(reply)}).catch(()=>{if(t!==state||t.hintTicket!==ticket||t.m.token()!==token)return;t.hintPending=false;t.hintTicket=null;try{showHint(t.m.suggest({level:'hard',maxMs:500}));if(t.id==='chess')message('本次提示使用兼容策略，所选Elo未生效。','warn')}catch(e){}});return}
   let s;try{s=t.m.suggest({level:'hard',maxMs:800})}catch(e){return}
   showHint(s);
  }
