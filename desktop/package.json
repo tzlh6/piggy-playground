@@ -38,13 +38,13 @@
   "main": "main.cjs",
   "scripts": {
     "start": "electron .",
-    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs && node test-study.cjs && node test-board.cjs && node test-rhythm.cjs && node test-ai.cjs && node test-engine-packs.cjs && node test-stockfish-elo.cjs && node test-chess-difficulty.cjs",
+    "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs && node test-study.cjs && node test-board.cjs && node test-rhythm.cjs && node test-ai.cjs && node test-engine-packs.cjs && node test-stockfish-elo.cjs && node test-chess-difficulty.cjs && node test-mate-patterns.cjs",
     "build:web": "python build-single.py ../build/PiggyPlayground-4.9.3-Offline.html",
     "build:pigs": "node make-pigs.cjs",
     "build:win": "electron-builder --win portable --ia32 --publish never",
     "playtest": "node tools/playtest-click.cjs",
     "manifest": "node tools/make-update-manifest.cjs",
-    "test:board": "node test-board.cjs",
+    "test:board": "node test-board.cjs && node test-mate-patterns.cjs",
     "test:rhythm": "node test-rhythm.cjs",
     "test:ai": "node test-ai.cjs && node test-engine-packs.cjs && node test-stockfish-elo.cjs && node test-chess-difficulty.cjs"
   },
