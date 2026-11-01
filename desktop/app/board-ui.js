@@ -21,6 +21,13 @@ const configs={
 const OPTIONS={gomoku:()=>({size:15}),dots:()=>({width:5,height:5}),battleship:()=>({seed:Math.floor(Math.random()*4294967295)})};
 const SIDES={xiangqi:['红方','黑方'],chess:['白方','黑方'],gomoku:['先手','后手'],reversi:['先手','后手'],battleship:['一号舰队','二号舰队'],dots:['先手','后手']};
 const ROLES={xiangqi:['scarf','wizard'],chess:['crown','pirate'],gomoku:['glasses','detective'],reversi:['flower','music'],battleship:['pirate','space'],dots:['chef','bee']};
+// Original Canvas styling inspired by Chessground / chessboard.js conventions.
+const CHESS_THEMES=Object.freeze({
+ wood:Object.freeze({name:'经典木色',light:'#f0d9b5',dark:'#b58863',frame:'#564638',border:'#715b46',last:'rgba(190,177,66,.46)'}),
+ sage:Object.freeze({name:'鼠尾草绿',light:'#e8eadb',dark:'#859876',frame:'#38483f',border:'#586d5d',last:'rgba(221,202,85,.48)'}),
+ slate:Object.freeze({name:'石板灰',light:'#e3e7e9',dark:'#81939d',frame:'#34424b',border:'#556874',last:'rgba(221,204,93,.48)'})
+});
+const RIVAL_SKINS={peach:'soda',soda:'peach',berry:'matcha',matcha:'berry',cream:'taro',taro:'cream',whitechoc:'darkchoc',darkchoc:'whitechoc',caramel:'cow',cow:'caramel'};
 const AI_NAMES={easy:'小黑 · 认真下',normal:'小黑 · 深思熟虑',hard:'黑猪大师'};
 const REASONS={checkmate:'将死','stalemate':'逼和',threefold:'三次重复局面','insufficient-material':'双方子力都不足以将死','fifty-move':'五十回合没有吃子或动兵','king-captured':'老将被吃','stalemate-loss':'困毙，无棋可走','perpetual-check-loss':'长将判负','threefold-casual':'重复局面','sixty-move':'六十回合没有吃子',five:'五子连珠','board-full':'棋盘下满','no-moves':'双方都无处落子','fleet-sunk':'全部舰只被击沉','all-boxes':'所有格子都围完了',resignation:'认输'};
 const XQ={1:{k:'帥',a:'仕',b:'相',n:'傌',r:'俥',c:'炮',p:'兵'},2:{k:'將',a:'士',b:'象',n:'馬',r:'車',c:'砲',p:'卒'}};
@@ -63,8 +70,7 @@ function create(ui){
  const active=()=>!!(t&&has(ui.get().game)&&ui.get().state===t);
  const local=()=>t.mode==='local';
  const P=()=>root.PigArt.PALETTES;
- function skins(){const me=root.PigLook&&P()[root.PigLook.active]?root.PigLook.active:'peach',rival=me==='darkchoc'?'whitechoc':'darkchoc';
-  if(t.id==='chess'||t.id==='xiangqi')return {1:me==='darkchoc'?'peach':me,2:'darkchoc',me,rival};
+ function skins(){const me=root.PigLook&&P()[root.PigLook.active]?root.PigLook.active:'peach',rival=P()[t.rivalSkin]&&t.rivalSkin!==me?t.rivalSkin:RIVAL_SKINS[me]||'soda';
   const human=local()?1:t.human;return {[human]:me,[3-human]:rival,me,rival}}
  const pal=p=>P()[skins()[p]];
  const flipped=()=>(t.id==='chess'||t.id==='xiangqi')&&!local()&&t.human===2;
@@ -83,6 +89,8 @@ function create(ui){
   t.customThink=Store.get('board-think-chess',null);
   if(!G.chessThinking[t.customThink])t.customThink=null;
   t.elo=id==='chess'&&G.chessDifficulties[mode]?.elo||t.customElo;
+  t.boardTheme=CHESS_THEMES[Store.get('board-theme-chess','wood')]?Store.get('board-theme-chess','wood'):'wood';
+  t.rivalSkin=Store.get('board-rival-skin','soda');
   t.m=G.create(id,OPTIONS[id]?OPTIONS[id]():undefined);
   ui.setState(t);ui.setRunning(true);
   const card=p=>`<div class="bd-player" id="bd-p${p}"><div class="bd-ava" id="bd-ava${p}"></div><div class="bd-info"><b id="bd-name${p}"></b><small id="bd-side${p}"></small><span class="bd-tray" id="bd-tray${p}"></span></div><i class="bd-flag" id="bd-flag${p}"></i></div>`;
@@ -96,6 +104,14 @@ function create(ui){
   maybeAI();
  }
  function saveKey(){return 'board-save-'+t.id+'-'+t.mode}
+ function appearanceControls(){
+  const sk=skins(),looks=root.PigLook.looks,label=local()?'二号皮肤':'对手皮肤';
+  return `<div class="bd-appearance">${t.id==='chess'?`<label class="bd-appearance-item" for="bd-theme"><span>棋盘配色</span><select id="bd-theme" aria-label="选择国际象棋棋盘配色">${Object.entries(CHESS_THEMES).map(([id,p])=>`<option value="${id}"${id===t.boardTheme?' selected':''}>${p.name}</option>`).join('')}</select></label>`:''}<label class="bd-appearance-item bd-rival-choice" for="bd-rival-skin"><span>${label}</span><span id="bd-rival-preview" aria-hidden="true"></span><select id="bd-rival-skin" aria-label="选择${label}">${looks.map(([id,name])=>`<option value="${id}"${id===sk.rival?' selected':''}${id===sk.me?' disabled':''}>${name}</option>`).join('')}</select></label></div>`;
+ }
+ function syncAppearance(){
+  const sk=skins();if($('bd-rival-skin')){for(const option of $('bd-rival-skin').options)option.disabled=option.value===sk.me;$('bd-rival-skin').value=sk.rival;$('bd-rival-preview').innerHTML=root.PigArt.inline({skin:sk.rival,role:ROLES[t.id][local()?1:2-t.human],viewBox:'0 -10 160 170'})}
+  if(t.id==='chess')$('board').querySelector('.bd-shell').dataset.theme=t.boardTheme;
+ }
  function chessControls(){
   const range=root.PigStrongAI.chessElo,profile=G.chessDifficulties[t.mode],elo=profile.elo||t.customElo,choice=t.customThink||profile.level,open=['advanced','master','hard','custom'].includes(t.mode);
   const thinking=profile.practice?'':`<div class="bd-thinking"><label for="bd-think">思考时间</label><select id="bd-think" aria-label="选择国际象棋思考时间">${Object.entries(G.chessThinking).map(([id,p])=>`<option value="${id}"${id===choice?' selected':''}>${p.name}</option>`).join('')}</select><button id="bd-ai-stop" class="secondary" hidden disabled>让它落子</button></div><small id="bd-thinking-info" role="status" aria-live="polite" hidden></small>`;
@@ -114,6 +130,7 @@ function create(ui){
   html+=b('bd-resign','认输');
   if(saved&&saved.save&&saved.save.actions&&saved.save.actions.length)html+='<button class="primary" id="bd-resume">接着上一局 · '+saved.save.actions.length+' 步</button>';
   if(t.id==='chess'&&!local())html+=chessControls();
+  html+=appearanceControls();
   $('play-toolbar').innerHTML=html;
   $('bd-undo').onclick=undo;$('bd-hint').onclick=hint;$('bd-resign').onclick=resign;
   if($('bd-rotate')){$('bd-rotate').onclick=rotate;$('bd-random').onclick=randomFleet}
@@ -122,6 +139,9 @@ function create(ui){
   if($('bd-elo-range')){const slider=$('bd-elo-range'),number=$('bd-elo-number');slider.oninput=()=>{number.value=slider.value};slider.onchange=()=>setChessElo(slider.value);number.oninput=()=>{if(number.value!==''&&Number.isFinite(+number.value))slider.value=number.value};number.onchange=()=>setChessElo(number.value);number.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();number.blur()}}}
   if($('bd-think'))$('bd-think').onchange=e=>{t.customThink=e.target.value;Store.set('board-think-chess',t.customThink);cancelAI();panel();message('思考时间已设为“'+G.chessThinking[t.customThink].name+'”，本局继续。','ok');maybeAI()};
   if($('bd-ai-stop'))$('bd-ai-stop').onclick=()=>{if(root.PigStrongAI.stop()){ $('bd-ai-stop').disabled=true;message(t.hintPending?'正在显示当前提示……':'正在采用当前结果落子……') }};
+  if($('bd-theme'))$('bd-theme').onchange=e=>{if(!CHESS_THEMES[e.target.value])return;t.boardTheme=e.target.value;Store.set('board-theme-chess',t.boardTheme);syncAppearance();t.dirty=true;draw();message('棋盘已换成“'+CHESS_THEMES[t.boardTheme].name+'”，本局继续。','ok')};
+  $('bd-rival-skin').onchange=e=>{const me=skins().me;if(!P()[e.target.value]||e.target.value===me)return;t.rivalSkin=e.target.value;Store.set('board-rival-skin',t.rivalSkin);t.avatarKey='';syncAppearance();panel();t.dirty=true;draw();message((local()?'二号玩家':'对手')+'已换成“'+P()[t.rivalSkin].name+'”，本局继续。','ok')};
+  syncAppearance();
   updateThinkingUI();
  }
  function changeDifficulty(next){
@@ -150,6 +170,7 @@ function create(ui){
  function panel(){
   const v=t.view,st=t.m.status,turn=t.m.turn,sk=skins();
   for(const p of [1,2]){
+   $('bd-p'+p).dataset.skin=sk[p];
    $('bd-name'+p).textContent=playerName(p);
    let side=SIDES[t.id][p-1];if(t.id==='reversi'||t.id==='dots')side+=' · '+v.scores[p-1]+(t.id==='dots'?' 格':' 只');
    if(t.id==='battleship'){const left=t.m.engine.ships[p-1].filter(s=>s.hits<s.length).length;side+=v.phase==='placement'?(v.players[p-1].ready?' · 布舰完毕':' · 布舰中'):' · 剩 '+left+' 艘'}
@@ -181,7 +202,7 @@ function create(ui){
  function layout(){
   const id=t.id,v=t.view;let g;
   if(id==='xiangqi')g={VW:580,VH:640,S:60,ox:50,oy:50,W:9,H:10};
-  else if(id==='chess')g={VW:612,VH:606,S:70,ox:36,oy:14,W:8,H:8};
+  else if(id==='chess')g={VW:588,VH:588,S:70,ox:14,oy:14,W:8,H:8};
   else if(id==='gomoku')g={VW:(v.size-1)*40+80,VH:(v.size-1)*40+80,S:40,ox:40,oy:40,W:v.size,H:v.size};
   else if(id==='reversi')g={VW:608,VH:608,S:70,ox:24,oy:24,W:8,H:8};
   else if(id==='dots')g={VW:v.width*100+100,VH:v.height*100+100,S:100,ox:50,oy:50,W:v.width,H:v.height};
@@ -394,7 +415,7 @@ function create(ui){
  function chessPiece(c,x,y,S,piece,lift){
   lift=lift||0;const pp=pal(piece.player);c.save();c.fillStyle='rgba(60,30,30,.22)';c.beginPath();c.ellipse(x,y+S*.3,S*.28+lift*.1,S*.08,0,0,Math.PI*2);c.fill();
   c.font=Math.round(S*.78)+'px '+CHESS_FONT;c.textAlign='center';c.textBaseline='middle';const ch=CG[piece.type]+'︎',yy=y-lift+S*.02;
-  c.lineJoin='round';c.lineWidth=S*.09;c.strokeStyle=piece.player===1?pp.line:'#f6e7d8';c.strokeText(ch,x,yy);c.fillStyle=piece.player===1?pp.body:pp.body;c.fillText(ch,x,yy);
+  c.lineJoin='round';c.lineWidth=S*.07;c.strokeStyle=piece.player===1?'#554b40':'#e6dfd2';c.strokeText(ch,x,yy);c.fillStyle=piece.player===1?'#fcf9f0':'#303538';c.fillText(ch,x,yy);
   // 小猪鼻子贴在棋子身上，一眼看出是猪猪棋。
   c.fillStyle=pp.snout;c.strokeStyle=piece.player===1?pp.line:'#f6e7d8';c.lineWidth=1.3;c.beginPath();c.ellipse(x,yy+S*.17,S*.08,S*.055,0,0,Math.PI*2);c.fill();c.stroke();c.fillStyle=pp.nostril||pp.line;circle(c,x-S*.028,yy+S*.17,S*.014);c.fill();circle(c,x+S*.028,yy+S*.17,S*.014);c.fill();
   c.restore();
@@ -412,21 +433,22 @@ function create(ui){
   boardOverlays(c);piecesLayer(c);
  }
  function drawChess(c){
-  const g=t.g,S=g.S,ox=g.ox,oy=g.oy;drawWood(c,4,4,g.VW-8,g.VH-8,18,'#c99a72','#a8754f');
-  for(let y=0;y<8;y++)for(let x=0;x<8;x++){c.fillStyle=(x+y)%2?'#e8a9b9':'#fdf0e4';c.fillRect(ox+x*S,oy+y*S,S,S)}
-  c.strokeStyle='#7b4b33';c.lineWidth=3;c.strokeRect(ox,oy,8*S,8*S);
-  c.fillStyle='#fff3e3';c.font='bold 14px sans-serif';c.textAlign='center';c.textBaseline='middle';
-  for(let i=0;i<8;i++){const [fx2]=disp(i,0),[,ry]=disp(0,i);c.fillText('abcdefgh'[i],ox+(fx2+.5)*S,oy+8*S+15);c.fillText(String(8-i),ox-17,oy+(ry+.5)*S)}
+  const g=t.g,S=g.S,ox=g.ox,oy=g.oy,theme=CHESS_THEMES[t.boardTheme];
+  c.fillStyle=theme.frame;rr(c,2,2,g.VW-4,g.VH-4,10);c.fill();
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){c.fillStyle=(x+y)%2?theme.dark:theme.light;c.fillRect(ox+x*S,oy+y*S,S,S)}
+  c.strokeStyle=theme.border;c.lineWidth=1;c.strokeRect(ox-.5,oy-.5,8*S+1,8*S+1);
+  c.font='600 12px sans-serif';c.textBaseline='middle';
+  for(let i=0;i<8;i++){const [fx2]=disp(i,0),[,ry]=disp(0,i);c.textAlign='right';c.fillStyle=(fx2+7)%2?theme.light:theme.dark;c.fillText('abcdefgh'[i],ox+(fx2+1)*S-5,oy+8*S-8);c.textAlign='left';c.fillStyle=ry%2?theme.light:theme.dark;c.fillText(String(8-i),ox+5,oy+ry*S+10)}
   boardOverlays(c);piecesLayer(c);
  }
  function boardOverlays(c){
   const g=t.g,S=g.S,v=t.view,last=v.history&&v.history.length&&t.m.actions.length?lastMove():null,cellish=t.id==='chess';
   const mark=(x,y,color)=>{const p=pos(x,y);if(cellish){c.fillStyle=color;c.fillRect(p.x-S/2,p.y-S/2,S,S)}else{c.strokeStyle=color;c.lineWidth=3;const a=S*.46,b=S*.18;c.beginPath();for(const sx of [-1,1])for(const sy of [-1,1]){c.moveTo(p.x+sx*a,p.y+sy*(a-b));c.lineTo(p.x+sx*a,p.y+sy*a);c.lineTo(p.x+sx*(a-b),p.y+sy*a)}c.stroke()}};
-  if(last){mark(last.from.x,last.from.y,cellish?'rgba(255,214,102,.45)':'rgba(214,92,120,.55)');mark(last.to.x,last.to.y,cellish?'rgba(255,200,70,.6)':'rgba(214,92,120,.9)')}
+  if(last){mark(last.from.x,last.from.y,cellish?CHESS_THEMES[t.boardTheme].last:'rgba(214,92,120,.55)');mark(last.to.x,last.to.y,cellish?CHESS_THEMES[t.boardTheme].last:'rgba(214,92,120,.9)')}
   if(t.cursor&&humanTurn()){const p=pos(t.cursor.x,t.cursor.y);c.strokeStyle='#4f8ad9';c.lineWidth=3;c.setLineDash([6,4]);circle(c,p.x,p.y,S*.47);c.stroke();c.setLineDash([])}
   if(t.m.status.check&&!t.m.status.over){for(let y=0;y<g.H;y++)for(let x=0;x<g.W;x++){const q=v.board[y][x];if(q&&q.type==='k'&&q.player===t.m.turn){const p=pos(x,y),pulse=.55+.35*Math.sin(t.clock/150),gr=c.createRadialGradient(p.x,p.y,S*.1,p.x,p.y,S*.62);gr.addColorStop(0,'rgba(255,60,60,'+pulse+')');gr.addColorStop(1,'rgba(255,60,60,0)');c.fillStyle=gr;circle(c,p.x,p.y,S*.62);c.fill()}}t.dirty=true}
-  if(t.sel){const a=sqXY(t.sel),p=pos(a.x,a.y);c.fillStyle='rgba(120,200,140,.35)';circle(c,p.x,p.y,S*.5);c.fill();
-   for(const m of t.legal)if(m.from===t.sel){const b=sqXY(m.to),q=pos(b.x,b.y),occ=v.board[b.y][b.x];if(occ){c.strokeStyle='rgba(214,70,80,.85)';c.lineWidth=4;circle(c,q.x,q.y,S*.46);c.stroke()}else{c.fillStyle='rgba(60,150,90,.7)';circle(c,q.x,q.y,S*.13);c.fill()}}}
+  if(t.sel){const a=sqXY(t.sel),p=pos(a.x,a.y);c.fillStyle=cellish?'rgba(64,99,55,.32)':'rgba(120,200,140,.35)';if(cellish)c.fillRect(p.x-S/2,p.y-S/2,S,S);else{circle(c,p.x,p.y,S*.5);c.fill()}
+   for(const m of t.legal)if(m.from===t.sel){const b=sqXY(m.to),q=pos(b.x,b.y),occ=v.board[b.y][b.x];if(occ){c.strokeStyle=cellish?'rgba(30,66,42,.58)':'rgba(214,70,80,.85)';c.lineWidth=cellish?S*.075:4;circle(c,q.x,q.y,S*.46);c.stroke()}else{c.fillStyle=cellish?'rgba(30,66,42,.45)':'rgba(60,150,90,.7)';circle(c,q.x,q.y,S*(cellish?.115:.13));c.fill()}}}
   if(t.hover&&humanTurn()&&!t.sel){const q=v.board[t.hover.y]&&v.board[t.hover.y][t.hover.x];if(q&&q.player===t.m.turn){const p=pos(t.hover.x,t.hover.y);c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=3;circle(c,p.x,p.y,S*.47);c.stroke()}}
  }
  function lastMove(){for(let i=t.m.actions.length-1;i>=0;i--){const m=t.m.actions[i].move;if(m.from){const f=typeof m.from==='string'?sqXY(m.from):m.from,to=typeof m.to==='string'?sqXY(m.to):m.to;return {from:f,to}}if(m.type==='resign')continue;return null}return null}
@@ -563,7 +585,7 @@ function create(ui){
   return false;
  }
  function leave(prev){if(has(prev)&&t){cancelAI();if(t.timer)clearTimeout(t.timer)}}
- return {configs,has,init,changeDifficulty,tick,resize,keyDown,keyUp:()=>{},clearKeys:()=>{},changeLook:()=>{if(active()){t.avatarKey='';panel();t.dirty=true;draw()}},leave};
+ return {configs,has,init,changeDifficulty,tick,resize,keyDown,keyUp:()=>{},clearKeys:()=>{},changeLook:()=>{if(active()){t.avatarKey='';syncAppearance();panel();t.dirty=true;draw()}},leave};
 }
 root.PigBoardUI={configs,create,pigToken};
 })(typeof window!=='undefined'?window:globalThis);
