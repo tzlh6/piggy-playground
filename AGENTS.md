@@ -1,5 +1,7 @@
 # 项目维护约定
 
+- 4.9.3：国际象棋八档，默认萌新陪练；前两档浅层策略配合随机合法着法，不虚标Elo。最高3190保留，高档直接展开Elo滑块。思考时间可独立选择0.6/1.6/3.2/10/30秒或不限时；Stockfish移除人为深度上限，go infinite配合progress和stop。人机换档保留棋局，取消旧任务。20组回归；Windows minShell仍4.7.1、安卓40913/40903、原签名nativeRevision=5。4.9.3安装包未作为Release发行，不修改安卓更新清单指向未发行附件。清单按不可变Git对象真实字节生成。
+
 - 4.9.2：国际象棋增加1320–3190目标Elo滑块/数字输入，默认1500并持久化；思考中修改会取消旧任务。Stockfish每次搜索先启用UCI_LimitStrength，再设UCI_Elo；已核对当前构建实际范围。19组回归与真实浏览器/Chromium 108检查通过。Windows minShell仍4.7.1；安卓40912/40902、原签名、nativeRevision=5；APK附件存在并核验后才更新安卓双清单。发布状态以Releases为准。清单必须按不可变Git对象的真实字节生成，不能使用Windows自动转换后的不同换行符。
 
 - 4.9.1 人机升级：十款对手增强；四套固定离线引擎在 desktop/app/assets/engines，重建入口 tools/vendor-engines.py，详细版本/许可见 docs/4.9.1-ai.md。Windows minShell仍4.7.1；安卓本地普通40911、兼容40901、nativeRevision=5、原签名。18组回归及真实浏览器、Chromium 108引擎检查通过；安卓真机和Windows 7实机未验收。GitHub Releases尚未上传4.9.1，不得更新安卓安装包清单到不存在的附件。单个引擎数据文件必须小于12MiB、总游戏内容小于60MiB，适配既有更新器。保留GPL-3.0/CC0及对应源码来源，自有代码沿用MIT。
@@ -31,3 +33,4 @@
 - 2026-10-17 四只猪原声修正：4.4.6，黑猪8所有猪叫改用 sounds.js 既有四段录音，原速；最多叠四声。普通安卓40506、兼容40406，nativeRevision仍3，Windows minShell仍4.4.4。验证与发布记录见原声修正文件；安卓尚未真机安装验收。
 
 - 安卓 4.7.2 的 ZIP 导入与验证见 `docs/4.7.2-android-zip.md`。这是原生独立补丁，共用游戏、Windows 和离线网页仍为 4.7.1；个人题库压缩包不进仓库和公开发行附件。
+

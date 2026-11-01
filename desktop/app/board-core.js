@@ -114,7 +114,7 @@ function create(type,options){if(!Object.prototype.hasOwnProperty.call(factories
 // Iterative deepening with a node/time budget. The original position is restored
 // with finally, including when a search is interrupted. Extra turns are handled
 // by the actual turn field rather than assuming players alternate every ply.
-function chooseMove(game,options){options=options||{};if(game.status.over)return {move:null,nodes:0,depth:0,score:0};const level=options.level||'normal',tier=['easy','normal','hard'].indexOf(level);if(tier<0)throw Error('未知电脑难度');
+function chooseMove(game,options){options=options||{};if(game.status.over)return {move:null,nodes:0,depth:0,score:0};if(game.type==='chess'&&['beginner','casual'].includes(options.practice))return choosePracticeMove(game,options);const level=options.level||'normal',tier=['easy','normal','hard'].indexOf(level);if(tier<0)throw Error('未知电脑难度');
  const configs={chess:[[3,5000],[5,45000],[8,220000]],xiangqi:[[3,6000],[5,50000],[7,240000]],gomoku:[[3,1800],[5,12000],[8,65000]],reversi:[[4,5000],[7,50000],[10,250000]],dots:[[3,5000],[6,60000],[10,260000]]},config=configs[game.type][tier],remaining=game.type==='dots'?game.legalMoves().length:game.type==='reversi'?game.board.filter(v=>!v).length:100;
  const maxDepth=integer(options.depth,1,30)?options.depth:tier===2&&remaining<=(game.type==='dots'?18:12)?remaining+1:config[0],budget=integer(options.maxNodes,1,1000000)?options.maxNodes:config[1],maxMs=Number.isFinite(options.maxMs)?Math.max(1,Math.min(5000,options.maxMs)):[450,1200,2800][tier],deadline=Date.now()+maxMs,player=game.turn,halt={},tt=new Map(),killers=new Map(),fastChess=game.type==='chess';let nodes=0;
  const gomokuCache=new Map(),gomoku=()=>{const k=game.turn+':'+game.board.join('');let data=gomokuCache.get(k);if(!data){data=game.analysis();if(gomokuCache.size<12000)gomokuCache.set(k,data)}return data},evaluate=()=>{if(game.type!=='gomoku')return game.evaluate(player);const {best}=gomoku();return best[player-1]*(game.turn===player?1.1:1)-best[2-player]*(game.turn!==player?1.1:1)};
@@ -141,6 +141,14 @@ function chooseMove(game,options){options=options||{};if(game.status.over)return
  const {raw,...move}=best.move;return {move:copy(move),score:best.score,depth:best.depth,nodes:Math.min(nodes,budget)}
 }
 
+// Forgiving opponents below Stockfish's supported Elo range, without invented ratings.
+// Practice hints use the shallow search without deliberately rolling a mistake.
+function choosePracticeMove(game,options){
+ const beginner=options.practice==='beginner',moves=game.legalMoves();let seed=(Number.isInteger(options.seed)?options.seed:Date.now())>>>0;
+ const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ if(!options.hint&&random()<(beginner?.8:.45))return {move:copy(moves[Math.floor(random()*moves.length)]),nodes:0,depth:0,score:0,practice:options.practice};
+ return {...chooseMove(game,{...options,practice:null,level:'easy',depth:beginner?1:2,maxNodes:beginner?2000:8000,maxMs:options.maxMs||(beginner?90:180)}),practice:options.practice};
+}
 const api={Gomoku,Reversi,DotsBoxes,Chess,Xiangqi,create,chooseMove};
 if(common)module.exports=api;root.PigBoardCore=api;
 })(typeof window!=='undefined'?window:globalThis);
