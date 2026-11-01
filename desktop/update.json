@@ -3,7 +3,7 @@
  "name": "猪猪游乐场",
  "version": "4.9.3",
  "date": "2026-11-01",
- "ref": "ac03255d4de4c323bc9db5253920aecd90fe6856",
+ "ref": "cd2faa1c2c3dd9702faa76216f8ba4e517a8c636",
  "minShell": "4.7.1",
  "notes": "国际象棋新增八档难度：萌新陪练、轻松入门、休闲练习、认真对弈、进阶挑战、高手过招、大师挑战、极限挑战。第一次进入本版默认萌新陪练，之后记住你的选择。 前两档采用更宽松的陪练策略，会漏吃子、漏防守。最高档保留目标Elo 3190，高手、大师、极限档直接展开Elo滑块，仍可自行调节。 思考时间由你选择：0.6、1.6、3.2、10、30秒或不限时，并移除原有搜索深度上限。不限时持续加深，点“让它落子”或“查看当前提示”采用当前结果。",
  "files": {
@@ -1012,8 +1012,8 @@
    "size": 6704
   },
   "board-ui.js": {
-   "sha256": "67370401966bb09d5bb8caf8f33a0983a901bf1a01beb29c9575d87e1b987769",
-   "size": 70201
+   "sha256": "085dda58317590170780ea06abb7a9cc9e10a333c5764e4b45e95223aa62ecd2",
+   "size": 73300
   },
   "board-worker.js": {
    "sha256": "b2dcab7568839549dc99711bc0ee76b55875d4b99fca9dec04741ebd5fb9977b",
@@ -1144,8 +1144,8 @@
    "size": 48692
   },
   "style.css": {
-   "sha256": "52043523dd5b57d81d884cc834caaa8167e3e60dfe76ba8e65c41a0b6ed5dd96",
-   "size": 152083
+   "sha256": "ce90a3ccb43e0debf3f759d584668badaffeb4311dfc1848d39c66cc5bccb938",
+   "size": 154999
   },
   "vendor/chess.js": {
    "sha256": "e7187f7ed50c6cecd4ac048ccdeae394491792ba6b87d9a02ee35ed28b6341cc",
