@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.8.0",
-  "versionCode": 40800,
+  "version": "4.9.4",
+  "versionCode": 40904,
   "nativeRevision": 5,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.8.0-android/PiggyPlayground-4.8.0-Android-compat.apk",
-  "bytes": 1000466,
-  "sha256": "c6f3b15f8cec4b1e8a6baa4f285cb9f01e9faf73091a2986f95d790ce3b75016",
-  "notes": "4.8.0 装扮版：新增白巧克力、黑巧克力、抹茶麻薯、柠檬汽水、焦糖拿铁、奶牛花花六种配色；十种小装饰可与服饰叠戴，配色和装饰同步到自己的小猪并自动保存。沿用原签名，覆盖安装保留题库、成绩和设置，请不要先卸载。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.9.4-android/PiggyPlayground-4.9.4-Android-compat.apk",
+  "bytes": 32633874,
+  "sha256": "36e8920d5ba244e0c947d069939d1e576c5ded669096c645ca1588fc5a25d4aa",
+  "notes": "4.9.4：象棋与国际象棋新增帅帐对弈，全身军师猪指点落子、思考冒泡、将军喊话、悔棋挠头和认输白旗。绝杀动画完整播放点兵翻面、蹄印路线、栅栏、猪鼻印章及杀法卷轴，无论哪方获胜或重看均完整播放，可跳过，支持减少动态效果。普通包40914、旧更新器兼容包40904，原签名、nativeRevision=5；覆盖安装保留数据，请不要先卸载。"
 }

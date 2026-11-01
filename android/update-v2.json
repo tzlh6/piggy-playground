@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.9.2",
-  "versionCode": 40912,
+  "version": "4.9.4",
+  "versionCode": 40914,
   "nativeRevision": 5,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.9.2-android/PiggyPlayground-4.9.2-Android.apk",
-  "bytes": 32601106,
-  "sha256": "6afbbcb93683fb5f509958977e3e23e86bcdb4dbbd098057a159a26cd5dce01d",
-  "notes": "国际象棋新增1320–3190目标Elo滑块与数字输入，默认1500并自动保存。每次电脑落子和提示都先开启Stockfish强度限制，再设置所选等级；思考中修改会取消旧任务重新计算。快想、标准、深思保留不同思考预算。同屏双人不显示人机Elo控件，Elo为练习目标。\n\n共29款离线游戏，包含六款棋类及四套成熟离线引擎，其他对战人机同步加强；棋子和动画沿用猪猪主题。保留换装、原有成绩、题库与对局存档。\n\n- 普通包：PiggyPlayground-4.9.2-Android.apk，versionCode 40912。\n- 旧更新器兼容包：PiggyPlayground-4.9.2-Android-compat.apk，versionCode 40902。\n- 通常只需安装普通包。两个包沿用原签名、nativeRevision=5，覆盖安装保留数据，请不要先卸载。\n- 最低Android 8.0；局域网联机仍适用于Windows。\n\n[Windows EXE与离线网页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.9.2)。\n\n19组回归、390像素手机尺寸下真实Elo调节与落子、原签名、双包DEX和内置网页一致性已核验。安卓真机安装、原生联网更新及Windows 7实机尚未验收。\n\n自有代码沿用MIT；独立引擎GPL-3.0、Rapfi网络CC0及来源保留。四段录音版权归原权利人。个人题库、存档与签名材料不随源码或发行附件提供。"
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.9.4-android/PiggyPlayground-4.9.4-Android.apk",
+  "bytes": 32633874,
+  "sha256": "31b6dfddf901ca877e48731cc1c9b6ea1f5b523a75684a2f74adaa09e4563d75",
+  "notes": "4.9.4：象棋与国际象棋新增帅帐对弈，全身军师猪指点落子、思考冒泡、将军喊话、悔棋挠头和认输白旗。绝杀动画完整播放点兵翻面、蹄印路线、栅栏、猪鼻印章及杀法卷轴，无论哪方获胜或重看均完整播放，可跳过，支持减少动态效果。普通包40914、旧更新器兼容包40904，原签名、nativeRevision=5；覆盖安装保留数据，请不要先卸载。"
 }
