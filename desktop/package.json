@@ -1,9 +1,9 @@
 {
-  "version": "4.9.3",
+  "version": "4.9.4",
   "build": {
     "appId": "local.piggy.playground",
     "portable": {
-      "artifactName": "猪猪游乐场-4.9.3-Win7兼容.exe"
+      "artifactName": "猪猪游乐场-4.9.4-Win7兼容.exe"
     },
     "directories": {
       "output": "dist"
@@ -39,7 +39,7 @@
   "scripts": {
     "start": "electron .",
     "test": "node test.cjs && node test-sound.cjs && node test-arcade.cjs && node test-new-games.cjs && node test-challenge.cjs && node test-roulette.cjs && node test-click.cjs && node test-doudizhu.cjs && node test-doudizhu-net.cjs && node tools/test-lan.cjs && node test-jump.cjs && node test-pool.cjs && node test-gate.cjs && node test-study.cjs && node test-board.cjs && node test-rhythm.cjs && node test-ai.cjs && node test-engine-packs.cjs && node test-stockfish-elo.cjs && node test-chess-difficulty.cjs && node test-mate-patterns.cjs",
-    "build:web": "python build-single.py ../build/PiggyPlayground-4.9.3-Offline.html",
+    "build:web": "python build-single.py ../build/PiggyPlayground-4.9.4-Offline.html",
     "build:pigs": "node make-pigs.cjs",
     "build:win": "electron-builder --win portable --ia32 --publish never",
     "playtest": "node tools/playtest-click.cjs",

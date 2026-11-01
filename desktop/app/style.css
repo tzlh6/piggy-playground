@@ -1297,6 +1297,15 @@ body[data-game="chess"] .bd-strength{background:#f7f7f0;border-color:#dde0d2;bor
 .bd-stage{position:relative;display:flex;justify-content:center;width:100%}
 .bd-stage canvas{display:block;border-radius:22px;box-shadow:0 10px 24px #8a5a3a26,0 2px 0 #e7d6c2;touch-action:manipulation;outline:none}
 .bd-stage canvas:focus-visible{box-shadow:0 0 0 3px #8ab6d6,0 10px 24px #8a5a3a26}
+/* 军师猪（中国象棋 / 国际象棋）：两翼帅帐画在同一块画布与 SVG 层里，顶栏卡片仅留给读屏 */
+.bd-wrap{position:relative;display:inline-block;line-height:0}
+.bd-cmd-layer{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible;font-family:system-ui,"Microsoft YaHei","PingFang SC",sans-serif}
+.bd-shell.bd-cmd .bd-stage canvas{box-shadow:none;border-radius:0;background:transparent}
+.bd-shell.bd-cmd .bd-stage canvas:focus-visible{box-shadow:none;outline:3px solid #8ab6d6;outline-offset:-3px;border-radius:12px}
+.bd-shell.bd-cmd .bd-match{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.bd-skip{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);line-height:1.2;padding:6px 14px;border-radius:999px;border:1px solid #e3c9a6;background:#fffaf2e6;color:#7a5a3f;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px #5a3a2a26;z-index:4}
+.bd-skip:hover,.bd-skip:focus-visible{background:#fff1dc;border-color:#d39f62}
+.bd-skip[hidden]{display:none}
 .bd-status{font-size:14px;color:#7a5a52;background:#fff7ef;border:1px solid #efdfcf;border-radius:999px;padding:6px 16px;min-height:20px;text-align:center;transition:background .2s,color .2s}
 .bd-status.alert{background:#ffe6e3;color:#c43d3d;border-color:#f3b4ad;animation:bd-pulse .9s ease-in-out infinite}
 .bd-pick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:14px 16px;background:#fffaf4;border:2px solid #e8b4c0;border-radius:18px;box-shadow:0 12px 30px #5a3a2a40;z-index:5;max-width:92%;animation:bd-pop .22s ease-out}
