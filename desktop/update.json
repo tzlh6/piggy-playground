@@ -1,15 +1,15 @@
 {
  "schema": 1,
  "name": "猪猪游乐场",
- "version": "4.9.2",
- "date": "2026-10-31",
- "ref": "6213688536630941a827358d20e98a8fded2983f",
+ "version": "4.9.3",
+ "date": "2026-11-01",
+ "ref": "ac03255d4de4c323bc9db5253920aecd90fe6856",
  "minShell": "4.7.1",
- "notes": "国际象棋新增“目标Elo”滑块和数字输入，支持1320–3190，默认1500。选择会自动保存，重开、切换思考档和下次打开都能沿用。 电脑落子前会明确开启Stockfish的强度限制，再设置你选的Elo；调整时会取消旧搜索，从电脑下一步生效，提示也使用当前等级。 国际象棋的快想 / 标准 / 深思分别保留约0.6 / 1.6 / 3.2秒思考预算；同屏双人不显示人机Elo控件。",
+ "notes": "国际象棋新增八档难度：萌新陪练、轻松入门、休闲练习、认真对弈、进阶挑战、高手过招、大师挑战、极限挑战。第一次进入本版默认萌新陪练，之后记住你的选择。 前两档采用更宽松的陪练策略，会漏吃子、漏防守。最高档保留目标Elo 3190，高手、大师、极限档直接展开Elo滑块，仍可自行调节。 思考时间由你选择：0.6、1.6、3.2、10、30秒或不限时，并移除原有搜索深度上限。不限时持续加深，点“让它落子”或“查看当前提示”采用当前结果。",
  "files": {
   "app.js": {
-   "sha256": "b38c3e49d9db3d1796654bde9b9c3980bffe0a765574d147ad536711a39eef8e",
-   "size": 65221
+   "sha256": "fc3b35ffd548cf688fbb333c6e94633f523008088b3c5f82ff696dd2789eac03",
+   "size": 65514
   },
   "arcade-core.js": {
    "sha256": "d712c55abb1c8d52d2d13fa9a0eb7838b4490fb4f47e413ec03ef465d0c2bbb8",
@@ -1004,16 +1004,16 @@
    "size": 10095
   },
   "board-core.js": {
-   "sha256": "c246c6f92ab3749a686ee03322a8bdd4b7549a8056a2ca9e6d865a5b9f8b80fe",
-   "size": 25252
+   "sha256": "93b95d169ee21253c677f55d1eedbadee76f6c4fd2fe6601aef54971ce8e4d3e",
+   "size": 26151
   },
   "board-session.js": {
-   "sha256": "f27db034835fc6ffbd0574fc58d2b2112d14c406bbdfb87b1d6540075382d56d",
-   "size": 4212
+   "sha256": "ce5da5a7a44cfe48ad4e8eb97843b37dd602329e3ee3cec5e9ba30c5bec7b7b8",
+   "size": 6704
   },
   "board-ui.js": {
-   "sha256": "7d661a858538d36bc80027a747140d06270c7f2858c2d096f5a379808dec239f",
-   "size": 66862
+   "sha256": "67370401966bb09d5bb8caf8f33a0983a901bf1a01beb29c9575d87e1b987769",
+   "size": 70201
   },
   "board-worker.js": {
    "sha256": "b2dcab7568839549dc99711bc0ee76b55875d4b99fca9dec04741ebd5fb9977b",
@@ -1128,8 +1128,8 @@
    "size": 42904
   },
   "strong-ai.js": {
-   "sha256": "450dd72877be75412c7e2123a213ea6ba2bbc7230e6c8c5eac0de797087d0294",
-   "size": 12389
+   "sha256": "fff7de7daa69905a25c642abf62728f157dbfbf4c5f87178d8a6d3699b779c53",
+   "size": 13156
   },
   "study-core.js": {
    "sha256": "c52f3675b83b0c1dc10d6493a19d6eb94005b9ec456e987b487ea0a2b8a4146b",
@@ -1144,8 +1144,8 @@
    "size": 48692
   },
   "style.css": {
-   "sha256": "0f19def2bd039c79f2b064077b41e0c9b9cd61540ce7f5eab563dcc2be0dd169",
-   "size": 151431
+   "sha256": "52043523dd5b57d81d884cc834caaa8167e3e60dfe76ba8e65c41a0b6ed5dd96",
+   "size": 152083
   },
   "vendor/chess.js": {
    "sha256": "e7187f7ed50c6cecd4ac048ccdeae394491792ba6b87d9a02ee35ed28b6341cc",
@@ -1156,8 +1156,8 @@
    "size": 43714
   },
   "version.js": {
-   "sha256": "722f06534d45cc77a8a99aef0703a1103bf17c53d674a62d0759721407b12041",
-   "size": 50163
+   "sha256": "2c836f4d26d739c67821d2d1c51024d096ec5fde136ab45ddbb15a055819d376",
+   "size": 51908
   }
  }
 }
