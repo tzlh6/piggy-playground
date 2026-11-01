@@ -28,7 +28,8 @@ const CHESS_THEMES=Object.freeze({
  slate:Object.freeze({name:'石板灰',light:'#e3e7e9',dark:'#81939d',frame:'#34424b',border:'#556874',last:'rgba(221,204,93,.48)'})
 });
 const RIVAL_SKINS={peach:'soda',soda:'peach',berry:'matcha',matcha:'berry',cream:'taro',taro:'cream',whitechoc:'darkchoc',darkchoc:'whitechoc',caramel:'cow',cow:'caramel'};
-const AI_NAMES={easy:'小黑 · 认真下',normal:'小黑 · 深思熟虑',hard:'黑猪大师'};
+const COLOR_NAMES={peach:'小粉',berry:'小粉',cream:'小黄',taro:'小紫',whitechoc:'小白',darkchoc:'小黑',matcha:'小绿',soda:'小蓝',caramel:'小棕',cow:'小花'};
+const AI_NAMES={easy:'认真下',normal:'深思熟虑',hard:'棋坛高手'};
 const REASONS={checkmate:'将死','stalemate':'逼和',threefold:'三次重复局面','insufficient-material':'双方子力都不足以将死','fifty-move':'五十回合没有吃子或动兵','king-captured':'老将被吃','stalemate-loss':'困毙，无棋可走','perpetual-check-loss':'长将判负','threefold-casual':'重复局面','sixty-move':'六十回合没有吃子',five:'五子连珠','board-full':'棋盘下满','no-moves':'双方都无处落子','fleet-sunk':'全部舰只被击沉','all-boxes':'所有格子都围完了',resignation:'认输'};
 const XQ={1:{k:'帥',a:'仕',b:'相',n:'傌',r:'俥',c:'炮',p:'兵'},2:{k:'將',a:'士',b:'象',n:'馬',r:'車',c:'砲',p:'卒'}};
 const CG={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
@@ -75,7 +76,9 @@ function create(ui){
  const pal=p=>P()[skins()[p]];
  const flipped=()=>(t.id==='chess'||t.id==='xiangqi')&&!local()&&t.human===2;
  const disp=(x,y)=>flipped()?[t.g.W-1-x,t.g.H-1-y]:[x,y];
- function playerName(p){return local()?['一号猪手','二号猪手'][p-1]:p===t.human?'你':t.id==='chess'?'小黑 · '+G.chessDifficulties[t.mode].name:AI_NAMES[t.mode]}
+ function rivalName(){return COLOR_NAMES[skins().rival]}
+ function playerName(p){return local()?['一号猪手','二号猪手'][p-1]:p===t.human?'你':rivalName()+' · '+(t.id==='chess'?G.chessDifficulties[t.mode].name:AI_NAMES[t.mode])}
+ function difficultyText(){return G.chessDifficulties[t.mode].description.replace(/小黑/g,rivalName())}
  function aiOptions(hint){return t.id==='chess'?{...G.chessOptions(t.mode,t.elo,t.customThink),...(hint?{hint:true}:{})}:{level:hint?'hard':t.mode,maxMs:hint?1600:{easy:600,normal:1600,hard:3200}[t.mode]}}
  function humanTurn(){if(!active()||ui.get().paused||t.m.status.over||t.clock<t.lockUntil||t.curtain||t.pick)return false;if(t.id==='battleship'&&local())return t.m.turn===t.viewer&&!t.handoff;return local()||t.m.turn===t.human}
 
@@ -110,12 +113,12 @@ function create(ui){
  }
  function syncAppearance(){
   const sk=skins();if($('bd-rival-skin')){for(const option of $('bd-rival-skin').options)option.disabled=option.value===sk.me;$('bd-rival-skin').value=sk.rival;$('bd-rival-preview').innerHTML=root.PigArt.inline({skin:sk.rival,role:ROLES[t.id][local()?1:2-t.human],viewBox:'0 -10 160 170'})}
-  if(t.id==='chess')$('board').querySelector('.bd-shell').dataset.theme=t.boardTheme;
+  if(t.id==='chess'){$('board').querySelector('.bd-shell').dataset.theme=t.boardTheme;if(!local()&&$('bd-difficulty-note'))$('bd-difficulty-note').innerHTML='<b>'+G.chessDifficulties[t.mode].name+'</b> · '+difficultyText()}
  }
  function chessControls(){
   const range=root.PigStrongAI.chessElo,profile=G.chessDifficulties[t.mode],elo=profile.elo||t.customElo,choice=t.customThink||profile.level,open=['advanced','master','hard','custom'].includes(t.mode);
   const thinking=profile.practice?'':`<div class="bd-thinking"><label for="bd-think">思考时间</label><select id="bd-think" aria-label="选择国际象棋思考时间">${Object.entries(G.chessThinking).map(([id,p])=>`<option value="${id}"${id===choice?' selected':''}>${p.name}</option>`).join('')}</select><button id="bd-ai-stop" class="secondary" hidden disabled>让它落子</button></div><small id="bd-thinking-info" role="status" aria-live="polite" hidden></small>`;
-  return `<div class="bd-strength"><p id="bd-difficulty-note"><b>${profile.name}</b> · ${profile.description}</p>${thinking}<details id="bd-custom-settings"${open?' open':''}><summary>自定义棋力 · Elo 滑块</summary><div class="bd-strength-custom"><label for="bd-elo-number">目标 Elo</label><input id="bd-elo-range" type="range" min="${range.min}" max="${range.max}" step="1" value="${elo}" aria-label="调整人机Elo" aria-describedby="bd-elo-note"><input id="bd-elo-number" type="number" inputmode="numeric" min="${range.min}" max="${range.max}" step="1" value="${elo}" aria-label="输入人机Elo" aria-describedby="bd-elo-note"><small id="bd-elo-note">拖动滑块或输入数字即可自定义，本局继续。最高可选 3190；Elo 为练习目标。不限时会持续搜索，点“让它落子”或“查看当前提示”结束。</small></div></details></div>`;
+  return `<div class="bd-strength"><p id="bd-difficulty-note"><b>${profile.name}</b> · ${difficultyText()}</p>${thinking}<details id="bd-custom-settings"${open?' open':''}><summary>自定义棋力 · Elo 滑块</summary><div class="bd-strength-custom"><label for="bd-elo-number">目标 Elo</label><input id="bd-elo-range" type="range" min="${range.min}" max="${range.max}" step="1" value="${elo}" aria-label="调整人机Elo" aria-describedby="bd-elo-note"><input id="bd-elo-number" type="number" inputmode="numeric" min="${range.min}" max="${range.max}" step="1" value="${elo}" aria-label="输入人机Elo" aria-describedby="bd-elo-note"><small id="bd-elo-note">拖动滑块或输入数字即可自定义，本局继续。最高可选 3190；Elo 为练习目标。不限时会持续搜索，点“让它落子”或“查看当前提示”结束。</small></div></details></div>`;
  }
  function updateThinkingUI(){
   if(!t||t.id!=='chess')return;const busy=t.aiPending||t.hintPending,p=t.aiProgress,button=$('bd-ai-stop'),info=$('bd-thinking-info');
@@ -140,7 +143,7 @@ function create(ui){
   if($('bd-think'))$('bd-think').onchange=e=>{t.customThink=e.target.value;Store.set('board-think-chess',t.customThink);cancelAI();panel();message('思考时间已设为“'+G.chessThinking[t.customThink].name+'”，本局继续。','ok');maybeAI()};
   if($('bd-ai-stop'))$('bd-ai-stop').onclick=()=>{if(root.PigStrongAI.stop()){ $('bd-ai-stop').disabled=true;message(t.hintPending?'正在显示当前提示……':'正在采用当前结果落子……') }};
   if($('bd-theme'))$('bd-theme').onchange=e=>{if(!CHESS_THEMES[e.target.value])return;t.boardTheme=e.target.value;Store.set('board-theme-chess',t.boardTheme);syncAppearance();t.dirty=true;draw();message('棋盘已换成“'+CHESS_THEMES[t.boardTheme].name+'”，本局继续。','ok')};
-  $('bd-rival-skin').onchange=e=>{const me=skins().me;if(!P()[e.target.value]||e.target.value===me)return;t.rivalSkin=e.target.value;Store.set('board-rival-skin',t.rivalSkin);t.avatarKey='';syncAppearance();panel();t.dirty=true;draw();message((local()?'二号玩家':'对手')+'已换成“'+P()[t.rivalSkin].name+'”，本局继续。','ok')};
+  $('bd-rival-skin').onchange=e=>{const me=skins().me;if(!P()[e.target.value]||e.target.value===me)return;t.rivalSkin=e.target.value;Store.set('board-rival-skin',t.rivalSkin);t.avatarKey='';syncAppearance();panel();t.dirty=true;draw();message(local()?'二号玩家已换肤，本局继续。':'对手现在叫“'+rivalName()+'”，本局继续。','ok')};
   syncAppearance();
   updateThinkingUI();
  }
@@ -171,9 +174,11 @@ function create(ui){
   const v=t.view,st=t.m.status,turn=t.m.turn,sk=skins();
   for(const p of [1,2]){
    $('bd-p'+p).dataset.skin=sk[p];
-   $('bd-name'+p).textContent=playerName(p);
+   const opponent=!local()&&p!==t.human;
+   $('bd-name'+p).textContent=opponent?rivalName():playerName(p);$('bd-name'+p).title=playerName(p);
    let side=SIDES[t.id][p-1];if(t.id==='reversi'||t.id==='dots')side+=' · '+v.scores[p-1]+(t.id==='dots'?' 格':' 只');
    if(t.id==='battleship'){const left=t.m.engine.ships[p-1].filter(s=>s.hits<s.length).length;side+=v.phase==='placement'?(v.players[p-1].ready?' · 布舰完毕':' · 布舰中'):' · 剩 '+left+' 艘'}
+   if(opponent)side+=' · '+(t.id==='chess'?G.chessDifficulties[t.mode].name:AI_NAMES[t.mode]);
    $('bd-side'+p).textContent=side;
    const cap=captured(p);$('bd-tray'+p).innerHTML=cap.map(k=>t.id==='xiangqi'?'<i class="bd-cap xq p'+(3-p)+'">'+XQ[3-p][k]+'</i>':'<i class="bd-cap ch p'+(3-p)+'">'+CG[k]+'︎</i>').join('');
    const el=$('bd-p'+p);el.classList.toggle('current',!st.over&&turn===p);el.classList.toggle('thinking',t.aiPending&&turn===p);el.classList.toggle('winner',st.over&&st.winner===p);
@@ -394,8 +399,8 @@ function create(ui){
   if(win){const k='board-wins-'+t.id+'-'+t.mode,n=Store.get(k,0)+1;Store.set(k,n);record(n);Sound.win();ui.confetti(36)}else if(draw)Sound.chord();else Sound.lose();
   panel();
   const score=t.id==='reversi'||t.id==='dots'?' 比分 '+t.view.scores[t.human-1]+' : '+t.view.scores[2-t.human]+'。':'';
-  if(!win&&!draw&&st.reason==='resignation')return result('这局先认输，下次再战！','对手：'+AI_NAMES[t.mode]+'。共走了 '+t.m.actions.filter(a=>a.move.type!=='resign').length+' 步，可以点“悔棋”撤回认输接着下。',false);
-  result(win?{xiangqi:'绝杀！红旗插上对岸。',chess:'将死！小猪骑士胜利。',gomoku:'五猪连珠，你赢啦！',reversi:'满盘都是你的猪！',battleship:'敌方舰队全军覆没！',dots:'围栏大王就是你！'}[t.id]:draw?'和棋，下次再分高下。':{xiangqi:'这局被黑猪将住了。',chess:'国王被困住了……',gomoku:'被对面抢先连成五只。',reversi:'这局黑猪更多一点。',battleship:'我方舰队沉没了……',dots:'对面圈到的猪更多。'}[t.id],why+'。'+score+(win?'（'+configs[t.id].levels.find(l=>l[0]===t.mode)[1]+'）':'可以点“悔棋”回到上一步再试。'),win||draw);
+  if(!win&&!draw&&st.reason==='resignation')return result('这局先认输，下次再战！','对手：'+playerName(3-t.human)+'。共走了 '+t.m.actions.filter(a=>a.move.type!=='resign').length+' 步，可以点“悔棋”撤回认输接着下。',false);
+  result(win?{xiangqi:'绝杀！红旗插上对岸。',chess:'将死！小猪骑士胜利。',gomoku:'五猪连珠，你赢啦！',reversi:'满盘都是你的猪！',battleship:'敌方舰队全军覆没！',dots:'围栏大王就是你！'}[t.id]:draw?'和棋，下次再分高下。':{xiangqi:'这局被'+rivalName()+'将住了。',chess:'国王被困住了……',gomoku:'被对面抢先连成五只。',reversi:'这局'+rivalName()+'的猪更多一点。',battleship:'我方舰队沉没了……',dots:'对面圈到的猪更多。'}[t.id],why+'。'+score+(win?'（'+configs[t.id].levels.find(l=>l[0]===t.mode)[1]+'）':'可以点“悔棋”回到上一步再试。'),win||draw);
  }
 
  // ---------- 绘制 ----------
