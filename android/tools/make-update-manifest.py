@@ -36,6 +36,12 @@ if not 0 < len(data) <= 64 * 1024 * 1024:
 with zipfile.ZipFile(args.apk) as apk:
     if apk.read('assets/game.html') != (ROOT / 'assets/game.html').read_bytes():
         raise ValueError('APK content differs from the prepared source')
+    # Startup HTML and lazy engine parts are one release; validate the entire asset set.
+    expected = {'assets/' + p.relative_to(ROOT / 'assets').as_posix(): p
+                for p in (ROOT / 'assets').rglob('*') if p.is_file()}
+    actual = {name for name in apk.namelist() if name.startswith('assets/') and not name.endswith('/')}
+    if actual != set(expected) or any(apk.read(name) != file.read_bytes() for name, file in expected.items()):
+        raise ValueError('APK lazy assets differ from the prepared source')
 filename = args.asset_name or args.apk.name
 if not re.fullmatch(r'[A-Za-z0-9._-]+\.apk', filename):
     raise ValueError('Invalid uploaded APK filename')

@@ -1,5 +1,11 @@
-# 安卓4.9.4 · 军师猪与绝杀动画
+# 安卓4.10.0 · 启动修复与中国象棋学堂
 
-象棋与国际象棋改为两只军师猪坐镇的“帅帐对弈”，将死时完整播放以猪为主角的动画（[说明](../desktop/docs/mate-recognition.md#军师猪绝杀动画)）。国际象棋保留八档难度、Elo滑块与不限时思考（[说明](../desktop/docs/4.9.3-chess-difficulty.md)）。共29款离线游戏。普通40914、旧更新器兼容40904，原签名、nativeRevision=5，覆盖安装保留数据。4.9.4已正式发行：[普通包与旧更新器兼容包](https://github.com/tzlh6/piggy-playground/releases/tag/v4.9.4-android)。安卓双更新清单分别指向已上传并下载校验的普通包和兼容包。安卓真机尚未验收。
+针对新版在荣耀80GT、安卓15上点图标即退出的反馈，改为流式加载页面与按需加载棋类引擎，启动页从约48.5MB降到约3.84MB。已在受限Java堆复现旧路径的内存不足；荣耀实机效果仍需安装确认。
 
-使用当前Manifest和game-version.json构建，APK须沿用原签名。`build.py --tools <SDK/JDK目录>`构建，更新清单须从实际APK生成，保持`--native-revision 5`。
+手机新增“象棋学堂”：皮卡鱼AI教练比较候选走法、解释并逐步播放变化；10道红黑视角杀招练习；中炮对屏风马、飞相布局、仙人指路三份逐步讲解棋谱；支持ICCS导入与复制。教学副本不改原对局和成绩。[功能、来源、验证与构建说明](docs/4.10.0-android-school.md)。
+
+普通包41010，旧更新器兼容包41000，原签名、nativeRevision=6。覆盖安装保留成绩、设置和题库，请不要先卸载。共用游戏仍为4.9.4，Windows与离线网页保持4.9.4。[安卓发行页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.10.0-android)。
+
+成熟方案使用Pikafish（GPL-3.0）与xiangqi.js（BSD-2-Clause），许可证和固定源码地址保留。入门批注和练习前置局面为本项目原创，不冒称第三方商业题库或历史名局。
+
+构建：`python build.py --prepare-only`准备入口和44份按需引擎分片；使用官方SDK/JDK及原签名构建双APK。发布清单须从实际APK生成，保持`--native-revision 6`；兼容清单加`--legacy`。工具会核对全部APK assets。

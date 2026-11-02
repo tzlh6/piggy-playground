@@ -10,6 +10,13 @@
   document.getElementById('look-settings').textContent = '换装';
   document.getElementById('audio-settings').textContent = '音效';
   const version = '__PIGGY_ANDROID_VERSION__';
+  // Android has its own release train; the common Windows game remains 4.9.4.
+  const mobileNotes = {version,date:'2026-11-02',title:'手机启动修复 · 中国象棋学堂',
+    summary:['改进安卓启动：页面流式读取，四套棋类引擎按需加载，减少启动内存峰值。','中国象棋新增手机专属“象棋学堂”：AI教练比较候选走法，解释将军、吃子和后续变化。','10道杀招练习、3份带逐步讲解的入门棋谱，支持提示、演示、翻转棋盘和ICCS棋谱导入。'],
+    details:[{title:'怎样进入象棋学堂',items:['在游戏大厅点“象棋学堂”，或进入中国象棋后点页顶“象棋学堂”。','AI教练可以取当前中国象棋局面，在独立教学棋盘上试走，并逐步播放候选变化；原对局和成绩保持原样。','杀招练习包含重炮、马后炮、天地炮、铁门栓、双车错及黑方视角；自己解出才记入学习进度，看演示不会代替通关。','棋谱研习内置中炮对屏风马、飞相布局、仙人指路的入门示范；支持上一手、下一手、自动演示和ICCS文本导入。']},
+      {title:'启动与兼容性',items:['不再把约48MB整页内容复制到应用Java内存中。启动页与棋类引擎分开，引擎仍随安装包提供，可离线使用。','沿用原签名和原有网页存储来源，覆盖安装保留成绩、设置和已导入题库。','本次针对荣耀80GT、安卓15上“点图标后立即退出”的反馈修复；真机效果以安装验证为准。']}]};
+  window.PIGGY_VERSION.version=version;window.PIGGY_VERSION.date=mobileNotes.date;window.PIGGY_VERSION.notes.unshift(mobileNotes);
+  const mobileVersionLine=document.getElementById('version-line');if(mobileVersionLine)mobileVersionLine.textContent='安卓 · '+version;
   const games = PigCatalog.GAMES;
   configs.doudizhu.levels = configs.doudizhu.levels.filter(([id]) => id !== 'lan');
   configs.doudizhu.tag = '经典斗地主 · 人机三档';

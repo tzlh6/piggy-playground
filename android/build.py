@@ -1,12 +1,12 @@
 """Build a universal offline APK with the official Android command-line tools."""
 from pathlib import Path
-import argparse, hashlib, json, os, re, subprocess, sys, zipfile
+import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
 DESKTOP = ROOT.parent / 'desktop'
 WORK = ROOT.parent / 'build/android'
-TOOL_CACHE = ROOT.parent / '.android-tools'
+TOOL_CACHE = ROOT.parent / 'build/android-tools'
 
 def run(args, env=None):
     subprocess.run([str(arg) for arg in args], check=True, env=env)
@@ -23,12 +23,28 @@ def prepare():
     output = assets / 'game.html'
     run([sys.executable, DESKTOP / 'build-single.py', output])
     html = output.read_text(encoding='utf-8')
+    # Single-file browser downloads embed all engines. Android must not parse or copy
+    # those ~45 MB on launch: serve the same pinned parts lazily from APK assets.
+    html, engine_count = re.subn(r'<script type="application/json" id="pig-engine-[^\"]+">.*?</script>', '', html, flags=re.S)
+    catalog = json.loads((DESKTOP / 'app/assets/engines/catalog.json').read_text(encoding='utf8'))
+    assert engine_count == len(catalog) == 4
+    for entry in catalog.values():
+        for part in entry['parts']:
+            assert re.fullmatch(r'assets/engines/(stockfish|pikafish|rapfi|egaroucid)/part-[0-9]+\.js', part)
+            target = assets / part
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(DESKTOP / 'app' / part, target)
+    # Mobile-only analysis reuses the engine pack cache rather than duplicating it.
+    expose = 'const api={supports,think,stop,cancel,'
+    assert html.count(expose) == 1
+    html = html.replace(expose, 'const api={loadPack,binary,supports,think,stop,cancel,')
     html = html.replace('width=device-width,initial-scale=1', 'width=device-width,initial-scale=1,viewport-fit=cover')
     initial = "let game='mine',level='hard',state"
     assert html.count(initial) == 1
     html = html.replace(initial, "let game='mine',level=Store.get('level-mine','easy'),state")
-    mobile_css = (ROOT / 'web/android.css').read_text(encoding='utf-8')
-    mobile_js = (ROOT / 'web/android.js').read_text(encoding='utf-8') + '\n' + (ROOT / 'web/android-update.js').read_text(encoding='utf-8')
+    mobile_css = (ROOT / 'web/android.css').read_text(encoding='utf-8') + '\n' + (ROOT / 'web/xiangqi-school.css').read_text(encoding='utf-8')
+    mobile_js = '\n'.join((ROOT / ('web/' + file)).read_text(encoding='utf-8') for file in
+        ['android.js', 'android-update.js', 'xiangqi-lessons.js', 'xiangqi-coach.js', 'xiangqi-school.js'])
     version = ET.parse(ROOT / 'AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
     desktop_version = json.loads((DESKTOP / 'package.json').read_text(encoding='utf-8'))['version']
     game_version = json.loads((ROOT / 'game-version.json').read_text(encoding='utf-8'))['version']
@@ -42,15 +58,16 @@ def prepare():
     # Native-only patches have their own release notes while sharing the same game content.
     seen_game = "if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);"
     assert html.count(seen_game) == 1
-    html = html.replace(seen_game, f"if(Store.get('seen-android-version',null)!=='{version}')setTimeout(()=>openNotes(true),450);")
+    html = html.replace(seen_game, f"if(Store.get('seen-android-version',null)!=='{version}')setTimeout(()=>{{openNotes(true);Store.set('seen-android-version','{version}')}},450);")
     html = html.replace('</head>', '<style>' + mobile_css + '</style></head>')
     # Block navigation and web requests even though the native updater has INTERNET.
     # Native bridge capabilities stay limited to updater actions on our packaged page.
-    html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\' \'wasm-unsafe-eval\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; worker-src blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
+    html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\' \'unsafe-inline\' \'wasm-unsafe-eval\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; worker-src blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
     html = html.replace('</body>', '<script>' + mobile_js.replace('</script', '<\\/script') + '</script></body>')
     assert 'src="assets/' not in html and 'src="http' not in html
     output.write_text(html, encoding='utf-8', newline='\n')
-    print(f'Android content: {output.stat().st_size} bytes, all assets embedded.', flush=True)
+    assert output.stat().st_size < 6 * 1024 * 1024, 'Android startup page exceeded the memory budget'
+    print(f'Android startup page: {output.stat().st_size} bytes; four engines load on demand from APK assets.', flush=True)
     return output
 
 def compile_apk(args):

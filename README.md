@@ -1,5 +1,7 @@
 # 猪猪游乐场 🐷
 
+**安卓4.10.0 · 启动修复与中国象棋学堂：** 针对荣耀80GT、安卓15点图标即退出的反馈，改为流式页面与按需棋类引擎，启动页约3.84MB。手机新增皮卡鱼AI教学分析、10道杀招练习、3份逐步讲解棋谱和ICCS导入。普通41010、兼容41000，原签名、nativeRevision=6，覆盖安装保留数据。荣耀实机效果仍需安装确认。[安卓下载](https://github.com/tzlh6/piggy-playground/releases/tag/v4.10.0-android) · [功能、来源与验证说明](android/docs/4.10.0-android-school.md)。Windows与离线网页保持4.9.4。
+
 **4.9.4 军师猪与绝杀动画：** 中国象棋与国际象棋改为“帅帐对弈”，两只全身军师猪坐镇棋盘外，选子与落子指点、思考冒泡、将军喊话、悔棋挠头、认输举白旗。绝杀动画约5.2秒：点兵翻面、猪蹄印路线、封路栅栏、猪鼻印章、胜负动作和杀法卷轴；每一方获胜和重看均完整播放，可跳过，支持减少动态效果。[功能与识别说明](docs/mate-recognition.md#军师猪绝杀动画)。
 
 共29款离线游戏。国际象棋保留八档难度、1320–3190目标Elo和不限时思考。Windows最低外壳4.7.1；安卓普通40914、旧更新器兼容40904，原签名、nativeRevision=5。[Windows与离线网页](https://github.com/tzlh6/piggy-playground/releases/tag/v4.9.4) · [安卓双包](https://github.com/tzlh6/piggy-playground/releases/tag/v4.9.4-android)。覆盖安装保留数据，不要先卸载。

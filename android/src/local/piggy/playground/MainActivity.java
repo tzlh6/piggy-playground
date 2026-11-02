@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     private static final int CREAM = Color.rgb(255, 251, 241);
     private static final int PICK_STUDY_BANKS = 4701;
     private static final long MAX_BANK_BYTES = StudyBankImporter.MAX_BANK_BYTES;
-    private static final String ORIGIN = "https://appassets.androidplatform.net/";
+    private static final String ORIGIN = OfflineAssets.ORIGIN;
     private FrameLayout root;
     private WebView web;
     private boolean foreground;
@@ -121,6 +121,21 @@ public class MainActivity extends Activity {
                     return true; // Game and attribution content have no external navigation.
                 }
                 @Override public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                    String asset = "GET".equals(request.getMethod()) ? OfflineAssets.path(request.getUrl().toString()) : null;
+                    if (asset != null) {
+                        try {
+                            // Stream APK assets on WebView's I/O thread. Never duplicate the whole
+                            // game and engine payload in the Activity's bounded Java heap.
+                            Map<String, String> headers = new LinkedHashMap<>();
+                            headers.put("Cache-Control", "no-store");
+                            headers.put("X-Content-Type-Options", "nosniff");
+                            return new WebResourceResponse(OfflineAssets.mime(asset), "UTF-8", 200, "OK", headers,
+                                getAssets().open(asset));
+                        } catch (IOException error) {
+                            return new WebResourceResponse("text/plain", "UTF-8", 404, "Not Found", null,
+                                new ByteArrayInputStream(new byte[0]));
+                        }
+                    }
                     String scheme = request.getUrl().getScheme();
                     if ("https".equals(scheme) || "http".equals(scheme)) {
                         return new WebResourceResponse("text/plain", "UTF-8", 403, "Offline", null,
@@ -129,7 +144,9 @@ public class MainActivity extends Activity {
                     return null;
                 }
                 @Override public void onPageFinished(WebView view, String url) {
+                    if (view != web || isDestroyed()) return;
                     view.evaluateJavascript("typeof window.PigAndroid === 'object'", ready -> {
+                        if (view != web || isDestroyed()) return;
                         if (!"true".equals(ready)) {
                             showProblem("请先启用并更新手机的 Android System WebView，再重新打开游乐场。", false);
                         } else if (!foreground || wasBackground) {
@@ -142,10 +159,11 @@ public class MainActivity extends Activity {
                     });
                 }
                 @Override public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                    boolean active = web == view;
+                    if (active) web = null;
                     root.removeView(view);
                     view.destroy();
-                    web = null;
-                    showProblem("小猪需要重新整理一下游乐场。已保存的成绩和设置还在。", true);
+                    if (active && !isDestroyed()) showProblem("小猪需要重新整理一下游乐场。已保存的成绩和设置还在。", true);
                     return true;
                 }
             });
@@ -158,16 +176,8 @@ public class MainActivity extends Activity {
                 }
             });
             root.addView(web, new FrameLayout.LayoutParams(-1, -1));
-            String html;
-            try (InputStream input = getAssets().open("game.html");
-                 ByteArrayOutputStream bytes = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[8192];
-                int count;
-                while ((count = input.read(buffer)) != -1) bytes.write(buffer, 0, count);
-                html = new String(bytes.toByteArray(), StandardCharsets.UTF_8);
-            }
-            // A stable HTTPS virtual origin permits private localStorage, with all assets inline.
-            web.loadDataWithBaseURL(ORIGIN, html, "text/html", "UTF-8", ORIGIN);
+            // Keep the previous HTTPS origin so upgrades preserve localStorage and scores.
+            web.loadUrl(ORIGIN + "game.html");
         } catch (Exception problem) {
             android.util.Log.e("PiggyApp", "Unable to load packaged game", problem);
             showProblem("游乐场暂时打不开。请检查系统 WebView 是否启用，再重新打开。", false);
@@ -451,6 +461,7 @@ public class MainActivity extends Activity {
         if (exitDialog != null) exitDialog.dismiss();
         if (web != null) {
             root.removeView(web);
+            web.stopLoading();
             web.destroy();
             web = null;
         }
