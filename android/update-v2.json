@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.9.4",
-  "versionCode": 40914,
-  "nativeRevision": 5,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.9.4-android/PiggyPlayground-4.9.4-Android.apk",
-  "bytes": 32633874,
-  "sha256": "31b6dfddf901ca877e48731cc1c9b6ea1f5b523a75684a2f74adaa09e4563d75",
-  "notes": "4.9.4：象棋与国际象棋新增帅帐对弈，全身军师猪指点落子、思考冒泡、将军喊话、悔棋挠头和认输白旗。绝杀动画完整播放点兵翻面、蹄印路线、栅栏、猪鼻印章及杀法卷轴，无论哪方获胜或重看均完整播放，可跳过，支持减少动态效果。普通包40914、旧更新器兼容包40904，原签名、nativeRevision=5；覆盖安装保留数据，请不要先卸载。"
+  "version": "4.10.0",
+  "versionCode": 41010,
+  "nativeRevision": 6,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.10.0-android/PiggyPlayground-4.10.0-Android.apk",
+  "bytes": 32666309,
+  "sha256": "7d627f6a41689addcc6783ae7c141548fa802a19aed7bd365922d7b8cf1a42e7",
+  "notes": "安卓4.10.0：针对点图标即退出的反馈，改为流式加载和按需棋类引擎，启动页由约48.5MB降至3.84MB。新增手机中国象棋学堂：皮卡鱼AI比较候选走法、10道杀招练习、3份逐步讲解棋谱、ICCS导入与复制。教学副本不改原对局和成绩。普通包41010、旧更新器兼容41000，原签名、nativeRevision=6；直接覆盖安装，请不要先卸载。荣耀80GT安卓15实机仍需安装确认。"
 }
