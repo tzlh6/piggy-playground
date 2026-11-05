@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "package": "local.piggy.playground",
-  "version": "4.10.0",
-  "versionCode": 41010,
-  "nativeRevision": 6,
-  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v4.10.0-android/PiggyPlayground-4.10.0-Android.apk",
-  "bytes": 32666309,
-  "sha256": "7d627f6a41689addcc6783ae7c141548fa802a19aed7bd365922d7b8cf1a42e7",
-  "notes": "安卓4.10.0：针对点图标即退出的反馈，改为流式加载和按需棋类引擎，启动页由约48.5MB降至3.84MB。新增手机中国象棋学堂：皮卡鱼AI比较候选走法、10道杀招练习、3份逐步讲解棋谱、ICCS导入与复制。教学副本不改原对局和成绩。普通包41010、旧更新器兼容41000，原签名、nativeRevision=6；直接覆盖安装，请不要先卸载。荣耀80GT安卓15实机仍需安装确认。"
+  "version": "5.0.0",
+  "versionCode": 50010,
+  "nativeRevision": 7,
+  "url": "https://github.com/tzlh6/piggy-playground/releases/download/v5.0.0-android/PiggyPlayground-5.0.0-Android.apk",
+  "bytes": 32690885,
+  "sha256": "10f3e708987cb46ad7d45706f0045b04222d4971db9728db154c35804391622d",
+  "notes": "安卓5.0.0：四子棋、轮盘、斗地猪、黑猪8及六款棋类，10款多人玩法全部加入局域网联机。同一Wi-Fi或手机热点，一人建房，朋友查房或输入地址加入；无需账号或外网。双人游戏支持原手机断线回座、双方准备再战；斗地猪保留三人牌桌、补电脑和托管，并兼容Windows。保留象棋学堂、离线玩法、成绩和题库。普通50010、旧更新器兼容50000，原签名、nativeRevision=7；直接覆盖安装，请不要先卸载。安卓实体设备与实际热点互联尚未实测。"
 }
