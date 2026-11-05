@@ -55,6 +55,9 @@ public class MainActivity extends Activity {
     private AlertDialog exitDialog;
     private UpdateManager updater;
     private boolean checkedOnLaunch;
+    private LanNetwork lan;
+    private final java.util.concurrent.ExecutorService lanCommands = java.util.concurrent.Executors.newSingleThreadExecutor();
+    private android.net.wifi.WifiManager.MulticastLock lanWifiLock;
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -116,6 +119,12 @@ public class MainActivity extends Activity {
             WebView.setWebContentsDebuggingEnabled(false);
             if (updater != null) web.addJavascriptInterface(new UpdateBridge(), "PiggyAndroidBridge");
             web.addJavascriptInterface(new StudyBridge(), "PiggyStudyAndroid");
+            if (lan != null) lan.close();
+            lan = new LanNetwork(event -> runOnUiThread(() -> {
+                if (web != null && !isDestroyed()) web.evaluateJavascript(
+                    "if(window.PiggyLan)window.PiggyLan._event(" + event.toString() + ")", null);
+            }));
+            web.addJavascriptInterface(new LanBridge(), "PiggyLanAndroid");
             web.setWebViewClient(new WebViewClient() {
                 @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                     return true; // Game and attribution content have no external navigation.
@@ -160,7 +169,7 @@ public class MainActivity extends Activity {
                 }
                 @Override public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                     boolean active = web == view;
-                    if (active) web = null;
+                    if (active) { web = null; if (lan != null) { lan.close(); lan = null; } updateLanWifiLock(new JSONObject()); }
                     root.removeView(view);
                     view.destroy();
                     if (active && !isDestroyed()) showProblem("小猪需要重新整理一下游乐场。已保存的成绩和设置还在。", true);
@@ -220,6 +229,50 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void download() { updater.download(); }
         @JavascriptInterface public void install() { runOnUiThread(() -> { pauseGame(); updater.install(); }); }
         @JavascriptInterface public void openPage() { updater.openPage(); }
+    }
+
+    /** Only our packaged page can invoke this bridge; WebView itself stays offline. */
+    public final class LanBridge {
+        @JavascriptInterface public void call(int id, String operation, String payload) {
+            if (id < 1 || payload == null || payload.length() > LanNetwork.MAX_LINE) return;
+            final LanNetwork network = lan;
+            if (network == null || lanCommands.isShutdown()) return;
+            lanCommands.execute(() -> {
+                Object result;
+                try {
+                    JSONObject data = new JSONObject(payload);
+                    switch (operation) {
+                        case "host": result = network.host(data); break;
+                        case "join": result = network.join(data.optString("host"), data.optInt("port")); break;
+                        case "room": result = network.setRoom(data); break;
+                        case "scan": result = network.scan(data.optBoolean("on")); break;
+                        case "send": result = network.send(data.optString("to"), data.getJSONObject("msg")); break;
+                        case "kick": result = network.kick(data.optString("id")); break;
+                        case "leave": network.scan(false); result = network.leave(); break;
+                        case "info": result = network.info(); break;
+                        default: result = LanNetwork.json("ok", false, "error", "未知联机操作");
+                    }
+                } catch (Exception error) { result = LanNetwork.json("ok", false, "error", "联机操作未完成，请重试"); }
+                final JSONObject response = LanNetwork.json("id", id, "result", result);
+                runOnUiThread(() -> {
+                    if (network != lan || web == null || isDestroyed()) return;
+                    updateLanWifiLock(network.info());
+                    web.evaluateJavascript("if(window.PiggyLan)window.PiggyLan._reply(" + response.toString() + ")", null);
+                });
+            });
+        }
+    }
+
+    private void updateLanWifiLock(JSONObject info) {
+        boolean active = info.optBoolean("hosting") || info.optBoolean("joined") || info.optBoolean("scanning");
+        try {
+            if (active && lanWifiLock == null) {
+                android.net.wifi.WifiManager wifi = (android.net.wifi.WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);
+                if (wifi != null) { lanWifiLock = wifi.createMulticastLock("PiggyLanDiscovery"); lanWifiLock.setReferenceCounted(false); lanWifiLock.acquire(); }
+            } else if (!active && lanWifiLock != null) {
+                if (lanWifiLock.isHeld()) lanWifiLock.release(); lanWifiLock = null;
+            }
+        } catch (RuntimeException error) { android.util.Log.w("PiggyLan", "Wi-Fi discovery lock unavailable"); }
     }
 
     /**
@@ -437,6 +490,7 @@ public class MainActivity extends Activity {
             web.resumeTimers();
             web.onResume();
             if (wasBackground) pauseGame();
+            web.evaluateJavascript("if(window.PigAndroid&&window.PigAndroid.onLanForeground)window.PigAndroid.onLanForeground(true)", null);
         }
     }
 
@@ -445,6 +499,7 @@ public class MainActivity extends Activity {
         wasBackground = true;
         pauseGame();
         if (web != null) {
+            web.evaluateJavascript("if(window.PigAndroid&&window.PigAndroid.onLanForeground)window.PigAndroid.onLanForeground(false)", null);
             web.onPause();
             web.pauseTimers();
         }
@@ -457,6 +512,9 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        if (lan != null) { lan.close(); lan = null; }
+        lanCommands.shutdownNow();
+        updateLanWifiLock(new JSONObject());
         if (updater != null) updater.close();
         if (exitDialog != null) exitDialog.dismiss();
         if (web != null) {

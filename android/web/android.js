@@ -11,16 +11,13 @@
   document.getElementById('audio-settings').textContent = '音效';
   const version = '__PIGGY_ANDROID_VERSION__';
   // Android has its own release train; the common Windows game remains 4.9.4.
-  const mobileNotes = {version,date:'2026-11-02',title:'手机启动修复 · 中国象棋学堂',
-    summary:['改进安卓启动：页面流式读取，四套棋类引擎按需加载，减少启动内存峰值。','中国象棋新增手机专属“象棋学堂”：AI教练比较候选走法，解释将军、吃子和后续变化。','10道杀招练习、3份带逐步讲解的入门棋谱，支持提示、演示、翻转棋盘和ICCS棋谱导入。'],
-    details:[{title:'怎样进入象棋学堂',items:['在游戏大厅点“象棋学堂”，或进入中国象棋后点页顶“象棋学堂”。','AI教练可以取当前中国象棋局面，在独立教学棋盘上试走，并逐步播放候选变化；原对局和成绩保持原样。','杀招练习包含重炮、马后炮、天地炮、铁门栓、双车错及黑方视角；自己解出才记入学习进度，看演示不会代替通关。','棋谱研习内置中炮对屏风马、飞相布局、仙人指路的入门示范；支持上一手、下一手、自动演示和ICCS文本导入。']},
-      {title:'启动与兼容性',items:['不再把约48MB整页内容复制到应用Java内存中。启动页与棋类引擎分开，引擎仍随安装包提供，可离线使用。','沿用原签名和原有网页存储来源，覆盖安装保留成绩、设置和已导入题库。','本次针对荣耀80GT、安卓15上“点图标后立即退出”的反馈修复；真机效果以安装验证为准。']}]};
+  const mobileNotes = {version,date:'2026-11-05',title:'10 款多人游戏 · 安卓局域网联机',
+    summary:['四子棋、轮盘、斗地猪、黑猪8，以及象棋、国际象棋、五子棋、黑白棋、海战、围栏，全部加入局域网联机。','一人开猪圈，朋友查找房间或输入地址加入；同一 Wi-Fi / 手机热点即可，无需外网或账号。','斗地猪保留三人牌桌、完整动画、空位补电脑和掉线托管；可以与 Windows 版斗地猪互联。'],
+    details:[{title:'怎样和朋友一起玩',items:['游戏大厅点“局域网联机 · 10 款”，选游戏；也可在每款游戏的模式中选择“局域网联机”。','其余九款是双人联机，双方使用安卓 5.0.0。房主开猪圈，朋友查找或输入显示的 IPv4 地址和端口。','海战各看自己的舰队；轮盘各看自己的验弹记录；斗地猪各看自己的手牌。房主统一校验操作、结算和同步。','双人房间掉线后暂停，原手机重新加入可回原座位。双方准备后再开新局。房主退出会关闭房间，房间不跨应用重启保存。','保持两部设备上的游乐场在前台。公共网络若禁止设备互访，可改用手机热点；自动查找受限时用地址加入。']},
+      {title:'已有内容和覆盖升级',items:['保留中国象棋学堂、AI教练、10道杀招、3份入门棋谱和ICCS导入复制。','保留流式启动和按需引擎，离线人机、同屏双人、题库和成绩仍可照常使用。','继续使用原包名、原签名和网页存储来源。覆盖安装保留成绩、设置和题库，请不要先卸载。']}]};
   window.PIGGY_VERSION.version=version;window.PIGGY_VERSION.date=mobileNotes.date;window.PIGGY_VERSION.notes.unshift(mobileNotes);
   const mobileVersionLine=document.getElementById('version-line');if(mobileVersionLine)mobileVersionLine.textContent='安卓 · '+version;
   const games = PigCatalog.GAMES;
-  configs.doudizhu.levels = configs.doudizhu.levels.filter(([id]) => id !== 'lan');
-  configs.doudizhu.tag = '经典斗地主 · 人机三档';
-  if (Store.get('level-doudizhu', '') === 'lan') Store.set('level-doudizhu', 'smart');
 
   const touchTips = {
     mine: {1: ['圈出藏身处', '长按未打开的格子标旗，再长按可取消。也可以切换上方的标记模式后点按。']},
@@ -37,7 +34,6 @@
   Object.entries(touchTips).forEach(([id, edits]) => {
     PigHelp.HELP[id].mouse = Object.values(edits).map(([title, text]) => title + '：' + text);
   });
-  PigHelp.HELP.doudizhu.rules = PigHelp.HELP.doudizhu.rules.filter(text => !text.includes('局域网'));
   renderHelp(document.body.dataset.game);
 
   const hall = document.createElement('dialog');
@@ -113,7 +109,7 @@
     document.getElementById('about').click();
   });
   const paragraphs = document.querySelectorAll('#about-dialog > .about-block');
-  paragraphs[0].querySelector('p').textContent = `${games.length} 款游戏，全部可离线。游戏大厅可搜索、分类和排序；切换游戏会开始新局。切到后台自动暂停，回来后点「继续玩」。返回键先关闭弹窗，再回到游戏大厅。斗地猪提供三档人机对战。`;
+  paragraphs[0].querySelector('p').textContent = `${games.length} 款游戏，全部可离线。10 款多人游戏可在同一 Wi-Fi / 热点内局域网联机：四子棋、轮盘、斗地猪、黑猪8 和六款棋类。游戏大厅可搜索、分类和排序；返回键先关闭弹窗，再回大厅。离线游戏切到后台自动暂停，联机时请保持双方在前台。`;
   paragraphs[0].querySelector('.muted').textContent = '扫猪长按标旗；2048 与贪吃猪可滑动；跳跳猪、切切猪、星际守卫、节奏派对支持点按。轮盘点道具再选枪口；斗地猪点牌或划过多张牌，再点出牌。更多规则点每款游戏的「玩法」。';
   paragraphs[1].querySelector('p').textContent = '成绩、猪猪造型和声音设置自动保存在手机内。覆盖安装新版会保留记录；卸载 App 会清除记录。无需账号，无广告，不申请存储或麦克风权限。Android 8.0 及以上，需启用并更新系统 WebView。';
 
@@ -134,6 +130,20 @@
   }
   new MutationObserver(adaptCards).observe(document.getElementById('board'), {childList: true});
   adaptCards();
+
+  // A desktop lobby lives inside the scaled 1000px stage. Put its original node
+  // outside the transform on phones so names, room lists and buttons stay tappable.
+  function adaptLanTable() {
+    const board=document.getElementById('board'),overlay=document.getElementById('dz-overlay');
+    if(!overlay)return;
+    let holder=board.querySelector('.android-dz-overlay');
+    if(!holder){holder=document.createElement('section');holder.className='android-dz-overlay';board.prepend(holder);holder.append(overlay);}
+    const lobby=!overlay.hidden&&overlay.classList.contains('lobby');
+    if(board.classList.contains('android-dz-lobby-open')!==lobby)board.classList.toggle('android-dz-lobby-open',lobby);
+    if(holder.hidden!==overlay.hidden)holder.hidden=overlay.hidden;
+  }
+  new MutationObserver(adaptLanTable).observe(document.getElementById('board'), {childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
+  adaptLanTable();
 
   // Touch long-press flags cancel on a scroll or drag, and consume the following tap.
   let hold = null;

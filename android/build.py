@@ -42,9 +42,22 @@ def prepare():
     initial = "let game='mine',level='hard',state"
     assert html.count(initial) == 1
     html = html.replace(initial, "let game='mine',level=Store.get('level-mine','easy'),state")
-    mobile_css = (ROOT / 'web/android.css').read_text(encoding='utf-8') + '\n' + (ROOT / 'web/xiangqi-school.css').read_text(encoding='utf-8')
+    mobile_css = '\n'.join((ROOT / ('web/' + file)).read_text(encoding='utf-8') for file in
+        ['android.css', 'xiangqi-school.css', 'lan.css'])
     mobile_js = '\n'.join((ROOT / ('web/' + file)).read_text(encoding='utf-8') for file in
-        ['android.js', 'android-update.js', 'xiangqi-lessons.js', 'xiangqi-coach.js', 'xiangqi-school.js'])
+        ['lan-bridge.js', 'android.js', 'android-update.js', 'xiangqi-lessons.js', 'xiangqi-coach.js', 'xiangqi-school.js', 'lan-games.js', 'lan-ui.js'])
+    # The existing three-seat table stays intact. Discovery must not offer the
+    # nine two-seat games to a ddz/1 client (or a mismatched protocol).
+    ddz_list = 'const list=(LAN&&LAN.rooms)||[];'
+    assert html.count(ddz_list) == 1
+    html = html.replace(ddz_list, "const list=((LAN&&LAN.rooms)||[]).filter(r=>r.room&&r.room.game==='doudizhu'&&r.room.proto==='ddz/1');")
+    for old, new in [
+        ('对局在你的电脑上进行，别人来加入。', '对局在你的设备上进行，朋友用手机或 Windows 加入。'),
+        ('房主电脑上显示的地址', '房主设备上显示的地址'),
+        ('这台电脑没有连上局域网', '这部手机没有连上局域网'),
+        ('用同一台电脑重新加入就能接着玩', '用原来的设备重新加入就能接着玩'),
+        ('第一次开猪圈时，Windows 可能弹出', '与 Windows 联机时，电脑可能弹出')]:
+        html = html.replace(old, new)
     version = ET.parse(ROOT / 'AndroidManifest.xml').getroot().get('{http://schemas.android.com/apk/res/android}versionName')
     desktop_version = json.loads((DESKTOP / 'package.json').read_text(encoding='utf-8'))['version']
     game_version = json.loads((ROOT / 'game-version.json').read_text(encoding='utf-8'))['version']
@@ -61,7 +74,7 @@ def prepare():
     html = html.replace(seen_game, f"if(Store.get('seen-android-version',null)!=='{version}')setTimeout(()=>{{openNotes(true);Store.set('seen-android-version','{version}')}},450);")
     html = html.replace('</head>', '<style>' + mobile_css + '</style></head>')
     # Block navigation and web requests even though the native updater has INTERNET.
-    # Native bridge capabilities stay limited to updater actions on our packaged page.
+    # Native bridges are available only on the packaged page; sockets do not relax CSP.
     html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\' \'unsafe-inline\' \'wasm-unsafe-eval\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; worker-src blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
     html = html.replace('</body>', '<script>' + mobile_js.replace('</script', '<\\/script') + '</script></body>')
     assert 'src="assets/' not in html and 'src="http' not in html

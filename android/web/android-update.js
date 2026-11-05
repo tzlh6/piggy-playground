@@ -76,7 +76,7 @@
     sharedNotes(auto);
     Store.set('seen-android-version', version);
     const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏</p><h3>猪猪题库：先选书，再展开目录</h3><p>选择资料时先只显示书名。点开书名出现章节目录，再点章节、节目录，选择具体课时或专题；也可以练习整本、整章或整节。综合试卷与练习收在单独的折叠目录，按整套选择。</p><p>点“导入题库文件”，选择一个 ZIP 压缩包即可一次导入全部学科，无需解压；仍可导入单个或多个 JSON。题图、答案、解析和书籍目录一并保留。覆盖安装保留已有题库、成绩和设置。</p><p>本机共用游戏 ${window.PIGGY_VERSION.version} 的完整规则和操作说明在下方列出。</p><p class="muted small">不要先卸载；斗地猪局域网联机仅适用于 Windows。</p>`;
+    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏 · 10 款局域网联机</p><h3>朋友连到同一网络，就能一起玩</h3><p>大厅点“局域网联机”，或在对应游戏的模式中选“局域网联机”。一人开猪圈，朋友查找房间或输入房主地址加入。双人房间支持断线回原座位、双方准备再战；斗地猪可补电脑并兼容 Windows 牌桌。</p><p>保留象棋学堂、离线玩法和题库导入。沿用原签名，直接覆盖安装保留题库、成绩与设置，请不要先卸载。详细玩法和更新说明在下方。</p>`;
     document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };

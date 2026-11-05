@@ -42,12 +42,13 @@ public class SmokeTests extends Instrumentation {
             launch();
             await("document.body.dataset.androidReady === 'true'", "packaged HTML loaded");
             execute("if(document.getElementById('notes-dialog').open)document.getElementById('notes-dialog').close(); document.querySelector('[data-category=all]').click()");
-            check("document.querySelectorAll('.android-game-card').length === 19", "all 19 games in hall");
+            check("document.querySelectorAll('#android-games .android-game-card').length === 29", "all 29 games in hall");
+            check("typeof PiggyLanAndroid.call==='function' && PigAndroidLan.games.length===10", "native LAN bridge and all 10 multiplayer entries");
             check("document.getElementById('android-games').open", "hall shown at launch");
             check("document.documentElement.scrollWidth <= innerWidth", "portrait fits phone width");
             screenshot("hall.png");
 
-            String[] games = {"mine","memory","merge","whack","snake","runner","blocks","breakout","flappy","stack","connect","sokoban","lights","match","slice","shooter","rhythm","roulette","doudizhu"};
+            String[] games = {"mine","memory","merge","whack","snake","runner","blocks","breakout","flappy","stack","connect","sokoban","lights","match","slice","shooter","rhythm","roulette","doudizhu","jump","pool","mathgate","study","xiangqi","chess","gomoku","reversi","battleship","dots"};
             for (String game : games) {
                 select(game);
                 check("document.body.dataset.game === '" + game + "' && document.getElementById('board').childElementCount > 0", game + " initialized offline");
@@ -98,8 +99,8 @@ public class SmokeTests extends Instrumentation {
 
             PackageInfo info = getTargetContext().getPackageManager().getPackageInfo(getTargetContext().getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS);
             java.util.Set<String> permissions = new java.util.HashSet<>(java.util.Arrays.asList(info.requestedPermissions));
-            if (!permissions.equals(new java.util.HashSet<>(java.util.Arrays.asList("android.permission.INTERNET", "android.permission.REQUEST_INSTALL_PACKAGES")))) throw new AssertionError("Unexpected permissions in release APK");
-            pass("release APK requests only HTTPS update and user-confirmed install permissions");
+            if (!permissions.equals(new java.util.HashSet<>(java.util.Arrays.asList("android.permission.INTERNET", "android.permission.REQUEST_INSTALL_PACKAGES", "android.permission.ACCESS_NETWORK_STATE", "android.permission.ACCESS_WIFI_STATE", "android.permission.CHANGE_WIFI_MULTICAST_STATE")))) throw new AssertionError("Unexpected permissions in release APK");
+            pass("release APK requests expected update, install and LAN Wi-Fi permissions");
             execute("document.getElementById('android-hall-button').click(); document.getElementById('android-update').click()");
             check("document.getElementById('android-updates').open && !document.getElementById('android-auto').disabled", "native update bridge and mobile update dialog");
             execute("document.getElementById('android-auto').checked=false; document.getElementById('android-auto').dispatchEvent(new Event('change'))");
