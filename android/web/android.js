@@ -10,12 +10,14 @@
   document.getElementById('look-settings').textContent = '换装';
   document.getElementById('audio-settings').textContent = '音效';
   const version = '__PIGGY_ANDROID_VERSION__';
-  // Android has its own release train; the common Windows game remains 4.9.4.
-  const mobileNotes = {version,date:'2026-11-05',title:'10 款多人游戏 · 安卓局域网联机',
+  const mobileNotes = {version:'5.0.0',date:'2026-11-05',title:'10 款多人游戏 · 安卓局域网联机',
     summary:['四子棋、轮盘、斗地猪、黑猪8，以及象棋、国际象棋、五子棋、黑白棋、海战、围栏，全部加入局域网联机。','一人开猪圈，朋友查找房间或输入地址加入；同一 Wi-Fi / 手机热点即可，无需外网或账号。','斗地猪保留三人牌桌、完整动画、空位补电脑和掉线托管；可以与 Windows 版斗地猪互联。'],
     details:[{title:'怎样和朋友一起玩',items:['游戏大厅点“局域网联机 · 10 款”，选游戏；也可在每款游戏的模式中选择“局域网联机”。','其余九款是双人联机，双方使用安卓 5.0.0。房主开猪圈，朋友查找或输入显示的 IPv4 地址和端口。','海战各看自己的舰队；轮盘各看自己的验弹记录；斗地猪各看自己的手牌。房主统一校验操作、结算和同步。','双人房间掉线后暂停，原手机重新加入可回原座位。双方准备后再开新局。房主退出会关闭房间，房间不跨应用重启保存。','保持两部设备上的游乐场在前台。公共网络若禁止设备互访，可改用手机热点；自动查找受限时用地址加入。']},
       {title:'已有内容和覆盖升级',items:['保留中国象棋学堂、AI教练、10道杀招、3份入门棋谱和ICCS导入复制。','保留流式启动和按需引擎，离线人机、同屏双人、题库和成绩仍可照常使用。','继续使用原包名、原签名和网页存储来源。覆盖安装保留成绩、设置和题库，请不要先卸载。']}]};
-  window.PIGGY_VERSION.version=version;window.PIGGY_VERSION.date=mobileNotes.date;window.PIGGY_VERSION.notes.unshift(mobileNotes);
+  const versions=window.PIGGY_VERSION;
+  const older=versions.notes.findIndex(note=>verCmp(note.version,mobileNotes.version)<0);
+  versions.notes.splice(older<0?versions.notes.length:older,0,mobileNotes);
+  versions.version=version;versions.date=versions.notes[0].date;
   const mobileVersionLine=document.getElementById('version-line');if(mobileVersionLine)mobileVersionLine.textContent='安卓 · '+version;
   const games = PigCatalog.GAMES;
 

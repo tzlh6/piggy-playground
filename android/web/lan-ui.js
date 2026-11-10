@@ -32,17 +32,17 @@
   }
   for(const id of G.SUPPORTED) if(!configs[id].levels.some(([k])=>k==='lan')) configs[id].levels.push(['lan','局域网联机']);
   configs.doudizhu.tag='三档人机 · 安卓 / Windows 局域网联机';
-  PigHelp.HELP.doudizhu.rules.push('安卓 5.0.0 可以建房或加入同一 Wi-Fi / 热点里的猪圈；也可与 Windows 斗地猪联机。');
+  PigHelp.HELP.doudizhu.rules.push('安卓 5.0.0 起可以建房或加入同一 Wi-Fi / 热点里的猪圈；也可与 Windows 斗地猪联机。');
   for(const id of G.SUPPORTED) {
     configs[id].tag += ' · 局域网联机';
-    PigHelp.HELP[id].rules.push('局域网：选择“局域网联机”，一人建房，另一人查找或输入房主地址加入；双方使用安卓 5.0.0。');
+    PigHelp.HELP[id].rules.push('局域网：选择“局域网联机”，一人建房，另一人查找或输入房主地址加入；双方使用安卓 5.0.0 或更新版本。');
   }
   const originalHelp=helpHTML;
   helpHTML=function(id){
     if(!G.SUPPORTED.includes(id)||level!=='lan')return originalHelp(id);
     const h=PigHelp.HELP[id],rules=h.rules.filter(text=>!/(人机|电脑|同屏|难度|悔棋|存档|接着上一局|每走一步|一方一直|局域网)/.test(text));
     const controls={connect:'点一列让棋子落下。',xiangqi:'点自己的棋子，再点标出的落点；后手棋盘会自动翻转。',chess:'点自己的棋子，再点合法落点；升变时选择后、车、象或马。',gomoku:'点交叉点落子。',reversi:'点亮出的合法空格落子。',dots:'点两颗圆点之间画栅栏。',battleship:'轮到你布舰时，逐艘放置或自动布齐；双方布好后点对方海域开炮。',roulette:'点道具查看效果并确认使用，再选择对自己或朋友发射；私密记录只有本人可见。',pool:'点球桌瞄准，左右按钮微调，调节力度后出杆；可移动白猪时先点按钮再点桌面空处。'};
-    return '<div class="help-col"><h3>游戏说明</h3><p class="help-goal">'+esc(h.goal)+'</p><ul>'+rules.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div><div class="help-col"><h3>局域网操作</h3><ul><li>'+controls[id]+'</li><li>一人建房，另一人查找或输入地址加入。双方使用安卓 5.0.0。</li><li>各用自己的手机操作，房主同步局面。保持应用在前台，双人房间掉线后暂停；原手机重新加入可回原座位。</li><li>一局结束后双方点“准备再来一局”。点“离开房间”退出；房主离开会关闭房间。</li></ul></div>';
+    return '<div class="help-col"><h3>游戏说明</h3><p class="help-goal">'+esc(h.goal)+'</p><ul>'+rules.map(r=>'<li>'+esc(r)+'</li>').join('')+'</ul></div><div class="help-col"><h3>局域网操作</h3><ul><li>'+controls[id]+'</li><li>一人建房，另一人查找或输入地址加入。双方使用安卓 5.0.0 或更新版本。</li><li>各用自己的手机操作，房主同步局面。保持应用在前台，双人房间掉线后暂停；原手机重新加入可回原座位。</li><li>一局结束后双方点“准备再来一局”。点“离开房间”退出；房主离开会关闭房间。</li></ul></div>';
   };
   const originalNewGame = newGame;
   newGame = function() {
@@ -69,7 +69,7 @@
   }
   function showMenu() {
     const body=$('lan-body');if(!body)return;
-    body.innerHTML=`<div class="lan-intro"><span>${pig(1)}</span><div><h3>${esc(meta(activeId).name)} · 一起玩</h3><p>两部手机各操控一方。无需账号，也不需要外网。</p></div></div><label class="lan-field">我的名字<input id="lan-name" maxlength="12" value="${esc(myName())}" autocomplete="off"></label><button id="lan-host" class="primary">开一个猪圈</button><h4>同一网络里的猪圈</h4><div id="lan-rooms" class="lan-rooms"></div><form id="lan-manual"><label class="lan-field">房主地址<input id="lan-address" placeholder="如 192.168.1.23:47321" inputmode="decimal" autocomplete="off" value="${esc(Store.get('lan-address-'+activeId,''))}"></label><button class="secondary" type="submit" id="lan-join">输入地址加入</button></form><p class="lan-note">双方都使用安卓 5.0.0。找不到房间时输入房主显示的地址；公共 Wi-Fi 可能隔离设备，可改用一部手机开热点，另一部连接。请保持两部手机上的游乐场在前台。</p>`;
+    body.innerHTML=`<div class="lan-intro"><span>${pig(1)}</span><div><h3>${esc(meta(activeId).name)} · 一起玩</h3><p>两部手机各操控一方。无需账号，也不需要外网。</p></div></div><label class="lan-field">我的名字<input id="lan-name" maxlength="12" value="${esc(myName())}" autocomplete="off"></label><button id="lan-host" class="primary">开一个猪圈</button><h4>同一网络里的猪圈</h4><div id="lan-rooms" class="lan-rooms"></div><form id="lan-manual"><label class="lan-field">房主地址<input id="lan-address" placeholder="如 192.168.1.23:47321" inputmode="decimal" autocomplete="off" value="${esc(Store.get('lan-address-'+activeId,''))}"></label><button class="secondary" type="submit" id="lan-join">输入地址加入</button></form><p class="lan-note">双方都使用安卓 5.0.0 或更新版本。找不到房间时输入房主显示的地址；公共 Wi-Fi 可能隔离设备，可改用一部手机开热点，另一部连接。请保持两部手机上的游乐场在前台。</p>`;
     $('lan-name').onchange=saveName;$('lan-host').disabled=!api;$('lan-join').disabled=!api;
     $('lan-host').onclick=host;
     $('lan-manual').onsubmit=e=>{e.preventDefault();const text=$('lan-address').value.trim(),m=text.match(/^(\d{1,3}(?:\.\d{1,3}){3})(?::(\d{1,5}))?$/);if(!m||m[2]&&(+m[2]<1||+m[2]>65535))return statusText('请输入房主显示的地址，例如 192.168.1.23:47321');join(m[1],m[2]?+m[2]:47321);};

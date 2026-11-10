@@ -9,7 +9,7 @@ const icon=(id,cls)=>`<svg class="ico ${cls||''}"><use href="#${id}"/></svg>`;
 const pigCards=[['crown','皇冠猪'],['glasses','眼镜猪'],['pirate','海盗猪'],['chef','厨师猪'],['space','太空猪'],['bow','蝴蝶结猪'],['flower','花环猪'],['music','耳机猪'],['wizard','魔法猪'],['scarf','围巾猪'],['detective','侦探猪'],['bee','蜜蜂猪']];
 const cardSrc=v=>PigLook.src(v);
 const pigCardNames=Object.fromEntries(pigCards),pigCardIndex=Object.fromEntries(pigCards.map((p,i)=>[p[0],i]));
-const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI.configs,...PigDdzUI.configs,...PigJumpUI.configs,...PigPoolUI.configs,...PigGateUI.configs,...PigStudyUI.configs,...PigBoardUI.configs,
+const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI.configs,...PigDdzUI.configs,...PigJumpUI.configs,...PigPoolUI.configs,...PigGateUI.configs,...PigStudyUI.configs,...PigBoardUI.configs,...PigMeadowUI.configs,
  mine:{name:'扫猪',icon:'i-flag',title:'草地里，藏着小秘密。',subtitle:'用一点点推理，找到每只熟睡的小猪。',tag:'经典规则 · 仅首格安全',eyebrow:'01 / A LITTLE CHALLENGE',note:'慢慢想，每一个数字都是线索。',levels:[['easy','入门 9×9'],['medium','中级 16×16'],['hard','高级 30×16'],['expert','极限 30×20']],labels:['剩余标记','本局用时','最佳用时'],tips:[['数字是线索','数字代表周围八格的小猪数量。只有第一格保证安全。'],['圈出藏身处','右键插旗，或切换标记模式。F 键也能切换。'],['按住数字连开','旗数吻合时点击数字连开；按住可预览周围格。插错旗也会吵醒猪。']]},
  memory:{name:'记忆翻翻乐',icon:'i-cards',title:'十二种小猪，等你来认。',subtitle:'皇冠猪、海盗猪、太空猪……找到一模一样的猪猪搭档。',tag:'观察与记忆 · 找到所有配对',eyebrow:'02 / A LITTLE MEMORY',note:'每种小猪都有自己的叫声。',levels:[['easy','热身 6 对'],['normal','标准 8 对'],['hard','挑战 12 对']],labels:['已找到','翻牌步数','最佳步数'],tips:[['一次翻两张','图案相同便配对成功，不同会重新盖上。'],['听声音记猪','配对成功时，这种小猪会用自己的声音哼一声。连续配对音调越来越高。'],['耐心胜过手快','翻开的图案停留片刻再盖上；暂停会遮住棋盘。']]},
  merge:{name:'猪猪 2048',icon:'i-spark',title:'一样的小猪，合在一起就长大。',subtitle:'从小猪仔一路长成猪猪国王（2048），再往上还有魔法猪和太空猪。',tag:'滑动合成 · 13 种小猪等你解锁',eyebrow:'03 / A LITTLE MAGIC',note:'每次合成都会“啵”一声，小猪越大叫声越低沉。',levels:[],labels:['本局得分','最大小猪','最高得分'],tips:[['向一个方向推','用方向键、WASD、滑动或下方按钮移动，所有小猪一起滑。'],['一样的才能合','两只一样的小猪相撞会长大一级，每只每步只能合成一次。'],['收集成长图鉴','右侧图鉴记录你见过的最大小猪。给大猪留一个角落，别让牧场住满。']]},
@@ -17,12 +17,13 @@ const configs={...PigArcadeUI.configs,...PigChallengeUI.configs,...PigRouletteUI
  runner:{name:'跳跳猪',icon:'i-run',title:'跑起来，跳过去！',subtitle:'小猪一路向前冲，跳过篱笆和泥坑，趴下躲开乌鸦。',tag:'无尽跑酷 · 越跑越快',eyebrow:'06 / A LITTLE RUN',note:'空中还能再跳一次。',levels:[],labels:['本局得分','吃到苹果','最高得分'],tips:[['空格 / ↑ / 点击跳','按住跳得更高，空中再按一次可以二段跳。'],['↓ 趴下','低飞的乌鸦要跳，齐头高的乌鸦趴下就能躲过；空中按 ↓ 快速落地。'],['吃苹果加分','苹果 +25。每满 100 分小猪会哼一声，速度也会越来越快。']]},
  whack:{name:'小猪捉迷藏',icon:'i-target',title:'探出小脑袋，抓住它！',subtitle:'30 秒里找出小猪。小心，花朵可不是小猪。',tag:'限时反应 · 连击加分',eyebrow:'04 / A LITTLE ENERGY',note:'连击越多，小猪叫得越欢。',levels:[['easy','悠闲'],['normal','活泼'],['hard','飞快']],labels:['本局得分','剩余时间','最高得分'],tips:[['看见小猪就点','点中得 10 分，每连击 3 次额外奖励 5 分（最多 +20）。'],['不要碰花朵','点错扣 5 分并中断连击，分数最低为 0。'],['坚持 30 秒','后半程出现更快，漏掉小猪会中断连击。']]}
 };
-let game='mine',level='hard',state,paused=false,elapsed=0,running=false,lastFrame=performance.now(),mode=false,wonToast=false;
+const mineDefaultLevel='hard';
+let game='mine',level,state,paused=false,elapsed=0,running=false,lastFrame=performance.now(),mode=false,wonToast=false,resultTimer=0;
 const minePresets={easy:[9,9,10],medium:[16,16,40],hard:[30,16,99],expert:[30,20,150]};
 const extraContext={$,Sound,Store,icon,message,stats,record,result,confetti,rr,dpadHTML,pigSrc:role=>PigLook.sprite(role),get:()=>({game,level,state,paused,running,elapsed}),setState:v=>state=v,setRunning:v=>running=v,setLevel:v=>{level=v;Store.set('level-'+game,v);renderLevels(configs[game])},nextLevel:v=>{level=v;Store.set('level-'+game,v);renderLevels(configs[game]);newGame()}};
 const Arcade=PigArcadeUI.create(extraContext),Challenge=PigChallengeUI.create(extraContext),Roulette=PigRouletteUI.create(extraContext),Ddz=PigDdzUI.create(extraContext),Jump=PigJumpUI.create(extraContext),Pool=PigPoolUI.create(extraContext),Gate=PigGateUI.create(extraContext),Study=PigStudyUI.create(extraContext),Board=PigBoardUI.create(extraContext);
 // 扩展游戏控制器：统一接入初始化、帧循环、键盘、换装与窗口变化
-const controllers=[Arcade,Challenge,Roulette,Ddz,Jump,Pool,Gate,Study,Board],owner=id=>controllers.find(c=>c.has(id));
+const controllers=[Arcade,Challenge,Roulette,Ddz,Jump,Pool,Gate,Study,Board,PigMeadowUI.create(extraContext)],owner=id=>controllers.find(c=>c.has(id));
 const Extra={captureKeys:e=>{const c=owner(game);return !!(c&&c.captureKeys&&c.captureKeys(e))},has:id=>!!owner(id),init:id=>owner(id).init(id),tick:dt=>controllers.forEach(c=>c.tick(dt)),resize:()=>{const c=owner(game);if(c)c.resize()},keyDown:e=>{const c=owner(game);return c?c.keyDown(e):false},keyUp:e=>controllers.forEach(c=>c.keyUp(e)),clearKeys:()=>controllers.forEach(c=>c.clearKeys()),changeLook:()=>controllers.forEach(c=>c.changeLook()),leave:(prev,next)=>controllers.forEach(c=>{if(c.leave)c.leave(prev,next)})};
 
 // ---------- shared UI ----------
@@ -35,19 +36,36 @@ function stats(a,b){setStat('stat1',a);setStat('stat2',b);setStat('stat3',best()
 function message(text,kind){const m=$('message');m.textContent=text;m.className='game-message'+(kind?' '+kind:'');if(kind==='warn'){m.style.animation='none';void m.offsetWidth;m.style.animation=''}}
 let speechTimer=0;function say(text){const s=$('speech');s.textContent=text;s.classList.remove('talk');void s.offsetWidth;s.classList.add('talk');$('hero-pig').classList.remove('hop');void $('hero-pig').offsetWidth;$('hero-pig').classList.add('hop');clearTimeout(speechTimer);speechTimer=setTimeout(()=>{s.textContent='哼唧，来玩呀！'},2600)}
 // extra.actions：额外按钮（如轮盘的“赛后回顾”“重播嘚瑟舞”）
-function showResult(o){const r=$('result'),extra=(o.extra&&o.extra.actions)||[];r.className='layer result '+(o.win?'win':'lose');r.innerHTML=`<div class="result-card">${PigArt.inline({skin:PigLook.active,expr:o.win?'happy':'cry',cls:'result-pig',viewBox:'0 14 160 136'})}<h3>${o.title}</h3><p>${o.body}</p><div class="result-actions"><button class="primary" id="again">${icon('i-restart','sm')}再来一局</button>${extra.map(a=>`<button class="secondary" id="${a.id}">${a.label}</button>`).join('')}<button class="secondary" id="dismiss">${game==='mine'?'看看棋盘':'收起'}</button></div></div>`;r.hidden=false;$('again').onclick=()=>{newGame();Sound.greet()};$('dismiss').onclick=()=>{r.hidden=true};extra.forEach(a=>{$(a.id).onclick=()=>{Sound.click();a.onclick()}});setTimeout(()=>{const b=$('again');if(b)b.focus({preventScroll:true})},50)}
-function result(title,body,win,delay,extra){running=false;const go=()=>showResult({title,body,win,extra});if(delay)Sound.later(delay,go);else go()}
+function showResult(o){
+ const r=$('result'),extra=o.extra?.actions||[];
+ if(game==='mine'&&state.status==='lost'){
+  for(const i of state.wakeOrder())state.woken.add(i);
+  renderMine();
+ }
+ r.className='layer result '+(o.win?'win':'lose');
+ r.innerHTML=`<div class="result-card">${PigArt.inline({skin:PigLook.active,expr:o.win?'happy':'cry',cls:'result-pig',viewBox:'0 14 160 136'})}<h3></h3><p></p><div class="result-actions"><button class="primary" id="again">${icon('i-restart','sm')}再来一局</button>${extra.map(a=>`<button class="secondary" id="${a.id}">${a.label}</button>`).join('')}<button class="secondary" id="dismiss">${game==='mine'?'看看棋盘':'收起'}</button></div></div>`;
+ r.querySelector('h3').textContent=o.title;r.querySelector('p').textContent=o.body;
+ r.hidden=false;const again=$('again');
+ again.onclick=()=>{newGame();Sound.greet()};$('dismiss').onclick=()=>{r.hidden=true};
+ extra.forEach(a=>{$(a.id).onclick=()=>{Sound.click();a.onclick()}});
+ if(!document.querySelector('dialog[open]'))again.focus({preventScroll:true});
+}
+function result(title,body,win,delay,extra){
+ running=false;clearTimeout(resultTimer);
+ const go=()=>{resultTimer=0;showResult({title,body,win,extra})};
+ if(delay)resultTimer=setTimeout(go,delay);else go();
+}
 function confetti(n){if(reduceMotion)return;const fx=$('fx'),colors=['#f3a6b8','#f7d58b','#a9c98c','#8ab6d6','#c6a7e0'];for(let k=0;k<(n||36);k++){const p=document.createElement('i');p.className='confetti';p.style.left=(Math.random()*100)+'%';p.style.background=colors[k%colors.length];p.style.animationDelay=(Math.random()*.5)+'s';p.style.animationDuration=(1.6+Math.random()*1.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;fx.appendChild(p);setTimeout(()=>p.remove(),3800)}}
 function floatText(text,x,y,cls){const fx=$('fx'),a=$('arena').getBoundingClientRect(),t=document.createElement('span');t.className='float '+(cls||'');t.textContent=text;t.style.left=(x-a.left)+'px';t.style.top=(y-a.top)+'px';fx.appendChild(t);setTimeout(()=>t.remove(),900)}
 function pausePig(){$('pause-art').innerHTML=PigArt.inline({skin:PigLook.active,expr:'sleep',cls:'pause-pig',viewBox:'0 14 160 136'})+'<span class="zzz" style="left:58%;top:4px">z</span><span class="zzz" style="left:63%;top:-6px;animation-delay:1.1s">Z</span>'}
-function setPause(value){if(!running&&!paused)return;if(value&&!paused)pausePig();paused=value;Extra.clearKeys();$('arena').classList.toggle('paused',value);$('pause-layer').hidden=!value;$('pause').innerHTML=value?icon('i-play','sm')+'<span>继续</span>':icon('i-pause','sm')+'<span>暂停</span>';if(value)Sound.stop()}
+function setPause(value){if(!running&&!paused)return;if(value&&!paused)pausePig();paused=value;Extra.clearKeys();if(game==='runner'&&value)clearRunnerInput();$('arena').classList.toggle('paused',value);$('pause-layer').hidden=!value;$('pause').innerHTML=value?icon('i-play','sm')+'<span>继续</span>':icon('i-pause','sm')+'<span>暂停</span>';if(value)Sound.stop()}
 function renderLevels(cfg){const box=$('level');box.hidden=!cfg.levels.length;if(cfg.levels.length>4){box.removeAttribute('role');box.innerHTML='<select aria-label="'+(cfg.levelLabel||'选择关卡')+'">'+cfg.levels.map(([v,n])=>`<option value="${v}" ${v===level?'selected':''}>${n}</option>`).join('')+'</select>';box.querySelector('select').onchange=e=>{level=e.target.value;Store.set('level-'+game,level);Sound.click();if(game==='chess'&&Board.changeDifficulty(level))return;newGame()};return}box.setAttribute('role','radiogroup');box.innerHTML=cfg.levels.map(([v,n])=>`<button role="radio" data-level="${v}" aria-checked="${v===level}">${n}</button>`).join('');box.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(level===b.dataset.level)return;level=b.dataset.level;Store.set('level-'+game,level);box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-checked',x===b));Sound.click();newGame()})}
-function selectGame(id,audible){if(audible===undefined)audible=true;Sound.stop();Store.set('level-'+game,level);if(game!==id)Extra.leave(game,id);game=id;const cfg=configs[id];if(id==='chess'&&!Store.get('chess-difficulty-v493',false)){Store.set('level-chess','beginner');Store.set('chess-difficulty-v493',true)}level=Store.get('level-'+id,cfg.defaultLevel||(id==='mine'?'hard':id==='memory'?'normal':id==='whack'?'normal':id==='snake'?'normal':'default'));if(cfg.levels.length&&!cfg.levels.some(x=>x[0]===level))level=cfg.levels[0][0];
+function selectGame(id,audible){if(!Object.prototype.hasOwnProperty.call(PigCatalog.byId,id))return;if(audible===undefined)audible=true;Sound.stop();if(game!==id)Extra.leave(game,id);game=id;const cfg=configs[id];if(id==='chess'&&!Store.get('chess-difficulty-v493',false)){Store.set('level-chess','beginner');Store.set('chess-difficulty-v493',true)}level=Store.get('level-'+id,cfg.defaultLevel||(id==='mine'?mineDefaultLevel:id==='memory'?'normal':id==='whack'?'normal':id==='snake'?'normal':'default'));if(cfg.levels.length&&!cfg.levels.some(x=>x[0]===level))level=cfg.levels[0][0];
  if(audible){notePlay(id);const meta=PigCatalog.byId[id];if(meta&&meta.badge)Store.set('badge-seen-'+id+'-'+meta.badgeVer,true)}renderLobby();['title','subtitle','eyebrow'].forEach(k=>$(k).textContent=cfg[k]);$('crumb').textContent=$('game-name').textContent=cfg.name;$('game-symbol').setAttribute('href','#'+cfg.icon);$('game-tag').textContent=cfg.tag;$('score-note').textContent=cfg.note;cfg.labels.forEach((s,i)=>$('stat'+(i+1)+'-label').textContent=s);renderLevels(cfg);
  renderHelp(id);$('help-btn').classList.toggle('nudge',!Store.get('help-seen-'+id,false));document.body.dataset.game=id;newGame();if(audible){Sound.greet();say('哼唧！');
   // 小窗口 / 手机：选好游戏后把游戏卡片滚到眼前，屏幕按钮更容易点到
   const card=document.querySelector('.game-card');if(card&&(window.innerHeight<760||window.innerWidth<=760)&&card.getBoundingClientRect().top>8)card.scrollIntoView({block:'start',behavior:reduceMotion?'auto':'smooth'})}}
-function newGame(){if(state&&state.pending&&state.pending.timer!==undefined)clearTimeout(state.pending.timer);Sound.stop();Extra.clearKeys();paused=false;running=false;elapsed=0;wonToast=false;lastFrame=performance.now();$('pause-layer').hidden=true;$('arena').classList.remove('paused','shake');$('pause').innerHTML=icon('i-pause','sm')+'<span>暂停</span>';$('result').hidden=true;$('fx').innerHTML='';$('play-toolbar').innerHTML='';$('board').innerHTML='';if(game==='mine')initMine();if(game==='memory')initMemory();if(game==='merge')initMerge();if(game==='whack')initWhack();if(game==='snake')initSnake();if(game==='runner')initRunner();if(Extra.has(game))Extra.init(game);PigLook.apply()}
+function newGame(){clearTimeout(resultTimer);if(state&&state.pending&&state.pending.timer!==undefined)clearTimeout(state.pending.timer);Sound.stop();Extra.clearKeys();paused=false;running=false;elapsed=0;wonToast=false;lastFrame=performance.now();$('pause-layer').hidden=true;$('arena').classList.remove('paused','shake');$('pause').innerHTML=icon('i-pause','sm')+'<span>暂停</span>';$('result').hidden=true;$('fx').innerHTML='';$('play-toolbar').innerHTML='';$('board').innerHTML='';if(game==='mine')initMine();if(game==='memory')initMemory();if(game==='merge')initMerge();if(game==='whack')initWhack();if(game==='snake')initSnake();if(game==='runner')initRunner();if(Extra.has(game))Extra.init(game);PigLook.apply()}
 
 // ---------- 扫猪 ----------
 function initMine(){state=new C.Mine(...minePresets[level]);state.woken=new Set();state.sig=[];mode=false;
@@ -57,8 +75,13 @@ function initMine(){state=new C.Mine(...minePresets[level]);state.woken=new Set(
  grid.onclick=e=>{const b=e.target.closest('.mine-cell');if(b)mineAction(+b.dataset.i,mode)};
  grid.oncontextmenu=e=>{e.preventDefault();const b=e.target.closest('.mine-cell');if(b)mineAction(+b.dataset.i,true)};
  grid.onpointerdown=e=>{const b=e.target.closest('.mine-cell');if(!b||e.button>0)return;const i=+b.dataset.i,c=state.cells[i];if(c.open&&c.n&&state.status==='playing')state.near(i).forEach(j=>{if(!state.cells[j].open&&!state.cells[j].flag)grid.children[j].classList.add('peek')})};
- const unpeek=()=>grid.querySelectorAll('.peek').forEach(x=>x.classList.remove('peek'));grid.onpointerup=unpeek;grid.onpointerleave=unpeek;
- grid.onkeydown=e=>{const b=e.target.closest('.mine-cell');if(!b)return;const i=+b.dataset.i,d={ArrowLeft:-1,ArrowRight:1,ArrowUp:-state.w,ArrowDown:state.w}[e.key];if(d){e.preventDefault();const j=i+d;if(j>=0&&j<state.cells.length)grid.children[j].focus()}else if(e.key===' '){e.preventDefault();mineAction(i,true)}};
+ const unpeek=()=>grid.querySelectorAll('.peek').forEach(x=>x.classList.remove('peek'));grid.onpointerup=grid.onpointerleave=grid.onpointercancel=unpeek;
+ grid.onkeydown=e=>{
+  const b=e.target.closest('.mine-cell');if(!b)return;
+  const i=+b.dataset.i,{w,h}=state,d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+  if(d){e.preventDefault();const x=i%w+d[0],y=Math.floor(i/w)+d[1];if(x>=0&&x<w&&y>=0&&y<h)grid.children[y*w+x].focus()}
+  else if(e.key===' '){e.preventDefault();if(!e.repeat)mineAction(i,true)}
+ };
  fitMine();renderMine();message('首格安全，周围不保底。准备好了，就翻开一格。')}
 function fitMine(){const grid=document.querySelector('.mine-board');if(!grid||!state||!state.w)return;const wrap=grid.parentElement,gap=3,pad=18;const availW=wrap.clientWidth-pad,top=wrap.getBoundingClientRect().top+window.scrollY,availH=window.innerHeight-top-58;
  let cell=Math.floor(Math.min((availW-(state.w-1)*gap)/state.w,(availH-(state.h-1)*gap)/state.h));cell=Math.max(22,Math.min(state.w<=9?44:36,cell));grid.style.setProperty('--cell',cell+'px')}
@@ -165,7 +188,7 @@ function initSnake(){const W=20,H=14;state={game:new C.Snake(W,H),W,H,acc:0,prev
  $('board').innerHTML=`<div class="canvas-wrap snake-wrap"><canvas id="snake-cv" aria-label="贪吃猪草地"></canvas><div class="start-overlay" id="snake-start"><button class="primary" id="snake-go">${icon('i-play','sm')}开始带队</button><small>或直接按方向键</small></div></div>${dpadHTML()}`;
  const cv=$('snake-cv');state.cv=cv;fitSnake();document.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>arcadeDir(b.dataset.dir));bindSwipe(cv,d=>snakeTurn(d));
  $('snake-go').onclick=()=>snakeStart();stats(0,state.game.body.length);message('猪妈妈带着两只猪仔出发了，去吃松露吧！')}
-function fitSnake(){const cv=state.cv,wrap=cv.parentElement,avail=Math.min(wrap.clientWidth,760),availH=Math.max(260,window.innerHeight-wrap.getBoundingClientRect().top-window.scrollY-120);const cell=Math.max(18,Math.floor(Math.min(avail/state.W,availH/state.H)));state.cell=cell;cv.style.width=cell*state.W+'px';cv.style.height=cell*state.H+'px';state.ctx=setupCanvas(cv,cell*state.W,cell*state.H)}
+function fitSnake(){const cv=state.cv,wrap=cv.parentElement,avail=Math.min(wrap.clientWidth,760),availH=Math.max(260,window.innerHeight-wrap.getBoundingClientRect().top-window.scrollY-120);const cell=Math.max(1,Math.floor(Math.min(avail/state.W,availH/state.H)));state.cell=cell;cv.style.width=cell*state.W+'px';cv.style.height=cell*state.H+'px';state.ctx=setupCanvas(cv,cell*state.W,cell*state.H)}
 function snakeStart(){if(state.started)return;state.started=true;running=true;$('snake-start').hidden=true;Sound.greet();message('出发！')}
 function snakeTurn(d){if(game!=='snake'||state.finished||paused)return;if(!state.started){if(d==='left')return;snakeStart()}if(state.game.turn(d))Sound.turnTick()}
 function snakeTick(dt){if(!state.started||state.finished)return;const g=state.game,speed=Math.max(level==='hard'?55:62,state.interval-g.eaten*3);state.acc+=dt;
@@ -201,9 +224,28 @@ function initRunner(){state={run:new C.Runner(),started:false,finished:false,las
  $('play-toolbar').innerHTML='<span class="key-hint">点画面或“跳”按钮起跳 · 点“趴下”低头一会儿 · 键盘：空格 / ↑ 跳，↓ 趴下</span>';
  $('board').innerHTML=`<div class="canvas-wrap runner-wrap"><canvas id="runner-cv" aria-label="跳跳猪跑道"></canvas><div class="start-overlay" id="runner-start"><button class="primary" id="runner-go">${icon('i-play','sm')}开跑</button><small>或按空格 / 点击跑道</small></div></div><div class="run-pad"><button id="btn-jump">${icon('i-arrow')}<span>跳</span></button><button id="btn-duck">${icon('i-arrow')}<span>趴下</span></button></div>`;
  const cv=$('runner-cv');state.cv=cv;fitRunner();
- cv.onpointerdown=e=>{e.preventDefault();runnerJump()};cv.onpointerup=()=>state.run.release();
- $('runner-go').onclick=e=>{e.stopPropagation();runnerJump()};const jb=$('btn-jump'),db=$('btn-duck');jb.onpointerdown=e=>{e.preventDefault();runnerJump()};jb.onpointerup=()=>state.run.release();db.onpointerdown=e=>{e.preventDefault();state.duckAt=elapsed;state.duckUntil=0;runnerDuck(true)};db.onpointerup=db.onpointerleave=()=>{if(state.duckAt===undefined)return;const held=elapsed-state.duckAt;state.duckAt=undefined;if(held<650)state.duckUntil=elapsed+650-held;else runnerDuck(false)};
+ const round=state;
+ function bindPress(el,press,release){
+  el.onpointerdown=e=>{
+   if(e.button!==0||!e.isPrimary||paused)return;
+   e.preventDefault();el.setPointerCapture(e.pointerId);press();
+  };
+  el.onpointerup=()=>{if(state===round)release(true)};
+  el.onpointercancel=el.onlostpointercapture=()=>{if(state===round)release(false)};
+ }
+ const jumpOnce=()=>{runnerJump();round.run.release()};
+ const jb=$('btn-jump'),db=$('btn-duck');
+ bindPress(cv,runnerJump,()=>round.run.release());
+ bindPress(jb,runnerJump,()=>round.run.release());
+ $('runner-go').onclick=jumpOnce;jb.onclick=e=>{if(e.detail===0)jumpOnce()};
+ bindPress(db,()=>{state.duckAt=elapsed;state.duckUntil=0;runnerDuck(true)},tap=>{
+  if(state.duckAt===undefined)return;
+  const held=elapsed-state.duckAt;state.duckAt=undefined;
+  if(tap&&held<650)state.duckUntil=elapsed+650-held;else runnerDuck(false);
+ });
+ db.onclick=e=>{if(e.detail===0&&state.started&&!paused){runnerDuck(true);state.duckUntil=elapsed+650}};
  stats(0,0);message('小猪准备好了。按空格开跑！')}
+function clearRunnerInput(){state.run.release();state.run.duck(false);state.duckAt=undefined;state.duckUntil=0}
 function fitRunner(){const cv=state.cv,w=Math.min(cv.parentElement.clientWidth,960),h=Math.round(w*220/800);cv.style.width=w+'px';cv.style.height=h+'px';state.ctx=setupCanvas(cv,w,h);state.scale=w/800}
 function runnerJump(){if(game!=='runner'||paused||state.finished)return;if(!state.started){state.started=true;running=true;$('runner-start').hidden=true;Sound.greet();message('冲呀！')}const r=state.run.jump();if(r==='jump')Sound.jump();else if(r==='double')Sound.double()}
 function runnerDuck(on){if(game!=='runner'||!state.started||state.finished)return;state.run.duck(on)}
@@ -229,10 +271,18 @@ function drawRunner(){const {ctx,run:R,scale}=state;if(!ctx)return;const t=perfo
 function runnerPig(ctx,R,t){const p=R.pig,duck=p.duck&&!p.air,bob=p.air?0:Math.abs(Math.sin(R.dist/18))*1.8;ctx.save();ctx.translate(p.x+25,p.y-bob);if(R.over)ctx.rotate(.25);if(PIG_IMAGE.complete&&PIG_IMAGE.naturalWidth){ctx.scale(-1,1);ctx.drawImage(PIG_IMAGE,-39,duck?-32:-58,78,duck?36:64)}ctx.restore();ctx.fillStyle='rgba(90,100,60,.12)';ctx.beginPath();ctx.ellipse(p.x+25,R.ground+3,Math.max(5,24-(R.ground-p.y)*.08),4,0,0,7);ctx.fill()}
 
 // ---------- wiring ----------
-$('game-nav').onclick=e=>{const b=e.target.closest('[data-game]');if(!b)return;if(b.dataset.game!==game)selectGame(b.dataset.game);if(e.detail)b.blur();if(game==='merge')document.querySelector('.merge-board').focus({preventScroll:true})};
+$('game-nav').onclick=e=>{
+ const b=e.target.closest('[data-game]');if(!b)return;
+ if(b.dataset.game!==game)selectGame(b.dataset.game);
+ if(e.detail)b.blur();
+ else $('game-nav').querySelector('[aria-current="page"]')?.focus({preventScroll:true});
+ if(game==='merge')document.querySelector('.merge-board').focus({preventScroll:true});
+};
 $('restart').onclick=()=>{newGame();Sound.greet()};$('pause').onclick=()=>{setPause(!paused);Sound.click()};$('resume').onclick=()=>setPause(false);
-document.addEventListener('keydown',e=>{if(document.querySelector('dialog[open]')||['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)||e.ctrlKey||e.altKey||e.metaKey)return;if(Extra.captureKeys(e))return;const k=e.key.toLowerCase();
- if(k==='r'){e.preventDefault();newGame();Sound.greet();return}if(k==='p'){e.preventDefault();setPause(!paused);return}if(k==='m'){e.preventDefault();toggleMute();return}
+document.addEventListener('keydown',e=>{if(e.defaultPrevented||document.querySelector('dialog[open]')||['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)||e.target.isContentEditable||e.ctrlKey||e.altKey||e.metaKey)return;const k=e.key.toLowerCase();
+ if((k===' '||k==='enter')&&e.target.closest?.('button,summary,a[href]'))return;
+ if(Extra.captureKeys(e))return;
+ if(k==='r'){e.preventDefault();if(!e.repeat&&!$('restart').disabled)$('restart').click();return}if(k==='p'){e.preventDefault();if(!e.repeat&&!$('pause').disabled)setPause(!paused);return}if(k==='m'){e.preventDefault();if(!e.repeat)toggleMute();return}
  if(Extra.has(game)&&Extra.keyDown(e))return;
  if(game==='mine'&&k==='f'){e.preventDefault();setMode(!mode)}
  const dir={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down'}[k];if(dir&&(game==='merge'||game==='snake')){e.preventDefault();arcadeDir(dir)}
@@ -324,7 +374,8 @@ function renderUpdateChip(){const st=updState||{},chip=$('update-chip');chip.cla
  else if(st.status==='downloading'){chip.hidden=false;chip.textContent='正在下载新版本…';chip.onclick=()=>{renderUpdatePanel();openDialog('about-dialog')}}
  else chip.hidden=true}
 if(Upd){try{Upd.onStatus(st=>{updState=st;renderUpdateChip();if($('about-dialog').open)renderUpdatePanel()});Promise.resolve(Upd.info()).then(st=>{updState=st;renderUpdateChip()}).catch(()=>{})}catch(e){}}
-syncSound();renderLobby();selectGame(PigCatalog.byId[location.hash.slice(1)]?location.hash.slice(1):'mine',false);requestAnimationFrame(frame);
+const requestedGame=location.hash.slice(1);
+syncSound();selectGame(Object.prototype.hasOwnProperty.call(PigCatalog.byId,requestedGame)?requestedGame:'mine',false);requestAnimationFrame(frame);
 if(Store.get('seen-version',null)!==V.version)setTimeout(()=>openNotes(true),450);
 // 告诉桌面程序：这一版内容已正常启动（在线更新失败回退用）
 if(Upd&&Upd.ready)try{Upd.ready(V.version)}catch(e){}

@@ -1,5 +1,7 @@
 # 第三方来源与许可
 
+5.1.0 水管工、数字画和过河分别改编自 SGTPuzzles 的 Net、Pattern 与 MiniGames 的 Frogger。两份 MIT 全文均在 `desktop/app/assets/licenses/`。[固定提交与改编范围](desktop/docs/5.1.0-meadow.md#github-来源)。
+
 扫猪机制改编自 [kubowania/minesweeper](https://github.com/kubowania/minesweeper)，作者 Ania Kubow，MIT；完整许可位于 `desktop/app/assets/LICENSE-MIT.txt`。
 
 猪猪造型参考 PigHub 的比例与气质重新绘制，未使用站内图片或表情包。统一可编辑来源是 `desktop/app/pig-art.js`。

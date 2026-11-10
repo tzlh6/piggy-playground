@@ -6,6 +6,9 @@
 const fs=require('fs'),path=require('path'),assert=require('node:assert/strict'),{spawn}=require('child_process'),readline=require('readline');
 const {chromium}=require(process.env.PIGGY_PLAYWRIGHT||'playwright');
 const out=process.env.PIGGY_LAN_QA,assets=path.resolve(__dirname,'../assets');
+const manifest=fs.readFileSync(path.resolve(__dirname,'../AndroidManifest.xml'),'utf8');
+const version=manifest.match(/android:versionName="([^"]+)"/)[1];
+const currentCode=Number(manifest.match(/android:versionCode="(\d+)"/)[1]);
 assert(out&&process.env.PIGGY_JAVA&&process.env.PIGGY_LAN_CLASSPATH&&process.env.PIGGY_CHROMIUM,'Missing test configuration');fs.mkdirSync(out,{recursive:true});
 const errors=[],transports=[],clients=[],tests=[];
 let browser;
@@ -23,15 +26,15 @@ async function client(width=390){
     const rel=decodeURIComponent(url.pathname).slice(1);if(rel!=='game.html'&&!/^assets\/engines\/(stockfish|pikafish|rapfi|egaroucid)\/part-\d+\.js$/.test(rel))return route.abort();
     await route.fulfill({contentType:rel.endsWith('.html')?'text/html; charset=utf-8':'application/javascript',body:fs.readFileSync(path.join(assets,rel))});
   });
-  await page.addInitScript(()=>{
-    for(const [k,v]of Object.entries({'seen-version':'5.0.0','seen-android-version':'5.0.0','chess-difficulty-v493':true,'level-mine':'easy'}))localStorage.setItem('piggy2-'+k,JSON.stringify(v));
+  await page.addInitScript(({version,currentCode})=>{
+    for(const [k,v]of Object.entries({'seen-version':version,'seen-android-version':version,'chess-difficulty-v493':true,'level-mine':'easy'}))localStorage.setItem('piggy2-'+k,JSON.stringify(v));
     localStorage.setItem('upgrade-proof','preserved');
     window.PiggyLanAndroid={call:(id,op,payload)=>window.__nativeLan(id,op,payload)};
-    window.PiggyAndroidBridge={info:()=>JSON.stringify({current:'5.0.0',currentCode:50010,nativeRevision:7,status:'idle',auto:false}),check(){},setAuto(){},download(){},install(){},openPage(){}};
-  });
+    window.PiggyAndroidBridge={info:()=>JSON.stringify({current:version,currentCode,nativeRevision:7,status:'idle',auto:false}),check(){},setAuto(){},download(){},install(){},openPage(){}};
+  },{version,currentCode});
   await page.goto('https://appassets.androidplatform.net/game.html');await page.waitForFunction(()=>window.PigAndroidLan&&document.body.dataset.androidReady==='true');
-  assert.equal(await page.evaluate(()=>PigAndroid.version),'5.0.0');assert.equal(await page.evaluate(()=>localStorage.getItem('upgrade-proof')),'preserved');
-  assert.equal(await page.locator('[data-mobile-game]').count(),29);assert.equal(await page.locator('[data-lan-game]').count(),10);
+  assert.equal(await page.evaluate(()=>PigAndroid.version),version);assert.equal(await page.evaluate(()=>localStorage.getItem('upgrade-proof')),'preserved');
+  assert.equal(await page.locator('[data-mobile-game]').count(),32);assert.equal(await page.locator('[data-lan-game]').count(),10);
   clients.push(page);return page;
 }
 async function enter(page,id){
@@ -62,7 +65,12 @@ async function resignAndRematch(a,b){
   const targets=['connect','xiangqi','chess','gomoku','reversi','dots','battleship','roulette','pool'].filter(id=>!process.env.PIGGY_LAN_GAMES||process.env.PIGGY_LAN_GAMES.split(',').includes(id));
   for(const id of targets){
     await joinGeneric(a,b,id,id==='gomoku');
-    if(id==='connect')await a.locator('[data-col="0"]').first().click();
+    if(id==='connect'){
+      await a.evaluate(()=>{window.__lanState=state});
+      await a.keyboard.press('r');await a.keyboard.press('p');
+      assert.ok(await a.evaluate(()=>state===window.__lanState&&!paused),'global shortcuts respect disabled LAN controls');
+      await a.locator('[data-col="0"]').first().click();
+    }
     else if(id==='xiangqi'){await a.locator('[data-square="a0"]').click();await a.locator('[data-square="a1"]').click();}
     else if(id==='chess'){await a.locator('[data-square="e2"]').click();await a.locator('[data-square="e4"]').click();}
     else if(id==='gomoku')await a.locator('[data-x="7"][data-y="7"]').click();
@@ -110,7 +118,7 @@ async function resignAndRematch(a,b){
   await a.locator('#dz-leave-btn').click();await a.locator('#android-hall-button').click();await a.locator('[data-mobile-game="xiangqi"]').click();await a.locator('#android-xiangqi-school').click();await a.locator('#xq-school').waitFor({state:'visible'});await a.locator('#xq-school .xqs-close').click();
   }
   assert.deepEqual(errors,[]);assert.equal(tests.length,targets.length+(process.env.PIGGY_LAN_SKIP_DDZ?0:1));
-  fs.writeFileSync(path.join(out,process.env.PIGGY_LAN_GAMES?'browser-lan-layout.json':'browser-lan-results.json'),JSON.stringify({version:'5.0.0',games:tests,realTcpUdp:true,separateJavaTransports:true,phoneWidths:[360,390],reconnect:!process.env.PIGGY_LAN_GAMES,backgroundPause:!process.env.PIGGY_LAN_GAMES,mutualRematch:true,threePlayerDdz:!process.env.PIGGY_LAN_SKIP_DDZ,schoolRetained:!process.env.PIGGY_LAN_SKIP_DDZ,realAndroidDevices:false,errors},null,2));
+  fs.writeFileSync(path.join(out,process.env.PIGGY_LAN_GAMES?'browser-lan-layout.json':'browser-lan-results.json'),JSON.stringify({version,games:tests,realTcpUdp:true,separateJavaTransports:true,phoneWidths:[360,390],reconnect:!process.env.PIGGY_LAN_GAMES,backgroundPause:!process.env.PIGGY_LAN_GAMES,mutualRematch:true,threePlayerDdz:!process.env.PIGGY_LAN_SKIP_DDZ,schoolRetained:!process.env.PIGGY_LAN_SKIP_DDZ,realAndroidDevices:false,errors},null,2));
 })().catch(e=>{console.error(e);if(out)fs.writeFileSync(path.join(out,'browser-lan-failure.json'),JSON.stringify({error:e.stack,errors},null,2));process.exitCode=1;}).finally(async()=>{
   if(browser)await browser.close();for(const child of transports){child.stdin.end();child.kill();}
 });

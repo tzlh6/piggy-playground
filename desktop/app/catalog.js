@@ -31,7 +31,10 @@ const GAMES=[
  {id:'gomoku',no:26,name:'猪猪五子棋',desc:'五只小猪排一排',icon:'i-gomoku',cat:'board',keys:'五子棋 五子连珠 gomoku 连五 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
  {id:'reversi',no:27,name:'猪猪黑白棋',desc:'夹住它，翻成自己的猪',icon:'i-reversi',cat:'board',keys:'黑白棋 翻转棋 奥赛罗 othello reversi 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
  {id:'battleship',no:28,name:'猪猪海战',desc:'藏好舰队，轮流开炮',icon:'i-battle',cat:'board',keys:'海战棋 战舰 battleship 布舰 开炮 击沉 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
- {id:'dots',no:29,name:'猪猪围栏',desc:'画栅栏，把小猪圈起来',icon:'i-dots',cat:'board',keys:'点格棋 点格围地 围格子 dots and boxes 栅栏 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'}
+ {id:'dots',no:29,name:'猪猪围栏',desc:'画栅栏，把小猪圈起来',icon:'i-dots',cat:'board',keys:'点格棋 点格围地 围格子 dots and boxes 栅栏 人机 双人 棋类',badge:'新游戏',badgeVer:'4.9.0'},
+ {id:'pipes',no:30,name:'猪猪水管工',desc:'转一转，给猪舍通水',icon:'i-pipe',cat:'puzzle',keys:'管道 水管 接水 旋转 net',badge:'新游戏',badgeVer:'5.1.0'},
+ {id:'nonogram',no:31,name:'猪猪数字画',desc:'从数字里画出小猪',icon:'i-pixels',cat:'puzzle',keys:'数织 画图 数字画 方格 像素 nonogram picross',badge:'新游戏',badgeVer:'5.1.0'},
+ {id:'crossing',no:32,name:'猪猪过河',desc:'躲小车，踩木筏，回猪舍',icon:'i-crossing',cat:'arcade',keys:'过河 过马路 木筏 躲车 frogger',badge:'新游戏',badgeVer:'5.1.0'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
 root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};

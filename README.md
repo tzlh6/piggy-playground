@@ -1,5 +1,11 @@
 # 猪猪游乐场 🐷
 
+**5.1.0 源码 · 32 款离线游戏。** 新增猪猪水管工、猪猪数字画和猪猪过河。三款支持键盘、鼠标和触屏，复用大厅、难度、暂停、声音和成绩。修复扫猪难度记忆、结算、窄屏及操作状态等问题。[玩法、来源与修复](desktop/docs/5.1.0-meadow.md)。
+
+![猪猪水管工 5.1.0：旋转管件，让粉色水泵通向所有猪舍](docs/images/pipes-5.1.0.png)
+
+GitHub Releases 提供 Windows 4.9.4 和安卓 5.0.0 安装包。下文保留各版发行记录。
+
 **安卓5.0.0 · 10款多人游戏局域网联机（已发布）：** 四子棋、轮盘、斗地猪、黑猪8与六款棋类全部支持同一Wi-Fi/热点建房、找房和地址加入。斗地猪保留三人牌桌并兼容Windows，其他九款双方使用安卓5.0.0；独立隐藏信息、断线回座和双方再战。普通50010、兼容50000、原签名、nativeRevision=7。保留象棋学堂和流式启动。主机真实TCP/UDP与三客户端手机界面检查通过，实体安卓设备尚未实测。普通/兼容安装包均已上传并重新下载核验，安卓新旧升级清单均为5.0.0。[下载安装包](https://github.com/tzlh6/piggy-playground/releases/tag/v5.0.0-android)。 [玩法与验证说明](android/docs/5.0.0-android-lan.md)。Windows与离线网页保持4.9.4。
 
 **安卓4.10.0 · 启动修复与中国象棋学堂：** 针对荣耀80GT、安卓15点图标即退出的反馈，改为流式页面与按需棋类引擎，启动页约3.84MB。手机新增皮卡鱼AI教学分析、10道杀招练习、3份逐步讲解棋谱和ICCS导入。普通41010、兼容41000，原签名、nativeRevision=6，覆盖安装保留数据。荣耀实机效果仍需安装确认。[安卓下载](https://github.com/tzlh6/piggy-playground/releases/tag/v4.10.0-android) · [功能、来源与验证说明](android/docs/4.10.0-android-school.md)。Windows与离线网页保持4.9.4。
@@ -105,7 +111,7 @@ npm ci
 npm run build:win
 ```
 
-`npm test` 的十四组测试只依赖 Node.js，不需要先下载 Electron。Windows 成品输出到 `desktop/dist/`。构建固定使用 Electron 22.3.27、electron-builder 24.13.3 和 32 位便携配置；编译依赖由 `package-lock.json` 锁定。
+`npm test` 的 22 组测试只依赖 Node.js，不需要先下载 Electron。Windows 成品输出到 `desktop/dist/`。构建固定使用 Electron 22.3.27、electron-builder 24.13.3 和 32 位便携配置；编译依赖由 `package-lock.json` 锁定。
 
 在线更新的端到端测试（本机假服务器 → 下载、校验、重启加载、坏版本回退）：`xvfb-run -a node tools/test-updater.cjs`（Windows 上直接 `node tools/test-updater.cjs`）。斗地猪联机的端到端试玩（同一台电脑开两个 Electron 窗口：开房、发现、加入、整局对打、掉线重连）：`xvfb-run -a node tools/playtest-lan.cjs`。
 

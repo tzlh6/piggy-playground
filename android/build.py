@@ -1,6 +1,6 @@
 """Build a universal offline APK with the official Android command-line tools."""
 from pathlib import Path
-import argparse, hashlib, json, os, re, shutil, subprocess, sys, zipfile
+import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile, zipfile
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
@@ -17,17 +17,18 @@ def one(directory, name):
         raise RuntimeError(f'Expected one {name} under {directory}, found {len(matches)}')
     return matches[0]
 
-def prepare():
+def prepare(work):
     assets = ROOT / 'assets'
     assets.mkdir(exist_ok=True)
     output = assets / 'game.html'
-    run([sys.executable, DESKTOP / 'build-single.py', output])
-    html = output.read_text(encoding='utf-8')
-    # Single-file browser downloads embed all engines. Android must not parse or copy
-    # those ~45 MB on launch: serve the same pinned parts lazily from APK assets.
-    html, engine_count = re.subn(r'<script type="application/json" id="pig-engine-[^\"]+">.*?</script>', '', html, flags=re.S)
+    work.mkdir(parents=True, exist_ok=True)
+    # Prepare off to the side. Only the validated, mobile-specific page belongs in assets.
+    with tempfile.TemporaryDirectory(prefix='piggy-web-', dir=work) as tmp:
+        staged = Path(tmp) / 'game.html'
+        run([sys.executable, DESKTOP / 'build-single.py', staged, '--external-engines'])
+        html = staged.read_text(encoding='utf-8')
     catalog = json.loads((DESKTOP / 'app/assets/engines/catalog.json').read_text(encoding='utf8'))
-    assert engine_count == len(catalog) == 4
+    assert len(catalog) == 4 and 'type="application/json" id="pig-engine-' not in html
     for entry in catalog.values():
         for part in entry['parts']:
             assert re.fullmatch(r'assets/engines/(stockfish|pikafish|rapfi|egaroucid)/part-[0-9]+\.js', part)
@@ -39,9 +40,9 @@ def prepare():
     assert html.count(expose) == 1
     html = html.replace(expose, 'const api={loadPack,binary,supports,think,stop,cancel,')
     html = html.replace('width=device-width,initial-scale=1', 'width=device-width,initial-scale=1,viewport-fit=cover')
-    initial = "let game='mine',level='hard',state"
+    initial = "const mineDefaultLevel='hard';"
     assert html.count(initial) == 1
-    html = html.replace(initial, "let game='mine',level=Store.get('level-mine','easy'),state")
+    html = html.replace(initial, "const mineDefaultLevel='easy';")
     mobile_css = '\n'.join((ROOT / ('web/' + file)).read_text(encoding='utf-8') for file in
         ['android.css', 'xiangqi-school.css', 'lan.css'])
     mobile_js = '\n'.join((ROOT / ('web/' + file)).read_text(encoding='utf-8') for file in
@@ -78,9 +79,18 @@ def prepare():
     html = html.replace('<head>', '<head><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\' \'unsafe-inline\' \'wasm-unsafe-eval\'; style-src \'unsafe-inline\'; img-src data:; font-src data:; media-src data: blob:; worker-src blob:; connect-src \'none\'; frame-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'">')
     html = html.replace('</body>', '<script>' + mobile_js.replace('</script', '<\\/script') + '</script></body>')
     assert 'src="assets/' not in html and 'src="http' not in html
-    output.write_text(html, encoding='utf-8', newline='\n')
-    assert output.stat().st_size < 6 * 1024 * 1024, 'Android startup page exceeded the memory budget'
-    print(f'Android startup page: {output.stat().st_size} bytes; four engines load on demand from APK assets.', flush=True)
+    data = html.encode('utf-8')
+    assert len(data) < 6 * 1024 * 1024, 'Android startup page exceeded the memory budget'
+    # Use a sibling temp file so replace stays atomic even when work is on another drive.
+    fd, name = tempfile.mkstemp(dir=assets, prefix='.game-')
+    pending = Path(name)
+    try:
+        with os.fdopen(fd, 'wb') as tmp:
+            tmp.write(data)
+        pending.replace(output)
+    finally:
+        pending.unlink(missing_ok=True)
+    print(f'Android startup page: {len(data)} bytes; four engines load on demand from APK assets.', flush=True)
     return output
 
 def compile_apk(args):
@@ -161,6 +171,6 @@ if __name__ == '__main__':
     parser.add_argument('--tests', action='store_true')
     parser.add_argument('--legacy-compatible', action='store_true', help='Build a bridge APK accepted by 4.4.2/4.4.3 update policy')
     args = parser.parse_args()
-    prepare()
+    prepare(args.work or WORK / 'build')
     if not args.prepare_only:
         compile_apk(args)

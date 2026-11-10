@@ -75,9 +75,6 @@
   openNotes = function(auto) {
     sharedNotes(auto);
     Store.set('seen-android-version', version);
-    const note = document.createElement('section'); note.className = 'note-cur';
-    note.innerHTML = `<p class="note-meta">安卓 ${version} · ${PigCatalog.GAMES.length} 款离线游戏 · 10 款局域网联机</p><h3>朋友连到同一网络，就能一起玩</h3><p>大厅点“局域网联机”，或在对应游戏的模式中选“局域网联机”。一人开猪圈，朋友查找房间或输入房主地址加入。双人房间支持断线回原座位、双方准备再战；斗地猪可补电脑并兼容 Windows 牌桌。</p><p>保留象棋学堂、离线玩法和题库导入。沿用原签名，直接覆盖安装保留题库、成绩与设置，请不要先卸载。详细玩法和更新说明在下方。</p>`;
-    document.getElementById('notes-body').prepend(note);
   };
   document.getElementById('android-notes').onclick = () => { hall.close(); openNotes(false); };
   const navigation = window.PigAndroid;

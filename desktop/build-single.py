@@ -1,13 +1,18 @@
 """Bundle app/ into one self-contained HTML file for browsers (Chrome 109 / Firefox 115 on Windows 7 also work)."""
-import base64,re,sys,json,os
+import argparse,base64,re,json,os
 from html import escape
 from pathlib import Path
 A=str(Path(__file__).resolve().parent / 'app') + os.sep
+parser=argparse.ArgumentParser()
+parser.add_argument('output',type=Path)
+parser.add_argument('--external-engines',action='store_true',help='Leave chess engine packs in separate files for the Android asset loader')
+args=parser.parse_args()
 def uri(p,mime):return f"data:{mime};base64,"+base64.b64encode(open(A+p,'rb').read()).decode()
 html=open(A+'index.html',encoding='utf8').read()
-# 与 index.html 的脚本顺序一致；新增模块在这里登记
-SCRIPTS=['version.js','catalog.js','help.js','core.js','match-core.js','arcade-core.js','vendor/chess.js','vendor/xiangqi.js','board-core.js','battleship-core.js','board-session.js','mate-patterns.js','rhythm-core.js','challenge-core.js','jump-core.js','pool-core.js','gate-core.js','study-core.js','study-math.js','roulette-core.js','doudizhu-core.js','doudizhu-net.js','pig-art.js','look.js','sounds.js','audio.js','match-ui.js','arcade.js','challenge.js','jump-ui.js','pool-ui.js','gate-ui.js','assets/katex/katex.min.js','assets/katex/mhchem.min.js','study-ui.js','engine-catalog.js','strong-ai.js','board-commanders.js','board-ui.js','roulette-art.js','roulette-ui.js','doudizhu-art.js','doudizhu-finale.js','doudizhu-ui.js','app.js']
-for n in SCRIPTS:assert f'<script src="{n}"></script>' in html, n+' 未在 index.html 中引用'
+# Keep one script order across source, offline web and Android.
+script_tag = r'<script src="([^"]+)"></script>'
+SCRIPTS = re.findall(script_tag, html)
+assert SCRIPTS[0] == 'version.js' and SCRIPTS[-1] == 'app.js'
 html=re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>','',html)
 license_details='<details class="github-licenses"><summary>GitHub 参考项目许可证（MIT / BSD-2-Clause）</summary>'
 for f in sorted(os.listdir(A+'assets/licenses')):
@@ -45,7 +50,7 @@ scripts='<script>window.PIG_BOARD_WORKER_SOURCE='+json.dumps(worker_source,ensur
 # Non-executable JSON nodes avoid initializing or parsing unused engines at boot.
 engine_nodes=[]
 engine_catalog=Path(A+'assets/engines/catalog.json')
-if engine_catalog.is_file():
+if engine_catalog.is_file() and not args.external_engines:
     for engine,info in json.loads(engine_catalog.read_text(encoding='utf-8')).items():
         parts=[]
         for part in info['parts']:
@@ -56,10 +61,11 @@ if engine_catalog.is_file():
         assert json.loads(payload)['id']==engine
         engine_nodes.append('<script type="application/json" id="pig-engine-'+engine+'">'+payload.replace('</script','<\\/script')+'</script>')
 scripts=''.join(engine_nodes)+scripts
-html=re.sub(r'<script src="version.js"></script>.*?<script src="app.js"></script>',lambda m:scripts,html,flags=re.S)
+html,count=re.subn(r'(?:'+script_tag+r'\s*)+',lambda m:scripts,html)
+assert count == 1, 'Expected a single block of external app scripts'
 html=html.replace('assets/pig.svg',pig)
 assert 'src="assets/' not in html and "href=\"assets/" not in html, 'unbundled asset left'
-output = Path(sys.argv[1])
+output = args.output
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(html, encoding='utf8', newline='\n')
 print(output, len(html)//1024, 'KB')

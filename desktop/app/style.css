@@ -785,7 +785,7 @@ kbd{display:inline-block;min-width:22px;padding:2px 7px;border-radius:7px;border
 /* 结果页按钮多时换行，不把文字挤成两行 */
 .result-actions{flex-wrap:wrap}.result-actions button{white-space:nowrap}
 @media(max-width:1100px){.help-panels,.help-body{grid-template-columns:1fr}}
-@media(max-width:760px){.lobby-filter{display:none}.help-panels{padding:14px 0 8px}.help-col{padding:12px 14px}.nav-badge{display:none}}
+@media(max-width:760px){.lobby-filter{margin:7px 0 4px}.cat-chips{flex-wrap:nowrap;overflow-x:auto;padding:2px 0 5px}.cat-chips button{flex-shrink:0;min-height:32px}.help-panels{padding:14px 0 8px}.help-col{padding:12px 14px}.nav-badge{display:none}}
 @media(prefers-reduced-motion:reduce){.nav-badge,.update-chip,#help-btn.nudge{animation:none}}
 
 /* ================= 斗地猪（4.4） ================= */
@@ -1325,3 +1325,39 @@ body[data-game="chess"] .bd-strength{background:#f7f7f0;border-color:#dde0d2;bor
 @keyframes bd-pop{from{transform:translate(-50%,-50%) scale(.85);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 @media (max-width:640px){.bd-match{grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:6px}.bd-ava{flex-basis:44px;width:44px;height:48px}.bd-avatar{width:50px;height:52px}.bd-vs small{display:none}.bd-vs b{width:30px;height:30px;font-size:11px}.bd-player{padding:6px 8px 6px 4px;gap:4px}.bd-flag{display:none}.bd-info small{font-size:10px}}
 @media (prefers-reduced-motion:reduce){.bd-player.current .bd-avatar,.bd-status.alert{animation:none}}
+
+/* 水管工、数字画与过河 */
+.pipe-board,.pixel-board{display:grid;margin:6px auto 12px;width:min(100%,440px);gap:2px;padding:5px;border:1px solid #dfd5c4;border-radius:12px;background:#eaddc9}
+.pipe-board{grid-template-columns:repeat(var(--size),minmax(0,1fr));width:min(100%,390px)}
+.pipe-cell,.pixel-cell{display:grid;place-items:center;aspect-ratio:1;min-width:0;padding:0;border:0;border-radius:3px;touch-action:manipulation}
+.pipe-cell{background:#fffaf0;color:#798076}
+.pipe-cell.powered{background:#dcf2e2;color:#218263}
+.pipe-cell.pump{background:#ffe4eb;color:#b13c61}
+.pipe-cell svg{display:block;width:100%;height:100%;overflow:hidden}
+.pipe-cell path{fill:none;stroke-linecap:round}
+.pipe-edge{stroke:#383e38;stroke-width:11}
+.pipe-water{stroke:currentColor;stroke-width:7}
+.pipe-cell circle{fill:currentColor;stroke:#383e38;stroke-width:1}
+.pipe-cell:focus-visible,.pixel-cell:focus-visible{position:relative;z-index:1;outline:3px solid #25466c;outline-offset:-2px}
+.pixel-board{grid-template-columns:minmax(42px,16%) repeat(var(--size),minmax(0,1fr))}
+.pixel-corner,.pixel-clue{display:flex;align-items:center;justify-content:center;background:#fff7e7;color:#574b3a;border-radius:4px;font-size:clamp(11px,2.5vw,14px);line-height:1.2}
+.pixel-corner{text-align:center;font-size:11px;padding:3px 0}
+.pixel-clue{gap:3px;padding:2px}
+.pixel-clue.col{flex-direction:column;justify-content:flex-end;min-height:36px}
+.pixel-clue.row{justify-content:flex-end}
+.pixel-clue.matched{background:#e0f2dd;color:#245938}
+.pixel-cell{background:#fffdfa;color:#625d59;font-size:clamp(13px,3.5vw,20px);font-weight:800}
+.pixel-cell[data-ink="1"]{background:#b8446b}
+.pixel-cell[data-ink="-1"]{background:#efeae4}
+.pixel-board.revealed .pixel-cell[data-ink="1"]{background:#ca5b7c}
+.pixel-board.revealed .pixel-cell[data-ink="-1"]{background:#fffdfa}
+.pixel-tools{display:flex;flex-wrap:wrap;gap:4px}
+.cross-scene,.cross-meter{width:min(100%,528px);margin:0 auto}
+.cross-scene{position:relative;overflow:hidden;border-radius:12px;box-shadow:0 3px 0 #deccb4}
+.cross-scene canvas{display:block;width:100%;height:auto}
+.cross-start{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#fbf3e2e0}
+.cross-start[hidden]{display:none}
+.cross-start small{color:#554439;text-align:center}
+.cross-meter{margin-top:8px;height:7px;overflow:hidden;border-radius:6px;background:#e4d6c7}
+.cross-meter i{display:block;height:100%;background:#439875}
+@media(max-width:480px){body[data-game="crossing"] #stat2{font-size:clamp(14px,4.7vw,21px);white-space:nowrap}}
