@@ -37,5 +37,15 @@ const GAMES=[
  {id:'crossing',no:32,name:'猪猪过河',desc:'躲小车，踩木筏，回猪舍',icon:'i-crossing',cat:'arcade',keys:'过河 过马路 木筏 躲车 frogger',badge:'新游戏',badgeVer:'5.1.0'}
 ];
 const SORTS=[['default','按分类'],['recent','最近玩过'],['most','玩得最多'],['name','按名称']];
-root.PigCatalog={CATS,GAMES,SORTS,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};
+/* 结算口径（6.0，养成奖励换算用；逐款核对过各游戏的结算代码，说明见 docs/6.0-pet-backend.md）
+   clear   有明确的过关 / 失败，game-end 事件的 win 可信
+   score   无尽或限时刷分，没有真正的胜负，win 恒为 null，只看 record
+   versus  对战，win 表示本机玩家是否获胜；同屏双人（mode:'duo'）与平局时 win 为 null
+   session 学习，发 study-session 事件，不发 game-end */
+const SETTLE={mine:'clear',memory:'clear',merge:'score',whack:'score',snake:'score',runner:'score',blocks:'score',breakout:'clear',flappy:'score',stack:'score',
+ connect:'versus',sokoban:'clear',lights:'clear',match:'clear',slice:'score',shooter:'clear',rhythm:'clear',roulette:'versus',doudizhu:'versus',jump:'score',pool:'versus',
+ mathgate:'clear',study:'session',xiangqi:'versus',chess:'versus',gomoku:'versus',reversi:'versus',battleship:'versus',dots:'versus',pipes:'clear',nonogram:'clear',crossing:'clear'};
+// 这些游戏的“纪录”是累计胜场，每赢一局都会加一，不算刷新个人最好成绩
+const TALLY=['connect','roulette','xiangqi','chess','gomoku','reversi','battleship','dots'];
+root.PigCatalog={CATS,GAMES,SORTS,SETTLE,TALLY,byId:Object.fromEntries(GAMES.map(g=>[g.id,g])),catName:Object.fromEntries(CATS)};
 })(typeof window!=='undefined'?window:globalThis);
