@@ -7,9 +7,9 @@
   const C=root.PigCatalog, own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
   const finite=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max;
   const integer=(v,min,max)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
-  const text=(v,max)=>typeof v==='string'&&v.length>0&&v.length<=max&&!/[\u0000-\u001f]/.test(v);
+  const text=(v,max)=>typeof v==='string'&&v.trim().length>0&&v.length<=max&&!/[\u0000-\u001f\u007f]/.test(v);
   function normalize(input) {
-    if(!input||typeof input!=='object'||!text(input.eventId,160)||!integer(input.at,0,8640000000000000))return null;
+    if(!input||typeof input!=='object'||Array.isArray(input)||!text(input.eventId,160)||!integer(input.at,0,8640000000000000))return null;
     const e={eventId:input.eventId,at:input.at,type:input.type};
     if(input.type==='study-session') {
       if(!integer(input.answered,1,D.limits.maxQuestions)||!integer(input.correct,0,input.answered)||
@@ -17,7 +17,7 @@
       if(input.subject!=null&&!text(input.subject,40))return null;
       return {...e,answered:input.answered,correct:input.correct,seconds:input.seconds,subject:input.subject||null};
     }
-    if(input.type!=='game-end'||!own(C.SETTLE,input.id)||C.SETTLE[input.id]==='session'||
+    if(input.type!=='game-end'||typeof input.id!=='string'||!own(C.SETTLE,input.id)||C.SETTLE[input.id]==='session'||
       !['solo','duo','lan'].includes(input.mode)||!finite(input.seconds,0,D.limits.maxRoundSeconds)||
       ![true,false,null].includes(input.win)||typeof input.record!=='boolean'||typeof input.first!=='boolean'||
       !text(input.level,80))return null;

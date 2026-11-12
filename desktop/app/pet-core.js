@@ -22,14 +22,15 @@
     return {day,game:counters(),study:counters(),careXp:0,progress:{care:0,answered:0,correct:0},claims:[],
       wish:{game:games[Math.floor(random(s)*games.length)],done:false}};
   }
-  function accessible(s,item){return levelOf(s.xp)>=item.level&&(!item.trait||s.traits[item.trait]>=item.minimum);}
+  function accessible(s,item,level=levelOf(s.xp)){return level>=item.level&&(!item.trait||s.traits[item.trait]>=item.minimum);}
   function diary(s,events,type,detail) {
     const entry={at:s.lastNow,type,...detail};s.diary.push(entry);
     if(s.diary.length>D.limits.diary)s.diary.shift();
     events.push({type:'diary',entry:copy(entry)});
   }
   function unlock(s,events) {
-    for(const item of D.items)if(accessible(s,item)&&!s.unlocked.includes(item.id)){
+    const level=levelOf(s.xp);
+    for(const item of D.items)if(accessible(s,item,level)&&!s.unlocked.includes(item.id)){
       s.unlocked.push(item.id);events.push({type:'unlock',itemId:item.id});
     }
   }
@@ -186,7 +187,7 @@
           s.name=a.name;events.push({type:'rename',name:s.name});return null;
         }
         if(type==='feed'){
-          const item=own(D.byId,a.itemId)?D.byId[a.itemId]:null;
+          const item=typeof a.itemId==='string'&&own(D.byId,a.itemId)?D.byId[a.itemId]:null;
           if(!item||item.kind!=='food')return denied('bad-action');
           if(s.needs.hunger>=95)return denied('too-full');
           if(cooled('feed')||item.renewable&&cooled('grass'))return denied('cooldown');
@@ -220,14 +221,14 @@
           if(!s.sleeping)return denied('not-sleeping');s.sleeping=false;events.push({type:'wake',automatic:false});return null;
         }
         if(type==='play'){
-          const item=own(D.byId,a.itemId)?D.byId[a.itemId]:null;
+          const item=typeof a.itemId==='string'&&own(D.byId,a.itemId)?D.byId[a.itemId]:null;
           if(!item||item.kind!=='toy')return denied('bad-action');if(!s.owned.includes(item.id))return denied('not-owned');
           if(s.needs.energy-item.energy<D.limits.needFloor)return denied('too-tired');if(cooled('play'))return denied('cooldown');
           s.needs.energy-=item.energy;s.needs.mood=Math.min(100,s.needs.mood+item.mood);s.needs.clean=Math.max(D.limits.needFloor,s.needs.clean-2);
           cool('play');events.push({type:'play',itemId:item.id});care(s,events);return null;
         }
         if(type==='buy'){
-          const item=own(D.byId,a.itemId)?D.byId[a.itemId]:null,quantity=a.quantity===undefined?1:a.quantity;
+          const item=typeof a.itemId==='string'&&own(D.byId,a.itemId)?D.byId[a.itemId]:null,quantity=a.quantity===undefined?1:a.quantity;
           if(!item||item.renewable||item.starter||!int(quantity,1,99)||item.kind!=='food'&&quantity!==1)return denied('bad-action');
           if(!accessible(s,item))return denied('locked');
           if(item.kind!=='food'&&s.owned.includes(item.id))return denied('already-owned');
@@ -239,7 +240,7 @@
         }
         if(type==='place'){
           if(!D.slots.includes(a.slot))return denied('bad-action');
-          if(a.itemId!==null){const item=own(D.byId,a.itemId)?D.byId[a.itemId]:null;
+          if(a.itemId!==null){const item=typeof a.itemId==='string'&&own(D.byId,a.itemId)?D.byId[a.itemId]:null;
             if(!item||item.kind!=='furniture'||item.slot!==a.slot)return denied('wrong-slot');
             if(!s.owned.includes(item.id))return denied('not-owned');}
           s.placements[a.slot]=a.itemId;events.push({type:'place',slot:a.slot,itemId:a.itemId});return null;
@@ -310,7 +311,8 @@
     }
     return Object.freeze({advance:now=>transaction(now),view,dispatch,reward,save:()=>copy(s)});
   }
-  const api=Object.freeze({create,restore:input=>session(validate(input)),validate:input=>copy(validate(input)),levelOf});
+  // validate already returns a fresh JSON parse; a second deep copy is redundant.
+  const api=Object.freeze({create,restore:input=>session(validate(input)),validate,levelOf});
   if(common)module.exports=api;
   root.PigPet=api;
 })(typeof window!=='undefined'?window:globalThis);

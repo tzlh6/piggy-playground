@@ -15,6 +15,15 @@ class MemoryStorage{
   getItem(k){if(this.fail==='read')throw Error('denied');return this.values.has(k)?this.values.get(k):null;}
   setItem(k,v){if(this.fail===k)throw Error('quota');this.values.set(k,String(v));}
 }
+class FaultStorage extends MemoryStorage{
+  getItem(k){if(this.readOnce===k){this.readOnce=null;throw Error('temporary read failure');}return super.getItem(k);}
+  setItem(k,v){
+    if(this.drop===k)return;
+    super.setItem(k,v);
+    if(this.failAfterWrite===k){this.failAfterWrite=null;this.readOnce=k;}
+    if(this.afterBackup&&k===S.BACKUP){const fn=this.afterBackup;this.afterBackup=null;fn();}
+  }
+}
 function open(storage,now=T){const r=S.open({storage,now,seed:42});assert.equal(r.ok,true,JSON.stringify(r));return r;}
 function same(a,b){assert.deepEqual(a.save(),b.save());}
 
@@ -207,6 +216,82 @@ test('等级、属性、钱包与收据容量边界不产生虚假入账或重�
   assert.equal(q.reward(game(T+DAY),T+DAY).ok,true);assert.equal(q.save().receipts.length,1);
   assert.equal(q.reward({...game(T),eventId:'full-0'},T+DAY).reason,'event-expired');
   const end=8640000000000000,last=pig({now:end});assert.equal(last.dispatch({type:'pet'},end).ok,true);P.validate(last.save());
+});
+test('结算与物品编号拒绝隐式字符串转换，非法输入不消耗钱或库存',()=>{
+  const p=pig(),before=p.save();
+  for(const id of [['snake'],new String('snake'),{toString:()=>{throw Error('coercion');}}]){
+    assert.equal(p.reward(game(T,{id}),T).reason,'bad-event');assert.deepEqual(p.save(),before);
+  }
+  for(const extra of [{eventId:' '},{eventId:'bad\u007f'},{level:'   '}])assert.equal(p.reward(game(T,extra),T).reason,'bad-event');
+  assert.equal(p.reward(study(T,{subject:'   '}),T).reason,'bad-event');
+  const arr=Object.assign([],game());assert.equal(R.normalize(arr),null);
+  for(const [type,item] of [['feed','apple'],['play','ball'],['buy','apple'],['place','straw-bed']]){
+    for(const itemId of [[item],new String(item),{toString:()=>item}]){
+      assert.equal(p.dispatch({type,itemId,slot:'bed'},T).ok,false);assert.deepEqual(p.save(),before);
+    }
+  }
+});
+test('文件封装后的大小也受限，超大导入不会损坏现有主档和备份',()=>{
+  const save=pig().save();save.receipts=Array.from({length:D.limits.receipts},(_,i)=>({id:i+'"'.repeat(80),at:T}));
+  const raw=JSON.stringify(save);assert.ok(raw.length<D.limits.saveBytes);P.validate(raw);
+  assert.throws(()=>S.encode(save),e=>e.code==='save-invalid');
+  const storage=new MemoryStorage(),service=open(storage).service,before=service.save(),disk=new Map(storage.values);
+  assert.equal(service.import(raw,T).reason,'storage-write');assert.deepEqual(service.save(),before);assert.deepEqual(storage.values,disk);
+  save.receipts=save.receipts.slice(0,512);assert.deepEqual(S.decode(S.encode(save)),save);
+  const validated=P.validate(save);validated.needs.energy=20;validated.receipts[0].id='changed';
+  assert.equal(save.needs.energy,80);assert.notEqual(save.receipts[0].id,'changed');
+});
+test('写入后的读取故障可确认原结果，重试不重发奖励或重扣购物款',()=>{
+  for(const kind of ['reward','buy']){
+    const storage=new FaultStorage(),service=open(storage).service,before=service.save();
+    const input=kind==='reward'?study():{type:'buy',itemId:'apple',quantity:2};
+    const invoke=now=>kind==='reward'?service.reward(input,now):service.dispatch(input,now);
+    storage.failAfterWrite=S.KEY;const failed=invoke(T);assert.equal(failed.reason,'storage-read');
+    assert.equal(failed.persisted,false);assert.deepEqual(failed.events,[]);assert.deepEqual(service.save(),before);
+    const saved=S.decode(storage.getItem(S.KEY));
+    const reordered=Object.fromEntries(Object.entries(input).reverse());
+    const retried=kind==='reward'?service.reward(reordered,T+1000):service.dispatch(reordered,T+1000);
+    assert.equal(retried.ok,true);assert.equal(retried.reconciled,true);assert.equal(retried.persisted,true);
+    assert.deepEqual(service.save(),saved);assert.equal(retried.events.filter(e=>e.type===kind).length,1);
+    assert.equal(service.view().truffles,kind==='reward'?82:22);
+    assert.equal(open(storage,T+1000).service.view().truffles,kind==='reward'?82:22);
+  }
+});
+test('未确认的导入可重试；下一项不同操作从已落盘结果继续',()=>{
+  const storage=new FaultStorage(),service=open(storage).service,source=pig();source.reward(study(),T);
+  const raw=S.encode(source.save());storage.failAfterWrite=S.KEY;
+  assert.equal(service.import(raw,T).reason,'storage-read');
+  const imported=service.import(raw,T+1000);assert.equal(imported.reconciled,true);assert.equal(service.view().truffles,82);
+  const e=study(T+1000);storage.failAfterWrite=S.KEY;assert.equal(service.reward(e,T+1000).reason,'storage-read');
+  assert.equal(service.dispatch({type:'buy',itemId:'apple'},T+2000).ok,true);assert.equal(service.view().truffles,130);
+  assert.equal(service.reward(e,T+2000).reason,'duplicate');assert.equal(S.decode(storage.getItem(S.KEY)).wallet.balance,130);
+});
+test('没有实际写入的事务可以重试，坏备份写入不会替换主档',()=>{
+  const storage=new FaultStorage(),service=open(storage).service,e=study(),before=service.save();
+  storage.drop=S.KEY;assert.equal(service.reward(e,T).reason,'storage-write');assert.deepEqual(service.save(),before);
+  storage.drop=null;assert.equal(service.reward(e,T).ok,true);assert.equal(service.view().truffles,82);
+  const main=storage.getItem(S.KEY);storage.drop=S.BACKUP;
+  assert.equal(service.dispatch({type:'rename',name:'团团'},T).reason,'storage-write');assert.equal(storage.getItem(S.KEY),main);
+  assert.equal(service.view().name,'团子');storage.drop=null;
+  assert.equal(service.dispatch({type:'rename',name:'团团'},T).ok,true);
+  assert.equal(S.decode(storage.getItem(S.BACKUP)).wallet.balance,82);
+  storage.setItem(S.KEY,'broken');assert.equal(open(storage).service.view().truffles,82);
+});
+test('确认失败期间有外部更新仍报冲突，空操作也不会掩盖旧窗口状态',()=>{
+  const storage=new FaultStorage(),a=open(storage).service,e=study();storage.failAfterWrite=S.KEY;
+  assert.equal(a.reward(e,T).reason,'storage-read');const b=open(storage).service;
+  b.dispatch({type:'rename',name:'另一个窗口'},T);const disk=new Map(storage.values);
+  assert.equal(a.reward(e,T).reason,'save-conflict');assert.deepEqual(storage.values,disk);
+  const old=open(storage).service;b.dispatch({type:'rename',name:'最新名字'},T);
+  assert.equal(old.dispatch({type:'rename',name:'另一个窗口'},T).reason,'save-conflict');
+  assert.equal(old.advance(T).reason,'save-conflict');
+  assert.equal(open(storage).service.view().name,'最新名字');
+});
+test('备份期间发生外部写入时，提交前再次检查主档',()=>{
+  const storage=new FaultStorage(),service=open(storage).service,other=pig();other.dispatch({type:'rename',name:'外部进度'},T);
+  const raw=S.encode(other.save());storage.afterBackup=()=>storage.values.set(S.KEY,raw);
+  assert.equal(service.reward(study(),T).reason,'save-conflict');assert.equal(storage.getItem(S.KEY),raw);
+  assert.equal(service.view().truffles,30);
 });
 test('整月模拟：无负余额、无溢出、上限有效、随时可存取',()=>{
   const storage=new MemoryStorage();let service=open(storage).service;
