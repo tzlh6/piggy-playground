@@ -12,6 +12,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -55,6 +56,7 @@ public class MainActivity extends Activity {
     private AlertDialog exitDialog;
     private UpdateManager updater;
     private boolean checkedOnLaunch;
+    private boolean checkingStartup;
     private LanNetwork lan;
     private final java.util.concurrent.ExecutorService lanCommands = java.util.concurrent.Executors.newSingleThreadExecutor();
     private android.net.wifi.WifiManager.MulticastLock lanWifiLock;
@@ -97,6 +99,7 @@ public class MainActivity extends Activity {
     }
 
     private void createGame() {
+        checkingStartup = false;
         try {
             web = new WebView(this);
             web.setBackgroundColor(CREAM);
@@ -109,7 +112,11 @@ public class MainActivity extends Activity {
             settings.setDomStorageEnabled(true);
             settings.setAllowFileAccess(false);
             settings.setAllowContentAccess(false);
-            settings.setBlockNetworkLoads(true);
+            // The packaged assets use a stable HTTPS origin to preserve saved games.
+            // Let HTTPS requests reach the packaged-asset interceptor. It serves only
+            // allowlisted APK assets and denies every other HTTP(S) request; CSP and
+            // navigation restrictions remain in force.
+            settings.setBlockNetworkLoads(false);
             settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
             settings.setGeolocationEnabled(false);
             settings.setSupportMultipleWindows(false);
@@ -133,8 +140,8 @@ public class MainActivity extends Activity {
                     String asset = "GET".equals(request.getMethod()) ? OfflineAssets.path(request.getUrl().toString()) : null;
                     if (asset != null) {
                         try {
-                            // Stream APK assets on WebView's I/O thread. Never duplicate the whole
-                            // game and engine payload in the Activity's bounded Java heap.
+                            // Stream engine shards on WebView's I/O thread. Never duplicate
+                            // the large engine payload in the Activity's bounded Java heap.
                             Map<String, String> headers = new LinkedHashMap<>();
                             headers.put("Cache-Control", "no-store");
                             headers.put("X-Content-Type-Options", "nosniff");
@@ -153,19 +160,22 @@ public class MainActivity extends Activity {
                     return null;
                 }
                 @Override public void onPageFinished(WebView view, String url) {
-                    if (view != web || isDestroyed()) return;
-                    view.evaluateJavascript("typeof window.PigAndroid === 'object'", ready -> {
-                        if (view != web || isDestroyed()) return;
-                        if (!"true".equals(ready)) {
-                            showProblem("请先启用并更新手机的 Android System WebView，再重新打开游乐场。", false);
-                        } else if (!foreground || wasBackground) {
-                            pauseGame();
-                        }
-                        if ("true".equals(ready) && updater != null && !checkedOnLaunch) {
-                            checkedOnLaunch = true;
-                            root.postDelayed(() -> { if (!isDestroyed()) updater.autoCheck(); }, 1800);
-                        }
-                    });
+                    if (view != web || isDestroyed() || checkingStartup ||
+                        !"game.html".equals(OfflineAssets.path(url))) return;
+                    checkingStartup = true;
+                    checkGameReady(view, 0);
+                }
+                @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                    if (request.isForMainFrame() && view == web && !isDestroyed()) {
+                        android.util.Log.e("PiggyApp", "Packaged page load failed: " + error.getErrorCode() + " " + error.getDescription());
+                        showProblem("应用内页面加载失败，请点“重新打开”重试。已保存的进度和题库不会被清除。", true);
+                    }
+                }
+                @Override public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
+                    if (request.isForMainFrame() && view == web && !isDestroyed()) {
+                        android.util.Log.e("PiggyApp", "Packaged page response: " + response.getStatusCode());
+                        showProblem("应用内页面未能读取，请重新打开；若仍失败，请重新覆盖安装本版。", true);
+                    }
                 }
                 @Override public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                     boolean active = web == view;
@@ -185,15 +195,52 @@ public class MainActivity extends Activity {
                 }
             });
             root.addView(web, new FrameLayout.LayoutParams(-1, -1));
-            // Keep the previous HTTPS origin so upgrades preserve localStorage and scores.
-            web.loadUrl(ORIGIN + "game.html");
+            // The startup document is now ~4 MiB, with all large engines kept outside it.
+            // Feed only this bounded document directly to WebView, avoiding a virtual
+            // HTTPS main-frame request on vendor WebViews. Keep the previous origin so
+            // upgrades preserve localStorage. Engine shards still use the interceptor.
+            try (InputStream input = getAssets().open("game.html")) {
+                web.loadDataWithBaseURL(ORIGIN + "game.html", StartupPage.read(input),
+                    "text/html", "UTF-8", ORIGIN + "game.html");
+            }
         } catch (Exception problem) {
             android.util.Log.e("PiggyApp", "Unable to load packaged game", problem);
-            showProblem("游乐场暂时打不开。请检查系统 WebView 是否启用，再重新打开。", false);
+            showProblem("游乐场暂时打不开。请重新打开；若仍失败，请检查系统 WebView 是否启用。", true);
         }
     }
 
+    private void checkGameReady(WebView view, int attempt) {
+        if (view != web || isDestroyed()) return;
+        view.evaluateJavascript("!!(window.PigAndroid && document.body && document.body.dataset.androidReady === 'true')", ready -> {
+            if (view != web || isDestroyed()) return;
+            if (!"true".equals(ready)) {
+                if (attempt < 20) {
+                    root.postDelayed(() -> checkGameReady(view, attempt + 1), 250);
+                } else {
+                    android.util.Log.e("PiggyApp", "Packaged page initialization did not complete");
+                    showProblem("游乐场页面未能完成启动，请重新打开。若仍出现此提示，请反馈当前版本和手机型号。", true);
+                }
+                return;
+            }
+            if (!foreground || wasBackground) pauseGame();
+            if (updater != null && !checkedOnLaunch) {
+                checkedOnLaunch = true;
+                root.postDelayed(() -> { if (!isDestroyed()) updater.autoCheck(); }, 1800);
+            }
+        });
+    }
+
     private void showProblem(String message, boolean canRetry) {
+        // A retry must release the failed renderer and sockets before creating a new one.
+        WebView failed = web;
+        web = null;
+        if (failed != null) {
+            root.removeView(failed);
+            failed.stopLoading();
+            failed.destroy();
+        }
+        if (lan != null) { lan.close(); lan = null; }
+        updateLanWifiLock(new JSONObject());
         root.removeAllViews();
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
